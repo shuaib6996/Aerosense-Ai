@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -39,19 +40,19 @@ public class MainActivity extends Activity {
     private boolean isFloatingOverlayAttached = false;
     private WindowManager systemWindowManager;
     private WindowManager.LayoutParams floatingOverlayParams;
+    private String currentHudSize = "md";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Keep screen awake during touchless hand tracking
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         systemWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 
         webView = new WebView(this);
+        webView.setBackgroundColor(Color.TRANSPARENT);
         setContentView(webView);
 
-        // Request Android runtime permissions for Camera & Microphone
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
                 checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
@@ -69,12 +70,9 @@ public class MainActivity extends Activity {
         settings.setAllowFileAccess(true);
         settings.setDatabaseEnabled(true);
 
-        // Register Native Bridge for Background Service, Full Mobile Control & Floating HUD
         webView.addJavascriptInterface(new AeroNativeBridge(), "AndroidBridge");
-
         webView.setWebViewClient(new WebViewClient());
 
-        // Automatically grant WebRTC Camera & Microphone access inside WebView
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onPermissionRequest(final PermissionRequest request) {
@@ -84,11 +82,9 @@ public class MainActivity extends Activity {
             }
         });
 
-        // Load index.html placed inside android/app/src/main/assets/index.html
         webView.loadUrl("file:///android_asset/index.html");
     }
 
-    // Keep WebView & Camera tracking active even when user switches apps or goes to Home Screen
     @Override
     protected void onPause() {
         super.onPause();
@@ -109,12 +105,10 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        // If returning to AeroSense AI app, restore WebView from floating overlay back into full Activity
         exitSystemFloatingOverlay();
     }
 
     private void enterMiniHandFloatingWindow() {
-        // Prefer True System Overlay (FLAG_NOT_FOCUSABLE) so camera & hand gestures keep working while user touches/scrolls Instagram
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && Settings.canDrawOverlays(this)) {
             enterSystemFloatingOverlay();
             return;
@@ -130,6 +124,12 @@ public class MainActivity extends Activity {
         }
     }
 
+    private int[] getHudDimensionsDp(String sizeKey) {
+        if ("sm".equals(sizeKey)) return new int[]{90, 110};
+        if ("lg".equals(sizeKey)) return new int[]{160, 195};
+        return new int[]{118, 146};
+    }
+
     private void enterSystemFloatingOverlay() {
         if (isFloatingOverlayAttached || webView == null || systemWindowManager == null) return;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) return;
@@ -139,13 +139,16 @@ public class MainActivity extends Activity {
                 ((ViewGroup) webView.getParent()).removeView(webView);
             }
 
+            webView.setBackgroundColor(Color.TRANSPARENT);
+
             int overlayType = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
                     ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
                     : WindowManager.LayoutParams.TYPE_PHONE;
 
             float density = getResources().getDisplayMetrics().density;
-            int widthPx = (int) (136 * density);
-            int heightPx = (int) (176 * density);
+            int[] dims = getHudDimensionsDp(currentHudSize);
+            int widthPx = (int) (dims[0] * density);
+            int heightPx = (int) (dims[1] * density);
 
             floatingOverlayParams = new WindowManager.LayoutParams(
                     widthPx,
@@ -156,9 +159,9 @@ public class MainActivity extends Activity {
                             | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
                     PixelFormat.TRANSLUCENT
             );
-            floatingOverlayParams.gravity = Gravity.BOTTOM | Gravity.END;
-            floatingOverlayParams.x = (int) (14 * density);
-            floatingOverlayParams.y = (int) (82 * density);
+            floatingOverlayParams.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
+            floatingOverlayParams.x = 0;
+            floatingOverlayParams.y = (int) (64 * density);
 
             systemWindowManager.addView(webView, floatingOverlayParams);
             webView.onResume();
@@ -172,6 +175,7 @@ public class MainActivity extends Activity {
         try {
             systemWindowManager.removeView(webView);
             isFloatingOverlayAttached = false;
+            webView.setBackgroundColor(Color.parseColor("#050811"));
             setContentView(webView);
         } catch (Exception ignored) {}
     }
@@ -181,51 +185,119 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void startBackgroundService() {
             isBackgroundEngineRunning = true;
-            runOnUiThread(() -> Toast.makeText(
-                MainActivity.this,
-                "AeroSense Background Engine Active",
-                Toast.LENGTH_SHORT
-            ).show());
         }
 
         @JavascriptInterface
         public void stopBackgroundService() {
             isBackgroundEngineRunning = false;
-            runOnUiThread(() -> Toast.makeText(
-                MainActivity.this,
-                "AeroSense Background Engine Stopped",
-                Toast.LENGTH_SHORT
-            ).show());
         }
 
         @JavascriptInterface
         public void setFullMobileControl(boolean enabled) {
             isFullMobileControlEnabled = enabled;
             isBackgroundEngineRunning = enabled || isBackgroundEngineRunning;
-            runOnUiThread(() -> Toast.makeText(
-                MainActivity.this,
-                enabled ? "Full Mobile OS Control Enabled" : "Full Mobile Control Disabled",
-                Toast.LENGTH_SHORT
-            ).show());
+        }
+
+        @JavascriptInterface
+        public void setHandVisible(boolean visible) {
+            runOnUiThread(() -> {
+                if (isFloatingOverlayAttached && webView != null && floatingOverlayParams != null) {
+                    try {
+                        floatingOverlayParams.alpha = visible ? 1.0f : 0.0f;
+                        systemWindowManager.updateViewLayout(webView, floatingOverlayParams);
+                    } catch (Exception ignored) {}
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public void resizeFloatingOverlay(String sizeKey) {
+            currentHudSize = sizeKey;
+            runOnUiThread(() -> {
+                if (isFloatingOverlayAttached && webView != null && floatingOverlayParams != null) {
+                    try {
+                        float density = getResources().getDisplayMetrics().density;
+                        int[] dims = getHudDimensionsDp(sizeKey);
+                        floatingOverlayParams.width = (int) (dims[0] * density);
+                        floatingOverlayParams.height = (int) (dims[1] * density);
+                        systemWindowManager.updateViewLayout(webView, floatingOverlayParams);
+                    } catch (Exception ignored) {}
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public void adjustSystemVolume(String direction) {
+            try {
+                AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                if (audioManager != null) {
+                    int flag = "UP".equalsIgnoreCase(direction) ? AudioManager.ADJUST_RAISE : AudioManager.ADJUST_LOWER;
+                    audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, flag, AudioManager.FLAG_SHOW_UI);
+                }
+            } catch (Exception ignored) {}
+        }
+
+        @JavascriptInterface
+        public void showSystemHoldMenu(boolean show) {
+            runOnUiThread(() -> {
+                if (isFloatingOverlayAttached && webView != null && floatingOverlayParams != null) {
+                    try {
+                        float density = getResources().getDisplayMetrics().density;
+                        if (show) {
+                            floatingOverlayParams.width = (int) (320 * density);
+                            floatingOverlayParams.height = (int) (340 * density);
+                            floatingOverlayParams.gravity = Gravity.CENTER;
+                            floatingOverlayParams.y = 0;
+                        } else {
+                            int[] dims = getHudDimensionsDp(currentHudSize);
+                            floatingOverlayParams.width = (int) (dims[0] * density);
+                            floatingOverlayParams.height = (int) (dims[1] * density);
+                            floatingOverlayParams.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
+                            floatingOverlayParams.y = (int) (64 * density);
+                        }
+                        systemWindowManager.updateViewLayout(webView, floatingOverlayParams);
+                    } catch (Exception ignored) {}
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public void triggerBackGesture() {
+            performSystemAction("BACK");
+        }
+
+        @JavascriptInterface
+        public void triggerHomeGesture() {
+            performSystemAction("HOME");
         }
 
         @JavascriptInterface
         public void performSystemAction(String action) {
             runOnUiThread(() -> {
                 try {
-                    if (AeroAccessibilityService.instance != null) {
+                    if ("HOME".equalsIgnoreCase(action)) {
+                        isBackgroundEngineRunning = true;
+                        enterMiniHandFloatingWindow();
+                        if (AeroAccessibilityService.instance != null) {
+                            AeroAccessibilityService.instance.performHomeGesture();
+                        } else {
+                            Intent homeIntent = new Intent(Intent.ACTION_MAIN);
+                            homeIntent.addCategory(Intent.CATEGORY_HOME);
+                            homeIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(homeIntent);
+                        }
+                        return;
+                    } else if ("BACK".equalsIgnoreCase(action)) {
+                        if (AeroAccessibilityService.instance != null) {
+                            AeroAccessibilityService.instance.performBackGesture();
+                        } else {
+                            onBackPressed();
+                        }
+                        return;
+                    } else if (AeroAccessibilityService.instance != null) {
                         AeroAccessibilityService.instance.performGlobalPhoneAction(action);
                         return;
-                    }
-                    if ("HOME".equals(action)) {
-                        enterMiniHandFloatingWindow();
-                        Intent homeIntent = new Intent(Intent.ACTION_MAIN);
-                        homeIntent.addCategory(Intent.CATEGORY_HOME);
-                        homeIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(homeIntent);
-                    } else if ("BACK".equals(action)) {
-                        onBackPressed();
-                    } else if ("NOTIFICATIONS".equals(action)) {
+                    } else if ("NOTIFICATIONS".equalsIgnoreCase(action)) {
                         Object service = getSystemService("statusbar");
                         Class<?> statusbarManager = Class.forName("android.app.StatusBarManager");
                         Method expand = statusbarManager.getMethod("expandNotificationsPanel");
@@ -274,7 +346,7 @@ public class MainActivity extends Activity {
         public void openAccessibilitySettings() {
             runOnUiThread(() -> {
                 try {
-                    Toast.makeText(MainActivity.this, "Enable 'AeroSense AI' in Installed Services", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "Enable 'AeroSense AI Hand Control' in Accessibility", Toast.LENGTH_LONG).show();
                     Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
@@ -317,9 +389,7 @@ public class MainActivity extends Activity {
         }
 
         @JavascriptInterface
-        public void updateSelectedApps(String jsonPackages) {
-            // Stores selected target apps
-        }
+        public void updateSelectedApps(String jsonPackages) {}
 
         @JavascriptInterface
         public void enterFloatingOverlay() {
@@ -336,12 +406,6 @@ public class MainActivity extends Activity {
                 if (launchIntent != null) {
                     launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(launchIntent);
-                } else {
-                    Toast.makeText(
-                        MainActivity.this,
-                        appName + " mode activated in Floating HUD",
-                        Toast.LENGTH_SHORT
-                    ).show();
                 }
             });
         }

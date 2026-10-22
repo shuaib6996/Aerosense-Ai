@@ -5,20 +5,20 @@ com.aerosense.touchless.ai.app-packageDebugResources-3 C:\Aero sense ai\android\
 com.aerosense.touchless.ai.app-merged_res-4 C:\Aero sense ai\android\app\build\intermediates\merged_res\debug
 com.aerosense.touchless.ai.app-debug-5 C:\Aero sense ai\android\app\src\debug\res
 com.aerosense.touchless.ai.app-main-6 C:\Aero sense ai\android\app\src\main\res
-com.aerosense.touchless.ai.app-lifecycle-viewmodel-2.5.1-7 C:\Users\shuai\.gradle\caches\transforms-3\0d456add721da463c0ada66ce1788ca9\transformed\lifecycle-viewmodel-2.5.1\res
-com.aerosense.touchless.ai.app-webkit-1.10.0-8 C:\Users\shuai\.gradle\caches\transforms-3\23a2c4d6bcd686f5ddd6e10e410b3a0e\transformed\webkit-1.10.0\res
-com.aerosense.touchless.ai.app-jetified-startup-runtime-1.1.1-9 C:\Users\shuai\.gradle\caches\transforms-3\24db1386d79965021d8e5a91151d1bb2\transformed\jetified-startup-runtime-1.1.1\res
-com.aerosense.touchless.ai.app-lifecycle-runtime-2.5.1-10 C:\Users\shuai\.gradle\caches\transforms-3\4656c963041668db92e495d577fbb5a6\transformed\lifecycle-runtime-2.5.1\res
-com.aerosense.touchless.ai.app-jetified-annotation-experimental-1.3.0-11 C:\Users\shuai\.gradle\caches\transforms-3\4e507413af5f3d3f2ccec8faf9fb58f3\transformed\jetified-annotation-experimental-1.3.0\res
-com.aerosense.touchless.ai.app-appcompat-1.6.1-12 C:\Users\shuai\.gradle\caches\transforms-3\60f9bab79c5ba5b4c82ae8c6a17130c1\transformed\appcompat-1.6.1\res
-com.aerosense.touchless.ai.app-jetified-appcompat-resources-1.6.1-13 C:\Users\shuai\.gradle\caches\transforms-3\6bb17d2c54c905aa7b0c5b5bfe3537f3\transformed\jetified-appcompat-resources-1.6.1\res
-com.aerosense.touchless.ai.app-jetified-emoji2-views-helper-1.2.0-14 C:\Users\shuai\.gradle\caches\transforms-3\6bc5fbbfad7e5749cd122c3e879c81d2\transformed\jetified-emoji2-views-helper-1.2.0\res
-com.aerosense.touchless.ai.app-jetified-emoji2-1.2.0-15 C:\Users\shuai\.gradle\caches\transforms-3\6db5aa862a49de8667f2a7b9b0bf2022\transformed\jetified-emoji2-1.2.0\res
-com.aerosense.touchless.ai.app-jetified-activity-1.6.0-16 C:\Users\shuai\.gradle\caches\transforms-3\836cbe2ed455d093d5cf1d47dd47423c\transformed\jetified-activity-1.6.0\res
-com.aerosense.touchless.ai.app-lifecycle-livedata-core-2.5.1-17 C:\Users\shuai\.gradle\caches\transforms-3\84af288a550ec37aab18031774790cfb\transformed\lifecycle-livedata-core-2.5.1\res
-com.aerosense.touchless.ai.app-jetified-core-ktx-1.9.0-18 C:\Users\shuai\.gradle\caches\transforms-3\a0baff7496d240c2cf119a43294311e0\transformed\jetified-core-ktx-1.9.0\res
-com.aerosense.touchless.ai.app-core-1.9.0-19 C:\Users\shuai\.gradle\caches\transforms-3\a309491863f1cad1388d82071cb60f8c\transformed\core-1.9.0\res
-com.aerosense.touchless.ai.app-fragment-1.3.6-20 C:\Users\shuai\.gradle\caches\transforms-3\afdee0cb7e48bc7d0233a8c835f9d316\transformed\fragment-1.3.6\res
-com.aerosense.touchless.ai.app-jetified-lifecycle-process-2.4.1-21 C:\Users\shuai\.gradle\caches\transforms-3\b7bd10e3360a468a9b79e7dca2ad5240\transformed\jetified-lifecycle-process-2.4.1\res
-com.aerosense.touchless.ai.app-jetified-savedstate-1.2.0-22 C:\Users\shuai\.gradle\caches\transforms-3\dd5d008dd4140bea2b8c0185ade10519\transformed\jetified-savedstate-1.2.0\res
-com.aerosense.touchless.ai.app-jetified-lifecycle-viewmodel-savedstate-2.5.1-23 C:\Users\shuai\.gradle\caches\transforms-3\fc439fd3ae863965949066cd46dff275\transformed\jetified-lifecycle-viewmodel-savedstate-2.5.1\res
+com.aerosense.touchless.ai.app-jetified-emoji2-views-helper-1.2.0-7 C:\Users\shuai\.gradle\caches\transforms-3\06bef2c48a1388182723082ee3ca27f0\transformed\jetified-emoji2-views-helper-1.2.0\res
+com.aerosense.touchless.ai.app-jetified-activity-1.6.0-8 C:\Users\shuai\.gradle\caches\transforms-3\1707f2cf176fe3988486f5b2881861a0\transformed\jetified-activity-1.6.0\res
+com.aerosense.touchless.ai.app-jetified-core-ktx-1.9.0-9 C:\Users\shuai\.gradle\caches\transforms-3\25c31cd20ef394182bebf6bffd14d8a0\transformed\jetified-core-ktx-1.9.0\res
+com.aerosense.touchless.ai.app-jetified-appcompat-resources-1.6.1-10 C:\Users\shuai\.gradle\caches\transforms-3\273aad534e3fc4832a3bc3590781669e\transformed\jetified-appcompat-resources-1.6.1\res
+com.aerosense.touchless.ai.app-jetified-annotation-experimental-1.3.0-11 C:\Users\shuai\.gradle\caches\transforms-3\2d8a610719c086ad8d2a7b81fb08630a\transformed\jetified-annotation-experimental-1.3.0\res
+com.aerosense.touchless.ai.app-appcompat-1.6.1-12 C:\Users\shuai\.gradle\caches\transforms-3\325647bcc56b267234c89550169b04cc\transformed\appcompat-1.6.1\res
+com.aerosense.touchless.ai.app-lifecycle-viewmodel-2.5.1-13 C:\Users\shuai\.gradle\caches\transforms-3\397c57a6f59bc563230e980d37a381ac\transformed\lifecycle-viewmodel-2.5.1\res
+com.aerosense.touchless.ai.app-lifecycle-livedata-core-2.5.1-14 C:\Users\shuai\.gradle\caches\transforms-3\3f69de462a7cb866f2ce183115fee7fd\transformed\lifecycle-livedata-core-2.5.1\res
+com.aerosense.touchless.ai.app-jetified-lifecycle-viewmodel-savedstate-2.5.1-15 C:\Users\shuai\.gradle\caches\transforms-3\5983dc5c16340cd0fef4ae7b86c66825\transformed\jetified-lifecycle-viewmodel-savedstate-2.5.1\res
+com.aerosense.touchless.ai.app-core-1.9.0-16 C:\Users\shuai\.gradle\caches\transforms-3\761d68ccdd62ecb8703967694e2fec50\transformed\core-1.9.0\res
+com.aerosense.touchless.ai.app-jetified-savedstate-1.2.0-17 C:\Users\shuai\.gradle\caches\transforms-3\7b4565b9f79604308954a23aaf106779\transformed\jetified-savedstate-1.2.0\res
+com.aerosense.touchless.ai.app-lifecycle-runtime-2.5.1-18 C:\Users\shuai\.gradle\caches\transforms-3\8ef40feb4a98676db7f868718f66ce5f\transformed\lifecycle-runtime-2.5.1\res
+com.aerosense.touchless.ai.app-jetified-startup-runtime-1.1.1-19 C:\Users\shuai\.gradle\caches\transforms-3\929f9fa80841e5d7d97393a6896db7a1\transformed\jetified-startup-runtime-1.1.1\res
+com.aerosense.touchless.ai.app-webkit-1.10.0-20 C:\Users\shuai\.gradle\caches\transforms-3\a527380f8a3046eb14d5322af91781b8\transformed\webkit-1.10.0\res
+com.aerosense.touchless.ai.app-jetified-emoji2-1.2.0-21 C:\Users\shuai\.gradle\caches\transforms-3\cd0e31776a03b70e2d22563fb2144838\transformed\jetified-emoji2-1.2.0\res
+com.aerosense.touchless.ai.app-fragment-1.3.6-22 C:\Users\shuai\.gradle\caches\transforms-3\e3917967b9622e6e90b56fba4bf42b43\transformed\fragment-1.3.6\res
+com.aerosense.touchless.ai.app-jetified-lifecycle-process-2.4.1-23 C:\Users\shuai\.gradle\caches\transforms-3\e796a336715a92aed9968dfcc4668a40\transformed\jetified-lifecycle-process-2.4.1\res
