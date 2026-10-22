@@ -1,0 +1,153 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.aerosense.touchless.ai"
+4    android:versionCode="24"
+5    android:versionName="2.4.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="24"
+9        android:targetSdkVersion="34" />
+10
+11    <!-- Permissions for Hand Gesture Camera, Voice, Background Service & Floating Overlay -->
+12    <uses-permission android:name="android.permission.INTERNET" />
+12-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:5:5-67
+12-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:5:22-64
+13    <uses-permission android:name="android.permission.CAMERA" />
+13-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:6:5-65
+13-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:6:22-62
+14    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+14-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:7:5-71
+14-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:7:22-68
+15    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+15-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:8:5-80
+15-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:8:22-77
+16    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+16-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:9:5-77
+16-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:9:22-74
+17    <uses-permission android:name="android.permission.WAKE_LOCK" />
+17-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:10:5-68
+17-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:10:22-65
+18    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+18-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:11:5-77
+18-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:11:22-74
+19    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+19-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:12:5-78
+19-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:12:22-75
+20
+21    <uses-feature
+21-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:14:5-85
+22        android:name="android.hardware.camera"
+22-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:14:19-57
+23        android:required="false" />
+23-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:14:58-82
+24    <uses-feature
+24-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:15:5-91
+25        android:name="android.hardware.camera.front"
+25-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:15:19-63
+26        android:required="false" />
+26-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:15:64-88
+27
+28    <!-- Allow opening selected target apps (YouTube, Instagram, TikTok, Spotify, etc.) -->
+29    <queries>
+29-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:18:5-26:15
+30        <package android:name="com.google.android.youtube" />
+30-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:19:9-62
+30-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:19:18-59
+31        <package android:name="com.instagram.android" />
+31-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:20:9-57
+31-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:20:18-54
+32        <package android:name="com.zhiliaoapp.musically" />
+32-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:21:9-60
+32-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:21:18-57
+33        <package android:name="com.spotify.music" />
+33-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:22:9-53
+33-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:22:18-50
+34        <package android:name="com.netflix.mediaclient" />
+34-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:23:9-59
+34-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:23:18-56
+35        <package android:name="com.android.chrome" />
+35-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:24:9-54
+35-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:24:18-51
+36        <package android:name="com.mxtech.videoplayer.ad" />
+36-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:25:9-61
+36-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:25:18-58
+37    </queries>
+38
+39    <permission
+39-->[androidx.core:core:1.9.0] C:\Users\shuai\.gradle\caches\transforms-3\a309491863f1cad1388d82071cb60f8c\transformed\core-1.9.0\AndroidManifest.xml:22:5-24:47
+40        android:name="com.aerosense.touchless.ai.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+40-->[androidx.core:core:1.9.0] C:\Users\shuai\.gradle\caches\transforms-3\a309491863f1cad1388d82071cb60f8c\transformed\core-1.9.0\AndroidManifest.xml:23:9-81
+41        android:protectionLevel="signature" />
+41-->[androidx.core:core:1.9.0] C:\Users\shuai\.gradle\caches\transforms-3\a309491863f1cad1388d82071cb60f8c\transformed\core-1.9.0\AndroidManifest.xml:24:9-44
+42
+43    <uses-permission android:name="com.aerosense.touchless.ai.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+43-->[androidx.core:core:1.9.0] C:\Users\shuai\.gradle\caches\transforms-3\a309491863f1cad1388d82071cb60f8c\transformed\core-1.9.0\AndroidManifest.xml:26:5-97
+43-->[androidx.core:core:1.9.0] C:\Users\shuai\.gradle\caches\transforms-3\a309491863f1cad1388d82071cb60f8c\transformed\core-1.9.0\AndroidManifest.xml:26:22-94
+44
+45    <application
+45-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:28:5-47:19
+46        android:allowBackup="true"
+46-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:29:9-35
+47        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+47-->[androidx.core:core:1.9.0] C:\Users\shuai\.gradle\caches\transforms-3\a309491863f1cad1388d82071cb60f8c\transformed\core-1.9.0\AndroidManifest.xml:28:18-86
+48        android:debuggable="true"
+49        android:extractNativeLibs="false"
+50        android:hardwareAccelerated="true"
+50-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:32:9-43
+51        android:label="AeroSense AI"
+51-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:30:9-37
+52        android:supportsRtl="true"
+52-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:31:9-35
+53        android:testOnly="true"
+54        android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
+54-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:34:9-71
+55        android:usesCleartextTraffic="true" >
+55-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:33:9-44
+56        <activity
+56-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:36:9-46:20
+57            android:name="com.aerosense.touchless.ai.MainActivity"
+57-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:37:13-41
+58            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|keyboardHidden|keyboard|locale"
+58-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:41:13-122
+59            android:exported="true"
+59-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:38:13-36
+60            android:launchMode="singleTask"
+60-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:40:13-44
+61            android:supportsPictureInPicture="true" >
+61-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:39:13-52
+62            <intent-filter>
+62-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:42:13-45:29
+63                <action android:name="android.intent.action.MAIN" />
+63-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:43:17-69
+63-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:43:25-66
+64
+65                <category android:name="android.intent.category.LAUNCHER" />
+65-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:44:17-77
+65-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:44:27-74
+66            </intent-filter>
+67        </activity>
+68
+69        <provider
+69-->[androidx.emoji2:emoji2:1.2.0] C:\Users\shuai\.gradle\caches\transforms-3\6db5aa862a49de8667f2a7b9b0bf2022\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:24:9-32:20
+70            android:name="androidx.startup.InitializationProvider"
+70-->[androidx.emoji2:emoji2:1.2.0] C:\Users\shuai\.gradle\caches\transforms-3\6db5aa862a49de8667f2a7b9b0bf2022\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:25:13-67
+71            android:authorities="com.aerosense.touchless.ai.androidx-startup"
+71-->[androidx.emoji2:emoji2:1.2.0] C:\Users\shuai\.gradle\caches\transforms-3\6db5aa862a49de8667f2a7b9b0bf2022\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:26:13-68
+72            android:exported="false" >
+72-->[androidx.emoji2:emoji2:1.2.0] C:\Users\shuai\.gradle\caches\transforms-3\6db5aa862a49de8667f2a7b9b0bf2022\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:27:13-37
+73            <meta-data
+73-->[androidx.emoji2:emoji2:1.2.0] C:\Users\shuai\.gradle\caches\transforms-3\6db5aa862a49de8667f2a7b9b0bf2022\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
+74                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+74-->[androidx.emoji2:emoji2:1.2.0] C:\Users\shuai\.gradle\caches\transforms-3\6db5aa862a49de8667f2a7b9b0bf2022\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:30:17-75
+75                android:value="androidx.startup" />
+75-->[androidx.emoji2:emoji2:1.2.0] C:\Users\shuai\.gradle\caches\transforms-3\6db5aa862a49de8667f2a7b9b0bf2022\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:31:17-49
+76            <meta-data
+76-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\shuai\.gradle\caches\transforms-3\b7bd10e3360a468a9b79e7dca2ad5240\transformed\jetified-lifecycle-process-2.4.1\AndroidManifest.xml:31:13-33:52
+77                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+77-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\shuai\.gradle\caches\transforms-3\b7bd10e3360a468a9b79e7dca2ad5240\transformed\jetified-lifecycle-process-2.4.1\AndroidManifest.xml:32:17-78
+78                android:value="androidx.startup" />
+78-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\shuai\.gradle\caches\transforms-3\b7bd10e3360a468a9b79e7dca2ad5240\transformed\jetified-lifecycle-process-2.4.1\AndroidManifest.xml:33:17-49
+79        </provider>
+80    </application>
+81
+82</manifest>

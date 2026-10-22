@@ -1,0 +1,19 @@
+{
+"appId": "com.aerosense.touchless.ai",
+"appName": "AeroSense AI",
+"webDir": "www",
+"bundledWebRuntime": false,
+"server": {
+"androidScheme": "https",
+"iosScheme": "capacitor",
+"allowNavigation": ["*"]
+},
+"android": {
+"allowMixedContent": true,
+"captureInput": true,
+"webContentsDebuggingEnabled": true
+},
+"ios": {
+"contentInset": "always"
+}
+}

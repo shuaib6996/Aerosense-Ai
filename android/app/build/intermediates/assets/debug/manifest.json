@@ -1,0 +1,21 @@
+{
+  "short_name": "AeroSense AI",
+  "name": "AeroSense AI™ — Touchless Hand Gesture Mobile OS",
+  "description": "Control short videos, music, and recipes hands-free using AI camera air gestures and voice commands.",
+  "id": "com.aerosense.touchless.ai",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#050811",
+  "theme_color": "#050811",
+  "categories": ["utilities", "productivity", "entertainment"],
+  "icons": [
+    {
+      "src": "assets/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

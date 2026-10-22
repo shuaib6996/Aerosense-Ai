@@ -1,0 +1,44 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace "com.aerosense.touchless.ai"
+    //noinspection GradleDependency
+    compileSdk = 34
+
+    defaultConfig {
+        applicationId "com.aerosense.touchless.ai"
+        minSdk = 24
+        //noinspection OldTargetApi
+        targetSdk = 34
+        versionCode 24
+        versionName "2.4.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    lint {
+        disable 'OldTargetApi', 'GradleDependency', 'NewerVersionAvailable'
+        abortOnError false
+        checkReleaseBuilds false
+    }
+}
+
+dependencies {
+    //noinspection GradleDependency
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    //noinspection GradleDependency
+    implementation 'androidx.webkit:webkit:1.10.0'
+}

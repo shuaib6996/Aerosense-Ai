@@ -1,0 +1,25 @@
+{
+"name": "aerosense-ai-touchless-os",
+"version": "2.4.0",
+"description": "AeroSense AI - Smart Touchless Hand Gesture & Voice Mobile OS for Android and iOS",
+"main": "index.html",
+"scripts": {
+"start": "npx serve .",
+"build": "mkdir -p www && cp index.html admin.html manifest.json sw.js www/",
+"android:init": "npx cap add android",
+"ios:init": "npx cap add ios",
+"sync": "npm run build && npx cap sync",
+"open:android": "npx cap open android",
+"open:ios": "npx cap open ios"
+},
+"dependencies": {
+"@capacitor/android": "^6.0.0",
+"@capacitor/core": "^6.0.0",
+"@capacitor/ios": "^6.0.0"
+},
+"devDependencies": {
+"@capacitor/cli": "^6.0.0"
+},
+"author": "AeroSense AI Labs",
+"license": "Proprietary"
+}
