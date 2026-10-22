@@ -4,16 +4,14 @@ plugins {
 
 android {
     namespace "com.aerosense.touchless.ai"
-    //noinspection GradleDependency
-    compileSdk = 34
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.aerosense.touchless.ai"
-        minSdk = 24
-        //noinspection OldTargetApi
-        targetSdk = 34
-        versionCode 24
-        versionName "2.4.0"
+        minSdk 24
+        targetSdk 34
+        versionCode 25
+        versionName "2.5.0"
     }
 
     buildTypes {
@@ -37,8 +35,6 @@ android {
 }
 
 dependencies {
-    //noinspection GradleDependency
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    //noinspection GradleDependency
     implementation 'androidx.webkit:webkit:1.10.0'
 }

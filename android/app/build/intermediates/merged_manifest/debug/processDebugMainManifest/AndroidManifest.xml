@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.aerosense.touchless.ai"
-    android:versionCode="24"
-    android:versionName="2.4.0" >
+    android:versionCode="25"
+    android:versionName="2.5.0" >
 
     <uses-sdk
         android:minSdkVersion="24"
@@ -17,6 +17,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.EXPAND_STATUS_BAR" />
     <!-- Permission to list and launch all installed apps on the user's mobile phone -->
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
 
@@ -54,9 +55,10 @@
         android:label="AeroSense AI"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:testOnly="true"
         android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
         android:usesCleartextTraffic="true" >
+
+        <!-- Main Touchless OS Activity + Floating HUD Host -->
         <activity
             android:name="com.aerosense.touchless.ai.MainActivity"
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|keyboardHidden|keyboard|locale"
@@ -70,7 +72,7 @@
             </intent-filter>
         </activity>
 
-        <!-- System-Wide Accessibility Service for Air Taps & Reel Swipes inside Instagram, YouTube & Home Screen -->
+        <!-- System-Wide Accessibility Service for Back (3-Fold), Home (4-Fold), Air Taps & Reel Swipes -->
         <service
             android:name="com.aerosense.touchless.ai.AeroAccessibilityService"
             android:exported="true"

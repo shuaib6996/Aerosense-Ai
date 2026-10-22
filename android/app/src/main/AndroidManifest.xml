@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.EXPAND_STATUS_BAR" />
     <!-- Permission to list and launch all installed apps on the user's mobile phone -->
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
 
@@ -37,20 +38,21 @@
         android:usesCleartextTraffic="true"
         android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
 
-        <activity
-            android:name=".MainActivity"
-            android:exported="true"
-            android:supportsPictureInPicture="true"
-            android:launchMode="singleTask"
-            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|keyboardHidden|keyboard|locale">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+    <!-- Main Touchless OS Activity + Floating HUD Host -->
+    <activity
+        android:name=".MainActivity"
+        android:exported="true"
+        android:supportsPictureInPicture="true"
+        android:launchMode="singleTask"
+        android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|keyboardHidden|keyboard|locale">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+    </activity>
 
-        <!-- System-Wide Accessibility Service for Air Taps & Reel Swipes inside Instagram, YouTube & Home Screen -->
-        <service
+    <!-- System-Wide Accessibility Service for Back (3-Fold), Home (4-Fold), Air Taps & Reel Swipes -->
+    <service
             android:name=".AeroAccessibilityService"
             android:exported="true"
             android:label="AeroSense AI Hand Control"

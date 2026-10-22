@@ -15,7 +15,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.widget.FrameLayout;
-import android.widget.Toast;
 
 public class AeroAccessibilityService extends AccessibilityService {
 
@@ -93,10 +92,21 @@ public class AeroAccessibilityService extends AccessibilityService {
         });
     }
 
+    public void setCursorVisibility(boolean visible) {
+        mainHandler.post(() -> {
+            if (cursorContainer != null) {
+                cursorContainer.setVisibility(visible ? View.VISIBLE : View.GONE);
+            }
+        });
+    }
+
     public void updateCursorPosition(float normX, float normY, boolean isPinching) {
         mainHandler.post(() -> {
             if (cursorContainer == null || cursorParams == null || windowManager == null) return;
             try {
+                if (cursorContainer.getVisibility() != View.VISIBLE) {
+                    cursorContainer.setVisibility(View.VISIBLE);
+                }
                 updateScreenDimensions();
                 float targetX = normX * screenWidth;
                 float targetY = normY * screenHeight;
@@ -168,7 +178,6 @@ public class AeroAccessibilityService extends AccessibilityService {
             try {
                 boolean executed = performGlobalAction(GLOBAL_ACTION_BACK);
                 if (!executed && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    // Fallback edge-swipe back gesture if needed
                     updateScreenDimensions();
                     Path backSwipe = new Path();
                     backSwipe.moveTo(10f, screenHeight * 0.5f);
@@ -201,6 +210,14 @@ public class AeroAccessibilityService extends AccessibilityService {
                 } else if ("NOTIFICATIONS".equalsIgnoreCase(action)) {
                     performGlobalAction(GLOBAL_ACTION_NOTIFICATIONS);
                 }
+            } catch (Exception ignored) {}
+        });
+    }
+
+    public void injectAirTypedText(String typedText, boolean submitAfterTyping) {
+        mainHandler.post(() -> {
+            try {
+                AeroAirKeyboardAccessibilityPatch.injectTextIntoFocusedAppInput(this, typedText, submitAfterTyping);
             } catch (Exception ignored) {}
         });
     }

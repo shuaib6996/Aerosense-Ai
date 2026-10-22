@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="AeroSense AI">
+    <meta name="theme-color" content="#050811">
+    <title>AeroSense AI™ — Touchless Finger-Fold, Back & Home Air OS</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100dvh;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #050811;
+            color: #f8fafc;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Smooth Full-Reach Air Pointer Cursor */
+        #aero-cursor {
+            position: fixed;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2.5px solid #22d3ee;
+            background: radial-gradient(circle, rgba(34,211,238,0.45) 0%, rgba(16,185,129,0.15) 100%);
+            box-shadow: 0 0 18px rgba(34, 211, 238, 0.9);
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.08s ease, height 0.08s ease, border-color 0.08s ease;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        #aero-cursor.pinching {
+            width: 18px;
+            height: 18px;
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.9);
+            box-shadow: 0 0 28px #10b981;
+        }
+
+        /* Transparent Bottom-Center Hand Skeleton Popup */
+        #spatial-floating-hud {
+            position: fixed;
+            bottom: 94px;
+            left: 50%;
+            transform: translateX(-50%) translateY(14px) scale(0.92);
+            width: 112px;
+            height: 138px;
+            background: rgba(12, 18, 30, 0.42);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1.5px solid rgba(34, 211, 238, 0.5);
+            border-radius: 22px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55);
+            z-index: 8600;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: opacity 0.18s ease, transform 0.18s ease, width 0.2s ease, height 0.2s ease;
+            opacity: 0;
+            pointer-events: none;
+        }
+        #spatial-floating-hud.hud-visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(-50%) translateY(0) scale(1);
+        }
+        #spatial-floating-hud.hud-size-sm {
+            width: 86px;
+            height: 106px;
+            border-radius: 18px;
+        }
+        #spatial-floating-hud.hud-size-md {
+            width: 112px;
+            height: 138px;
+            border-radius: 22px;
+        }
+        #spatial-floating-hud.hud-size-lg {
+            width: 150px;
+            height: 184px;
+            border-radius: 26px;
+        }
+
+        /* 1-Finger Hold Crosshair Action Menu Overlay */
+        #fold-hold-menu {
+            position: fixed;
+            inset: 0;
+            z-index: 9400;
+            background: rgba(2, 6, 23, 0.65);
+            backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            pointer-events: auto;
+            padding: 12px;
+        }
+        #fold-hold-menu.active {
+            display: flex;
+        }
+        .hold-option-box {
+            background: rgba(30, 41, 59, 0.92);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(148, 163, 184, 0.35);
+            border-radius: 18px;
+            padding: 10px 12px;
+            min-width: 92px;
+            text-align: center;
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 11px;
+            line-height: 1.25;
+            transition: all 0.15s ease;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.45);
+        }
+        .hold-option-box.hovered, .hold-option-box:hover {
+            border-color: #22d3ee;
+            background: rgba(51, 65, 85, 0.98);
+            box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.4), 0 12px 30px rgba(0,0,0,0.6);
+            transform: scale(1.05);
+        }
+
+        /* Dedicated Native Floating Overlay Mode */
+        body.native-overlay-mode {
+            background: transparent !important;
+        }
+        body.native-overlay-mode > *:not(#spatial-floating-hud):not(#fold-hold-menu) {
+            display: none !important;
+        }
+        body.native-overlay-mode #spatial-floating-hud {
+            position: fixed !important;
+            inset: 0 !important;
+            left: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            border-radius: 20px !important;
+            opacity: 1 !important;
+            transform: none !important;
+            pointer-events: auto !important;
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .mirror-cam { transform: scaleX(-1); }
+        .bento-card {
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.96), rgba(8, 12, 22, 0.98));
+            border: 1px solid rgba(56, 189, 248, 0.18);
+        }
+    </style>
+</head>
+<body class="h-[100dvh] w-full flex flex-col bg-[#050811] text-slate-100 overflow-hidden">
+
+    <!-- Smooth Full-Screen Air Pointer Cursor -->
+    <div id="aero-cursor">
+        <div class="w-2 h-2 rounded-full bg-emerald-400"></div>
+    </div>
+
+    <!-- Hidden Raw Webcam Video Element -->
+    <video id="webcam-video" class="hidden" playsinline muted></video>
+
+    <!-- FIRST-LAUNCH STARTUP PERMISSION GATE MODAL -->
+    <div id="startup-permission-modal" class="fixed inset-0 z-[9600] bg-slate-950/90 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bento-card rounded-3xl max-w-sm w-full p-5 shadow-2xl border border-cyan-500/40 flex flex-col gap-3.5 max-h-[90dvh] overflow-y-auto no-scrollbar">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-cyan-500 to-emerald-400 p-0.5 shrink-0">
+                    <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
+                        <i class="fa-solid fa-hand-sparkles text-cyan-400 text-lg"></i>
+                    </div>
+                </div>
+                <div class="min-w-0">
+                    <span class="px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 font-extrabold text-[9px] uppercase tracking-wider">Required Setup</span>
+                    <h2 class="text-sm font-black text-white leading-tight mt-0.5">Allow Permissions for Hand Control</h2>
+                </div>
+            </div>
+
+            <p class="text-[11px] text-slate-300 leading-relaxed">
+                AeroSense AI requires camera and system access to track your hand gestures in real time and control apps touchlessly. <strong class="text-emerald-300">100% processed on-device.</strong>
+            </p>
+
+            <div class="space-y-2">
+                <div class="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <i class="fa-solid fa-camera text-cyan-400 text-sm w-5 text-center shrink-0"></i>
+                        <div class="min-w-0">
+                            <p class="text-xs font-extrabold text-white truncate">1. Camera & Microphone</p>
+                            <p class="text-[10px] text-slate-400 truncate">Detect Finger-Fold, Pinch & Voice AI</p>
+                        </div>
+                    </div>
+                    <span id="startup-cam-badge" class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-extrabold text-[9px] shrink-0">REQUIRED</span>
+                </div>
+
+                <div class="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <i class="fa-solid fa-universal-access text-emerald-400 text-sm w-5 text-center shrink-0"></i>
+                        <div class="min-w-0">
+                            <p class="text-xs font-extrabold text-white truncate">2. Accessibility Service</p>
+                            <p class="text-[10px] text-slate-400 truncate">Scroll Reels, Back ⬅️ & Home 🏠</p>
+                        </div>
+                    </div>
+                    <button onclick="requestNativeAccessibilityPermission()" id="startup-acc-badge" class="AirClickable px-2.5 py-1 rounded-lg bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 font-extrabold text-[9px] shrink-0">
+                        Enable
+                    </button>
+                </div>
+
+                <div class="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <i class="fa-solid fa-layer-group text-purple-400 text-sm w-5 text-center shrink-0"></i>
+                        <div class="min-w-0">
+                            <p class="text-xs font-extrabold text-white truncate">3. Floating Hand Overlay</p>
+                            <p class="text-[10px] text-slate-400 truncate">Bottom-center transparent hand HUD</p>
+                        </div>
+                    </div>
+                    <button onclick="requestNativeOverlayPermission()" id="startup-ov-badge" class="AirClickable px-2.5 py-1 rounded-lg bg-purple-500/20 border border-purple-500/40 text-purple-300 font-extrabold text-[9px] shrink-0">
+                        Enable
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2.5 pt-1">
+                <button onclick="handleStartupPermissionDecision(false)" class="AirClickable py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 font-extrabold text-xs active:scale-95 transition">
+                    Later
+                </button>
+                <button onclick="handleStartupPermissionDecision(true)" class="AirClickable py-2.5 px-3 rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-black text-xs shadow-lg shadow-cyan-500/25 active:scale-95 transition">
+                    Allow & Start
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 1-FINGER FOLD & HOLD FLOATING MENU (Includes Back & Home) -->
+    <div id="fold-hold-menu" onclick="if(event.target === this) closeFoldHoldMenu()">
+        <div class="flex flex-col items-center gap-2.5 p-3 max-w-xs w-full">
+            <div class="mb-0.5 px-3 py-1 rounded-full bg-slate-900/95 border border-cyan-500/40 text-[10px] font-extrabold text-cyan-300 uppercase tracking-wider text-center">
+                ☝️ 1-Finger Hold Menu • Tap or Pinch Option
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 w-full">
+                <button data-hold-action="BACK" onclick="triggerHoldMenuOption('BACK')" class="AirClickable hold-option-box border-amber-500/40 text-amber-300">
+                    <i class="fa-solid fa-chevron-left mr-1"></i>Back
+                </button>
+                <button data-hold-action="VOL_UP" onclick="triggerHoldMenuOption('VOL_UP')" class="AirClickable hold-option-box">
+                    Volume<br>Up
+                </button>
+                <button data-hold-action="HOME" onclick="triggerHoldMenuOption('HOME')" class="AirClickable hold-option-box border-emerald-500/40 text-emerald-300">
+                    <i class="fa-solid fa-house mr-1"></i>Home
+                </button>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 w-full">
+                <button data-hold-action="LIKE" onclick="triggerHoldMenuOption('LIKE')" class="AirClickable hold-option-box">
+                    Like ❤️
+                </button>
+                <button data-hold-action="NEXT" onclick="triggerHoldMenuOption('NEXT')" class="AirClickable hold-option-box">
+                    Swipe Up
+                </button>
+                <button data-hold-action="PLAY_PAUSE" onclick="triggerHoldMenuOption('PLAY_PAUSE')" class="AirClickable hold-option-box hovered">
+                    Play /<br>Pause
+                </button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 w-2/3">
+                <button data-hold-action="VOL_DOWN" onclick="triggerHoldMenuOption('VOL_DOWN')" class="AirClickable hold-option-box">
+                    Volume<br>Down
+                </button>
+                <button onclick="closeFoldHoldMenu()" class="AirClickable hold-option-box text-slate-400">
+                    Close ✕
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TRANSPARENT BOTTOM-CENTER HAND POPUP -->
+    <div id="spatial-floating-hud" class="hud-size-md">
+        <div class="px-2 pt-1.5 pb-0.5 flex items-center justify-between z-10">
+            <span class="flex items-center gap-1 text-[8px] font-extrabold text-emerald-400 uppercase tracking-wider truncate">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping shrink-0"></span>
+                <span id="mini-hud-app" class="truncate">Hand</span>
+            </span>
+            <button onclick="cyclePopupHudSize()" class="AirClickable px-1.5 py-0.5 rounded bg-slate-900/80 border border-cyan-500/40 text-[8px] font-extrabold text-cyan-300 hover:text-white whitespace-nowrap shrink-0" title="Resize HUD">
+                <i class="fa-solid fa-up-right-and-down-left-from-center mr-0.5"></i><span id="hud-size-label">M</span>
+            </button>
+        </div>
+
+        <div class="relative flex-1 w-full h-full flex items-center justify-center overflow-hidden">
+            <canvas id="skeleton-canvas" class="w-full h-full object-contain mirror-cam"></canvas>
+        </div>
+
+        <div class="w-full px-2 pb-1.5 text-center z-10">
+            <div class="w-full h-1 bg-slate-800/60 rounded-full overflow-hidden mb-0.5">
+                <div id="fold-hold-bar" class="h-full bg-emerald-400 w-0 transition-all duration-75"></div>
+            </div>
+            <p id="mini-hud-gesture" class="text-[9px] font-extrabold text-emerald-300 truncate drop-shadow">🖐️ Active</p>
+        </div>
+    </div>
+
+    <!-- Top Toast Feedback -->
+    <div id="aero-toast" class="fixed top-3 left-1/2 -translate-x-1/2 z-[8900] pointer-events-none opacity-0 -translate-y-4 transition-all duration-300 max-w-[90vw]">
+        <div class="bg-slate-900/95 backdrop-blur-xl border border-cyan-500/40 px-3.5 py-2 rounded-2xl shadow-2xl flex items-center gap-2.5">
+            <span id="toast-emoji" class="text-base shrink-0">⚡</span>
+            <div class="min-w-0">
+                <p id="toast-label" class="text-[9px] font-extrabold uppercase tracking-wider text-cyan-400 truncate">AeroSense AI</p>
+                <p id="toast-message" class="text-xs font-bold text-white truncate">Action Executed</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESPONSIVE MOBILE CONTAINER -->
+    <div class="w-full max-w-md mx-auto h-full flex flex-col justify-between overflow-hidden border-x border-slate-800/50 bg-[#050811]">
+
+        <!-- 1. ZERO-WRAP TOP HEADER -->
+        <header class="shrink-0 px-3 pt-2.5 pb-2 bg-slate-950 border-b border-slate-800/80 flex flex-col gap-2">
+            <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2 min-w-0">
+                    <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-500 via-blue-500 to-indigo-600 p-0.5 shadow-md shadow-cyan-500/20 shrink-0 flex items-center justify-center">
+                        <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
+                            <i class="fa-solid fa-hand-sparkles text-cyan-400 text-xs"></i>
+                        </div>
+                    </div>
+                    <div class="flex flex-col min-w-0">
+                        <div class="flex items-center gap-1.5">
+                            <span class="font-black text-sm text-white tracking-tight whitespace-nowrap leading-none">AeroSense AI</span>
+                            <span id="cam-live-dot" class="w-1.5 h-1.5 rounded-full bg-slate-600 shrink-0"></span>
+                        </div>
+                        <span class="text-[10px] text-slate-400 font-semibold tracking-wide leading-none mt-1 whitespace-nowrap truncate">Touchless Hand & Voice OS</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-1.5 shrink-0">
+                    <button onclick="openStartupPermissionModal()" class="AirClickable w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 text-cyan-400 hover:text-cyan-300 flex items-center justify-center text-xs active:scale-95 transition" title="Permissions Setup">
+                        <i class="fa-solid fa-key"></i>
+                    </button>
+                    <button id="voice-btn" onclick="toggleVoiceControl()" class="AirClickable w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-cyan-400 flex items-center justify-center active:scale-95 transition" title="Voice Control">
+                        <i id="voice-icon" class="fa-solid fa-microphone-slash text-xs"></i>
+                    </button>
+                    <button onclick="openLegalModal()" class="AirClickable w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 text-emerald-400 hover:text-emerald-300 flex items-center justify-center text-xs active:scale-95 transition" title="Privacy & Terms">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </button>
+                    <span id="header-bg-pill" class="px-2 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-400 font-extrabold text-[9px] uppercase tracking-wider whitespace-nowrap">
+                        OFF
+                    </span>
+                </div>
+            </div>
+
+            <!-- 3 Equal-Height Action Pills -->
+            <div class="grid grid-cols-3 gap-1.5 w-full">
+                <button onclick="openGestureGuideModal()" class="AirClickable h-8 px-2 rounded-xl bg-cyan-500/15 border border-cyan-500/40 text-cyan-300 text-[11px] font-extrabold flex items-center justify-center gap-1.5 whitespace-nowrap active:scale-95 transition">
+                    <i class="fa-solid fa-book-open text-[10px] shrink-0"></i>
+                    <span>Guide</span>
+                </button>
+
+                <button onclick="openFoldHoldMenu()" class="AirClickable h-8 px-2 rounded-xl bg-indigo-500/15 border border-indigo-500/40 text-indigo-300 text-[11px] font-extrabold flex items-center justify-center gap-1.5 whitespace-nowrap active:scale-95 transition">
+                    <i class="fa-solid fa-up-down-left-right text-[10px] shrink-0"></i>
+                    <span>Hold Menu</span>
+                </button>
+
+                <button onclick="cyclePopupHudSize()" class="AirClickable h-8 px-2 rounded-xl bg-slate-900 border border-slate-800 text-cyan-300 text-[11px] font-extrabold flex items-center justify-center gap-1.5 whitespace-nowrap active:scale-95 transition">
+                    <i class="fa-solid fa-expand text-[10px] shrink-0"></i>
+                    <span id="header-hud-size">HUD: M</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- 2. MASTER BACKGROUND ENGINE BAR -->
+        <div class="shrink-0 px-3 py-2 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between gap-2.5">
+            <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                <button id="master-start-btn" onclick="toggleBackgroundEngine()" class="AirClickable w-9 h-9 rounded-2xl bg-gradient-to-tr from-emerald-400 to-cyan-500 text-slate-950 flex items-center justify-center shadow-lg shadow-cyan-500/20 shrink-0 transition active:scale-95">
+                    <i id="master-start-icon" class="fa-solid fa-power-off text-sm"></i>
+                </button>
+                <div class="min-w-0 flex-1">
+                    <span id="engine-title-text" class="text-xs font-black text-white block truncate tracking-tight">Gesture Service Engine</span>
+                    <p id="engine-desc-text" class="text-[10px] text-slate-400 font-medium truncate">
+                        Controls <span id="selected-apps-count" class="text-cyan-400 font-bold">0 User Apps</span>
+                    </p>
+                </div>
+            </div>
+
+            <button id="float-overlay-btn" onclick="activateFloatingBackgroundOverlay()" class="AirClickable shrink-0 h-8 px-2.5 rounded-xl bg-cyan-500/15 border border-cyan-500/40 text-cyan-300 text-[11px] font-extrabold flex items-center gap-1.5 hover:bg-cyan-500/25 active:scale-95 transition whitespace-nowrap">
+                <i class="fa-solid fa-up-right-from-square text-[10px]"></i>
+                <span>Float HUD</span>
+            </button>
+        </div>
+
+        <!-- 3. MAIN SCROLLABLE VIEWPORT -->
+        <main class="flex-1 min-h-0 w-full overflow-y-auto no-scrollbar p-3 space-y-3">
+
+            <!-- VIEW 1: START & APPS -->
+            <section id="view-launcher" class="space-y-3">
+                <!-- Center Power Start Card -->
+                <div class="bento-card rounded-3xl p-4 text-center flex flex-col items-center gap-2.5">
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[10px] font-extrabold">
+                            1/2/3/4 Finger-Fold + Pinch AI
+                        </span>
+                        <span class="text-[10px] font-extrabold text-cyan-400">Back ⬅️ & Home 🏠 Ready</span>
+                    </div>
+
+                    <button id="hero-start-btn" onclick="toggleBackgroundEngine()" class="AirClickable my-1 w-16 h-16 rounded-full bg-gradient-to-tr from-emerald-400 to-cyan-400 text-slate-950 flex flex-col items-center justify-center shadow-xl shadow-cyan-500/25 transition active:scale-95">
+                        <i class="fa-solid fa-power-off text-xl"></i>
+                        <span id="hero-start-label" class="text-[9px] font-black uppercase tracking-wider mt-0.5">START</span>
+                    </button>
+
+                    <h2 id="hero-status-heading" class="text-sm font-black text-white">Tap START to Activate Camera Hand Control</h2>
+                    <p class="text-[11px] text-slate-400 leading-relaxed max-w-xs">
+                        1-Fold = Scroll • 2-Fold = Prev • 3-Fold = Back ⬅️ • 4-Fold = Home 🏠 • 1-Fold Hold = Action Menu
+                    </p>
+                </div>
+
+                <!-- Full Mobile OS Control Bar (Back, Home, Recents, Alerts) -->
+                <div class="bento-card rounded-3xl p-3.5 space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-xl bg-purple-500/15 border border-purple-500/40 flex items-center justify-center text-purple-300">
+                                <i class="fa-solid fa-mobile-screen-button text-xs"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xs font-black text-white">Full Mobile OS Control</h3>
+                                <p class="text-[10px] text-slate-400">Global Back ⬅️, Home 🏠, Recents & Air Tap</p>
+                            </div>
+                        </div>
+                        <button id="full-mobile-toggle" onclick="toggleFullMobileControl()" class="AirClickable px-3 py-1 rounded-full bg-slate-800 text-slate-300 font-extrabold text-[10px] border border-slate-700">
+                            OFF
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-4 gap-1.5 pt-1">
+                        <button onclick="executeSystemNavigation('BACK')" class="AirClickable py-2 rounded-xl bg-slate-900/90 border border-amber-500/30 text-amber-300 text-[10px] font-extrabold flex flex-col items-center gap-1 active:scale-95">
+                            <i class="fa-solid fa-chevron-left text-xs"></i>
+                            <span>Back (3-Fold)</span>
+                        </button>
+                        <button onclick="executeSystemNavigation('HOME')" class="AirClickable py-2 rounded-xl bg-slate-900/90 border border-emerald-500/30 text-emerald-300 text-[10px] font-extrabold flex flex-col items-center gap-1 active:scale-95">
+                            <i class="fa-solid fa-house text-xs"></i>
+                            <span>Home (4-Fold)</span>
+                        </button>
+                        <button onclick="executeSystemNavigation('RECENTS')" class="AirClickable py-2 rounded-xl bg-slate-900/90 border border-cyan-500/30 text-cyan-300 text-[10px] font-extrabold flex flex-col items-center gap-1 active:scale-95">
+                            <i class="fa-solid fa-clone text-xs"></i>
+                            <span>Recents</span>
+                        </button>
+                        <button onclick="executeSystemNavigation('NOTIFICATIONS')" class="AirClickable py-2 rounded-xl bg-slate-900/90 border border-purple-500/30 text-purple-300 text-[10px] font-extrabold flex flex-col items-center gap-1 active:scale-95">
+                            <i class="fa-solid fa-bell text-xs"></i>
+                            <span>Alerts</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- User Added Mobile Apps Section -->
+                <div class="bento-card rounded-3xl p-3.5 space-y-2.5">
+                    <div class="flex items-center justify-between gap-2">
+                        <div>
+                            <h3 class="text-xs font-black text-cyan-300 uppercase tracking-wider">📱 Your Added Mobile Apps</h3>
+                            <p class="text-[10px] text-slate-400">Add apps from your phone to control with gestures</p>
+                        </div>
+                        <button onclick="openDeviceAppPickerModal()" class="AirClickable px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-950 font-black text-[11px] whitespace-nowrap shadow-md active:scale-95 transition">
+                            + Add App
+                        </button>
+                    </div>
+
+                    <div id="user-apps-list" class="space-y-2"></div>
+                </div>
+            </section>
+
+            <!-- VIEW 2: STREAM DECK TESTER -->
+            <section id="view-stream" class="hidden space-y-3">
+                <div class="bento-card rounded-3xl p-4 text-center space-y-3">
+                    <span id="stream-badge" class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-extrabold">PLAYING</span>
+                    <div class="w-16 h-16 mx-auto rounded-2xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-2xl">
+                        <i id="stream-icon" class="fa-solid fa-film"></i>
+                    </div>
+                    <h3 id="stream-title" class="text-base font-black text-white">SpaceX Booster Catch 4K</h3>
+                    <p id="stream-desc" class="text-xs text-slate-400">1-Finger Fold = Next Reel • 2-Finger Fold = Prev • 3-Fold = Back • 4-Fold = Home</p>
+                    <div class="grid grid-cols-4 gap-2 pt-2">
+                        <button onclick="executeAction('PREV')" class="AirClickable py-2 rounded-xl bg-slate-900 border border-slate-800 text-[10px] font-extrabold text-cyan-300">Prev (2-Fold)</button>
+                        <button onclick="executeAction('PLAY_PAUSE')" class="AirClickable py-2 rounded-xl bg-cyan-500 text-slate-950 text-[10px] font-black">Play/Pause</button>
+                        <button onclick="executeAction('LIKE')" class="AirClickable py-2 rounded-xl bg-slate-900 border border-slate-800 text-[10px] font-extrabold text-rose-400">Like ❤️</button>
+                        <button onclick="executeAction('NEXT')" class="AirClickable py-2 rounded-xl bg-slate-900 border border-slate-800 text-[10px] font-extrabold text-emerald-300">Next (1-Fold)</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 3: ADMIN & ANALYTICS -->
+            <section id="view-admin" class="hidden space-y-3">
+                <div class="bento-card rounded-3xl p-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xs font-black text-cyan-300 uppercase tracking-wider">🛡️ Super Admin & OTA Control</h3>
+                        <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold text-[9px]">v2.5 LIVE</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-center">
+                        <div class="p-2.5 rounded-2xl bg-slate-900 border border-slate-800">
+                            <p class="text-[10px] text-slate-400 font-bold">Active Devices</p>
+                            <p class="text-base font-black text-white">24,890</p>
+                        </div>
+                        <div class="p-2.5 rounded-2xl bg-slate-900 border border-slate-800">
+                            <p class="text-[10px] text-slate-400 font-bold">Top Gesture</p>
+                            <p class="text-base font-black text-cyan-400">1-Fold Scroll</p>
+                        </div>
+                    </div>
+                    <button onclick="showToast('🚀', 'Admin Broadcast', 'Push notification sent to all active users!')" class="AirClickable w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-black text-xs">
+                        Send Push Update Notification
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <!-- 4. QUICK GESTURE TEST BAR (Includes 3-Fold Back & 4-Fold Home) -->
+        <div class="shrink-0 px-2.5 py-1.5 bg-slate-950 border-t border-slate-800/80 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+            <span class="text-[9px] font-extrabold text-slate-400 uppercase shrink-0">TEST:</span>
+            <button onclick="simulateFingerGesture('FOLD_1')" class="AirClickable px-2.5 py-1 rounded-lg bg-slate-900 border border-cyan-500/30 text-cyan-300 text-[10px] font-extrabold whitespace-nowrap shrink-0">
+                ☝️ 1-Fold (Scroll)
+            </button>
+            <button onclick="simulateFingerGesture('FOLD_2')" class="AirClickable px-2.5 py-1 rounded-lg bg-slate-900 border border-purple-500/30 text-purple-300 text-[10px] font-extrabold whitespace-nowrap shrink-0">
+                ✌️ 2-Fold (Prev)
+            </button>
+            <button onclick="simulateFingerGesture('FOLD_3_BACK')" class="AirClickable px-2.5 py-1 rounded-lg bg-slate-900 border border-amber-500/40 text-amber-300 text-[10px] font-extrabold whitespace-nowrap shrink-0">
+                ⬅️ 3-Fold (Back)
+            </button>
+            <button onclick="simulateFingerGesture('FOLD_4_HOME')" class="AirClickable px-2.5 py-1 rounded-lg bg-slate-900 border border-emerald-500/40 text-emerald-300 text-[10px] font-extrabold whitespace-nowrap shrink-0">
+                🏠 4-Fold (Home)
+            </button>
+            <button onclick="openFoldHoldMenu()" class="AirClickable px-2.5 py-1 rounded-lg bg-slate-900 border border-indigo-500/40 text-indigo-300 text-[10px] font-extrabold whitespace-nowrap shrink-0">
+                ⏱️ Hold Menu
+            </button>
+        </div>
+
+        <!-- 5. BOTTOM NAVIGATION -->
+        <nav class="shrink-0 bg-[#04070f] border-t border-slate-800 px-2 py-1.5">
+            <div class="grid grid-cols-4 gap-1.5">
+                <button onclick="switchTab('launcher')" id="nav-launcher" class="AirClickable py-1.5 rounded-xl bg-cyan-500/15 text-cyan-400 font-extrabold text-[10px] flex flex-col items-center gap-0.5">
+                    <i class="fa-solid fa-power-off text-xs"></i>
+                    <span>Start & Apps</span>
+                </button>
+                <button onclick="switchTab('stream')" id="nav-stream" class="AirClickable py-1.5 rounded-xl text-slate-400 font-bold text-[10px] flex flex-col items-center gap-0.5">
+                    <i class="fa-solid fa-circle-play text-xs"></i>
+                    <span>Stream Test</span>
+                </button>
+                <button onclick="openGestureGuideModal()" class="AirClickable py-1.5 rounded-xl text-slate-400 font-bold text-[10px] flex flex-col items-center gap-0.5">
+                    <i class="fa-solid fa-hand-sparkles text-xs"></i>
+                    <span>Gestures</span>
+                </button>
+                <button onclick="switchTab('admin')" id="nav-admin" class="AirClickable py-1.5 rounded-xl text-slate-400 font-bold text-[10px] flex flex-col items-center gap-0.5">
+                    <i class="fa-solid fa-user-shield text-xs"></i>
+                    <span>Admin</span>
+                </button>
+            </div>
+        </nav>
+    </div>
+
+    <!-- GESTURE GUIDE MODAL -->
+    <div id="gesture-guide-modal" class="fixed inset-0 z-[9500] bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bento-card rounded-3xl max-w-sm w-full p-4 space-y-2.5 border border-cyan-500/40">
+            <div class="flex items-center justify-between">
+                <h3 class="text-sm font-black text-white">🖐️ Complete Air Gesture Guide</h3>
+                <button onclick="closeGestureGuideModal()" class="text-slate-400 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-2 text-xs">
+                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex justify-between">
+                    <span class="font-bold text-cyan-300">☝️ 1-Finger Fold & Open</span>
+                    <span class="text-slate-300">Scroll Next Reel</span>
+                </div>
+                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex justify-between">
+                    <span class="font-bold text-purple-300">✌️ 2-Finger Fold & Open</span>
+                    <span class="text-slate-300">Previous Reel</span>
+                </div>
+                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-amber-500/30 flex justify-between">
+                    <span class="font-bold text-amber-300">⬅️ 3-Finger Fold & Open</span>
+                    <span class="text-slate-200 font-bold">System Back</span>
+                </div>
+                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-emerald-500/30 flex justify-between">
+                    <span class="font-bold text-emerald-300">🏠 4-Finger Fold & Open</span>
+                    <span class="text-slate-200 font-bold">System Home Screen</span>
+                </div>
+                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex justify-between">
+                    <span class="font-bold text-indigo-300">⏱️ 1-Finger Fold & Hold</span>
+                    <span class="text-slate-300">Open Action Menu</span>
+                </div>
+                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex justify-between">
+                    <span class="font-bold text-emerald-400">👌 Index + Thumb Pinch</span>
+                    <span class="text-slate-300">Air Tap / Play-Pause</span>
+                </div>
+            </div>
+            <button onclick="closeGestureGuideModal()" class="w-full py-2.5 rounded-xl bg-cyan-500 text-slate-950 font-black text-xs">Got It</button>
+        </div>
+    </div>
+
+    <!-- PRIVACY POLICY & PLAY STORE TERMS MODAL -->
+    <div id="legal-modal" class="fixed inset-0 z-[9550] bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bento-card rounded-3xl max-w-sm w-full p-4 space-y-3 border border-emerald-500/40">
+            <div class="flex items-center justify-between">
+                <h3 class="text-sm font-black text-white">🛡️ Play Store Privacy & Terms</h3>
+                <button onclick="closeLegalModal()" class="text-slate-400 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p class="text-[11px] text-slate-300 leading-relaxed">
+                <strong>100% On-Device Camera & Accessibility Processing:</strong> AeroSense AI processes camera frames locally in memory using MediaPipe to detect hand landmarks. No video, images, or personal data are ever stored, recorded, or transmitted to any external server. Accessibility Service is used strictly to perform user-initiated air taps, swipes, Back, and Home actions.
+            </p>
+            <button onclick="closeLegalModal()" class="w-full py-2.5 rounded-xl bg-emerald-500 text-slate-950 font-black text-xs">Accept & Close</button>
+        </div>
+    </div>
+
+    <!-- DEVICE APP PICKER MODAL -->
+    <div id="device-app-modal" class="fixed inset-0 z-[9500] bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bento-card rounded-3xl max-w-sm w-full p-4 space-y-3 border border-cyan-500/40 max-h-[85dvh] flex flex-col">
+            <div class="flex items-center justify-between">
+                <h3 class="text-sm font-black text-white">📱 Select Phone Apps to Add</h3>
+                <button onclick="closeDeviceAppPickerModal()" class="text-slate-400 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="device-picker-list" class="space-y-1.5 overflow-y-auto no-scrollbar flex-1"></div>
+            <button onclick="closeDeviceAppPickerModal()" class="w-full py-2 rounded-xl bg-slate-800 text-slate-200 font-extrabold text-xs">Done</button>
+        </div>
+    </div>
+
+    <script>
+        let engineRunning = false;
+        let fullMobileControl = false;
+        let handsInstance = null;
+        let cameraInstance = null;
+        let hudSizes = ['sm', 'md', 'lg'];
+        let hudSizeIdx = 1;
+        let userAddedApps = JSON.parse(localStorage.getItem('aero_user_apps') || '[]');
+
+        // Smooth Cursor & Gesture State
+        let smoothX = window.innerWidth / 2;
+        let smoothY = window.innerHeight / 2;
+        let foldState = 0; // 0 = open, 1/2/3/4 = folded count
+        let foldStartTime = 0;
+        let holdTriggered = false;
+        let lastGestureTime = 0;
+        let wasPinching = false;
+
+        function showToast(emoji, label, message) {
+            const toast = document.getElementById('aero-toast');
+            document.getElementById('toast-emoji').textContent = emoji;
+            document.getElementById('toast-label').textContent = label;
+            document.getElementById('toast-message').textContent = message;
+            toast.classList.remove('opacity-0', '-translate-y-4');
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => {
+                toast.classList.add('opacity-0', '-translate-y-4');
+            }, 2200);
+        }
+
+        function renderUserApps() {
+            const container = document.getElementById('user-apps-list');
+            document.getElementById('selected-apps-count').textContent = `${userAddedApps.length} User Apps`;
+            if (userAddedApps.length === 0) {
+                container.innerHTML = `
+                    <div class="p-3 rounded-2xl bg-slate-900/60 border border-slate-800/80 text-center text-[11px] text-slate-400">
+                        No apps added yet. Tap <strong class="text-cyan-300">+ Add App</strong> to scan your phone apps.
+                    </div>`;
+                return;
+            }
+            container.innerHTML = userAddedApps.map((app, idx) => `
+                <div class="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between gap-2">
+                    <div class="min-w-0">
+                        <p class="text-xs font-extrabold text-white truncate">${app.name}</p>
+                        <p class="text-[10px] text-slate-400 truncate">${app.pkg}</p>
+                    </div>
+                    <div class="flex items-center gap-1.5 shrink-0">
+                        <button onclick="launchUserApp('${app.pkg}', '${app.name}')" class="AirClickable px-2.5 py-1 rounded-lg bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 font-extrabold text-[10px]">
+                            Open
+                        </button>
+                        <button onclick="removeUserApp(${idx})" class="AirClickable px-2 py-1 rounded-lg bg-rose-500/15 text-rose-400 text-[10px]">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openDeviceAppPickerModal() {
+            const modal = document.getElementById('device-app-modal');
+            const listEl = document.getElementById('device-picker-list');
+            let apps = [
+                { name: 'Instagram', pkg: 'com.instagram.android' },
+                { name: 'YouTube', pkg: 'com.google.android.youtube' },
+                { name: 'WhatsApp', pkg: 'com.whatsapp' },
+                { name: 'Spotify', pkg: 'com.spotify.music' },
+                { name: 'Chrome', pkg: 'com.android.chrome' }
+            ];
+            if (window.AndroidBridge && window.AndroidBridge.getInstalledDeviceApps) {
+                try {
+                    const nativeApps = JSON.parse(window.AndroidBridge.getInstalledDeviceApps());
+                    if (nativeApps && nativeApps.length > 0) apps = nativeApps;
+                } catch (e) {}
+            }
+            listEl.innerHTML = apps.map(a => `
+                <div class="p-2 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+                    <div class="min-w-0 pr-2">
+                        <p class="text-xs font-bold text-white truncate">${a.name}</p>
+                        <p class="text-[9px] text-slate-400 truncate">${a.pkg}</p>
+                    </div>
+                    <button onclick="addUserApp('${a.name.replace(/'/g, "")}', '${a.pkg}')" class="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 font-extrabold text-[10px] shrink-0">
+                        + Add
+                    </button>
+                </div>
+            `).join('');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeDeviceAppPickerModal() {
+            const modal = document.getElementById('device-app-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function addUserApp(name, pkg) {
+            if (!userAddedApps.some(a => a.pkg === pkg)) {
+                userAddedApps.push({ name, pkg });
+                localStorage.setItem('aero_user_apps', JSON.stringify(userAddedApps));
+                renderUserApps();
+                showToast('📱', 'App Added', `${name} added to gesture control`);
+            }
+        }
+
+        function removeUserApp(idx) {
+            userAddedApps.splice(idx, 1);
+            localStorage.setItem('aero_user_apps', JSON.stringify(userAddedApps));
+            renderUserApps();
+        }
+
+        function launchUserApp(pkg, name) {
+            showToast('🚀', 'Launching App', `Opening ${name} with Floating Hand HUD`);
+            if (window.AndroidBridge && window.AndroidBridge.openTargetAppWithOverlay) {
+                window.AndroidBridge.openTargetAppWithOverlay(pkg, name);
+            }
+        }
+
+        function executeSystemNavigation(action) {
+            if (action === 'BACK') {
+                showToast('⬅️', 'System Back', '3-Finger Fold Back Executed');
+                if (window.AndroidBridge && window.AndroidBridge.triggerBackGesture) {
+                    window.AndroidBridge.triggerBackGesture();
+                }
+            } else if (action === 'HOME') {
+                showToast('🏠', 'System Home', '4-Finger Fold Home Executed');
+                if (window.AndroidBridge && window.AndroidBridge.triggerHomeGesture) {
+                    window.AndroidBridge.triggerHomeGesture();
+                }
+            } else if (window.AndroidBridge && window.AndroidBridge.performSystemAction) {
+                showToast('📱', 'System Action', action);
+                window.AndroidBridge.performSystemAction(action);
+            } else {
+                showToast('📱', 'System Navigation', `${action} triggered`);
+            }
+        }
+
+        function executeAction(action) {
+            if (action === 'NEXT') {
+                showToast('☝️', '1-Finger Fold', 'Scrolled to Next Reel');
+                if (window.AndroidBridge && window.AndroidBridge.triggerGlobalAirSwipe) {
+                    window.AndroidBridge.triggerGlobalAirSwipe('UP');
+                }
+            } else if (action === 'PREV') {
+                showToast('✌️', '2-Finger Fold', 'Returned to Previous Reel');
+                if (window.AndroidBridge && window.AndroidBridge.triggerGlobalAirSwipe) {
+                    window.AndroidBridge.triggerGlobalAirSwipe('DOWN');
+                }
+            } else if (action === 'BACK') {
+                executeSystemNavigation('BACK');
+            } else if (action === 'HOME') {
+                executeSystemNavigation('HOME');
+            } else if (action === 'PLAY_PAUSE') {
+                const badge = document.getElementById('stream-badge');
+                if (badge) {
+                    badge.textContent = badge.textContent === 'PLAYING' ? 'PAUSED' : 'PLAYING';
+                }
+                showToast('👌', 'Air Tap', 'Play / Pause Toggled');
+            } else if (action === 'LIKE') {
+                showToast('❤️', 'Liked', 'Sent Heart Reaction');
+            }
+        }
+
+        function simulateFingerGesture(type) {
+            if (type === 'FOLD_1') executeAction('NEXT');
+            else if (type === 'FOLD_2') executeAction('PREV');
+            else if (type === 'FOLD_3_BACK') executeSystemNavigation('BACK');
+            else if (type === 'FOLD_4_HOME') executeSystemNavigation('HOME');
+        }
+
+        function openFoldHoldMenu() {
+            document.getElementById('fold-hold-menu').classList.add('active');
+            if (window.AndroidBridge && window.AndroidBridge.showSystemHoldMenu) {
+                window.AndroidBridge.showSystemHoldMenu(true);
+            }
+        }
+
+        function closeFoldHoldMenu() {
+            document.getElementById('fold-hold-menu').classList.remove('active');
+            if (window.AndroidBridge && window.AndroidBridge.showSystemHoldMenu) {
+                window.AndroidBridge.showSystemHoldMenu(false);
+            }
+        }
+
+        function triggerHoldMenuOption(opt) {
+            closeFoldHoldMenu();
+            if (opt === 'BACK') executeSystemNavigation('BACK');
+            else if (opt === 'HOME') executeSystemNavigation('HOME');
+            else if (opt === 'VOL_UP') {
+                showToast('🔊', 'Volume Up', 'System Volume Increased');
+                if (window.AndroidBridge && window.AndroidBridge.adjustSystemVolume) window.AndroidBridge.adjustSystemVolume('UP');
+            } else if (opt === 'VOL_DOWN') {
+                showToast('🔉', 'Volume Down', 'System Volume Decreased');
+                if (window.AndroidBridge && window.AndroidBridge.adjustSystemVolume) window.AndroidBridge.adjustSystemVolume('DOWN');
+            } else {
+                executeAction(opt);
+            }
+        }
+
+        function cyclePopupHudSize() {
+            const hud = document.getElementById('spatial-floating-hud');
+            hud.classList.remove(`hud-size-${hudSizes[hudSizeIdx]}`);
+            hudSizeIdx = (hudSizeIdx + 1) % hudSizes.length;
+            const nextKey = hudSizes[hudSizeIdx];
+            hud.classList.add(`hud-size-${nextKey}`);
+            const label = nextKey.toUpperCase();
+            document.getElementById('hud-size-label').textContent = label;
+            document.getElementById('header-hud-size').textContent = `HUD: ${label}`;
+            if (window.AndroidBridge && window.AndroidBridge.resizeFloatingOverlay) {
+                window.AndroidBridge.resizeFloatingOverlay(nextKey);
+            }
+        }
+
+        function isFingerFolded(lm, tipIdx, pipIdx) {
+            return lm[tipIdx].y > lm[pipIdx].y;
+        }
+
+        async function toggleBackgroundEngine() {
+            const hud = document.getElementById('spatial-floating-hud');
+            const cursor = document.getElementById('aero-cursor');
+            const pill = document.getElementById('header-bg-pill');
+            const heroLabel = document.getElementById('hero-start-label');
+            const dot = document.getElementById('cam-live-dot');
+
+            if (engineRunning) {
+                engineRunning = false;
+                if (cameraInstance) await cameraInstance.stop();
+                hud.classList.remove('hud-visible');
+                cursor.style.display = 'none';
+                pill.textContent = 'OFF';
+                pill.className = 'px-2 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-400 font-extrabold text-[9px] uppercase tracking-wider whitespace-nowrap';
+                heroLabel.textContent = 'START';
+                dot.className = 'w-1.5 h-1.5 rounded-full bg-slate-600 shrink-0';
+                if (window.AndroidBridge && window.AndroidBridge.stopBackgroundService) {
+                    window.AndroidBridge.stopBackgroundService();
+                }
+                showToast('⏹️', 'Engine Stopped', 'Hand tracking paused');
+                return;
+            }
+
+            try {
+                const videoEl = document.getElementById('webcam-video');
+                const canvasEl = document.getElementById('skeleton-canvas');
+                const ctx = canvasEl.getContext('2d');
+
+                if (!handsInstance) {
+                    handsInstance = new Hands({
+                        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+                    });
+                    handsInstance.setOptions({
+                        maxNumHands: 1,
+                        modelComplexity: 1,
+                        minDetectionConfidence: 0.65,
+                        minTrackingConfidence: 0.65
+                    });
+
+                    handsInstance.onResults((results) => {
+                        canvasEl.width = 220;
+                        canvasEl.height = 260;
+                        ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+
+                        if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                            hud.classList.add('hud-visible');
+                            cursor.style.display = 'flex';
+                            if (window.AndroidBridge && window.AndroidBridge.setHandVisible) {
+                                window.AndroidBridge.setHandVisible(true);
+                            }
+
+                            const lm = results.multiHandLandmarks[0];
+                            drawConnectors(ctx, lm, HAND_CONNECTIONS, { color: '#22d3ee', lineWidth: 3 });
+                            drawLandmarks(ctx, lm, { color: '#10b981', lineWidth: 1, radius: 2.5 });
+
+                            // Expanded Safe-Box Mapping for effortless top-to-bottom full screen reach
+                            const rawX = 1 - lm[8].x;
+                            const rawY = lm[8].y;
+                            const normX = Math.max(0, Math.min(1, (rawX - 0.18) / 0.64));
+                            const normY = Math.max(0, Math.min(1, (rawY - 0.18) / 0.60));
+
+                            smoothX += (normX * window.innerWidth - smoothX) * 0.42;
+                            smoothY += (normY * window.innerHeight - smoothY) * 0.42;
+                            cursor.style.left = `${smoothX}px`;
+                            cursor.style.top = `${smoothY}px`;
+
+                            const pinchDist = Math.hypot(lm[8].x - lm[4].x, lm[8].y - lm[4].y);
+                            const isPinching = pinchDist < 0.052;
+                            cursor.classList.toggle('pinching', isPinching);
+
+                            if (window.AndroidBridge && window.AndroidBridge.updateGlobalAirCursor) {
+                                window.AndroidBridge.updateGlobalAirCursor(normX, normY, isPinching);
+                            }
+
+                            if (isPinching && !wasPinching) {
+                                wasPinching = true;
+                                const targetEl = document.elementFromPoint(smoothX, smoothY);
+                                if (targetEl) {
+                                    const clickable = targetEl.closest('.AirClickable, button');
+                                    if (clickable) clickable.click();
+                                }
+                                if (window.AndroidBridge && window.AndroidBridge.triggerGlobalAirTap) {
+                                    window.AndroidBridge.triggerGlobalAirTap(normX, normY);
+                                }
+                            } else if (!isPinching) {
+                                wasPinching = false;
+                            }
+
+                            // Detect Finger-Fold Count (Index, Middle, Ring, Pinky)
+                            const idxFold = isFingerFolded(lm, 8, 6);
+                            const midFold = isFingerFolded(lm, 12, 10);
+                            const ringFold = isFingerFolded(lm, 16, 14);
+                            const pinkyFold = isFingerFolded(lm, 20, 18);
+
+                            let currentFoldCount = 0;
+                            if (idxFold && midFold && ringFold && pinkyFold) currentFoldCount = 4;
+                            else if (idxFold && midFold && ringFold) currentFoldCount = 3;
+                            else if (idxFold && midFold) currentFoldCount = 2;
+                            else if (idxFold) currentFoldCount = 1;
+
+                            const gestureLabel = document.getElementById('mini-hud-gesture');
+                            if (currentFoldCount === 4) gestureLabel.textContent = '🏠 4-Fold (Home)';
+                            else if (currentFoldCount === 3) gestureLabel.textContent = '⬅️ 3-Fold (Back)';
+                            else if (currentFoldCount === 2) gestureLabel.textContent = '✌️ 2-Fold (Prev)';
+                            else if (currentFoldCount === 1) gestureLabel.textContent = '☝️ 1-Fold (Scroll)';
+                            else if (isPinching) gestureLabel.textContent = '👌 Pinch Tap';
+                            else gestureLabel.textContent = '🖐️ Tracking';
+
+                            const now = Date.now();
+                            if (currentFoldCount > 0 && foldState === 0) {
+                                foldState = currentFoldCount;
+                                foldStartTime = now;
+                                holdTriggered = false;
+                            } else if (currentFoldCount === 1 && foldState === 1) {
+                                const elapsed = now - foldStartTime;
+                                const pct = Math.min(100, (elapsed / 600) * 100);
+                                document.getElementById('fold-hold-bar').style.width = `${pct}%`;
+                                if (elapsed >= 600 && !holdTriggered) {
+                                    holdTriggered = true;
+                                    openFoldHoldMenu();
+                                }
+                            } else if (currentFoldCount === 0 && foldState > 0) {
+                                document.getElementById('fold-hold-bar').style.width = '0%';
+                                if (!holdTriggered && now - lastGestureTime > 450) {
+                                    lastGestureTime = now;
+                                    if (foldState === 1) executeAction('NEXT');
+                                    else if (foldState === 2) executeAction('PREV');
+                                    else if (foldState === 3) executeSystemNavigation('BACK');
+                                    else if (foldState === 4) executeSystemNavigation('HOME');
+                                }
+                                foldState = 0;
+                            }
+                        } else {
+                            hud.classList.remove('hud-visible');
+                            cursor.style.display = 'none';
+                            if (window.AndroidBridge && window.AndroidBridge.setHandVisible) {
+                                window.AndroidBridge.setHandVisible(false);
+                            }
+                        }
+                    });
+                }
+
+                cameraInstance = new Camera(videoEl, {
+                    onFrame: async () => {
+                        if (engineRunning && handsInstance) {
+                            await handsInstance.send({ image: videoEl });
+                        }
+                    },
+                    width: 320,
+                    height: 240,
+                    facingMode: 'user'
+                });
+
+                await cameraInstance.start();
+                engineRunning = true;
+                pill.textContent = 'LIVE';
+                pill.className = 'px-2 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-extrabold text-[9px] uppercase tracking-wider whitespace-nowrap';
+                heroLabel.textContent = 'STOP';
+                dot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping shrink-0';
+                if (window.AndroidBridge && window.AndroidBridge.startBackgroundService) {
+                    window.AndroidBridge.startBackgroundService();
+                }
+                showToast('⚡', 'AeroSense Active', 'Show hand to control apps, Back & Home');
+            } catch (err) {
+                showToast('⚠️', 'Camera Permission', 'Allow camera access to start hand tracking');
+            }
+        }
+
+        function toggleFullMobileControl() {
+            fullMobileControl = !fullMobileControl;
+            const btn = document.getElementById('full-mobile-toggle');
+            btn.textContent = fullMobileControl ? 'ON' : 'OFF';
+            btn.className = fullMobileControl
+                ? 'AirClickable px-3 py-1 rounded-full bg-emerald-500 text-slate-950 font-black text-[10px]'
+                : 'AirClickable px-3 py-1 rounded-full bg-slate-800 text-slate-300 font-extrabold text-[10px] border border-slate-700';
+            if (window.AndroidBridge && window.AndroidBridge.setFullMobileControl) {
+                window.AndroidBridge.setFullMobileControl(fullMobileControl);
+            }
+        }
+
+        function activateFloatingBackgroundOverlay() {
+            if (window.AndroidBridge && window.AndroidBridge.enterFloatingOverlay) {
+                window.AndroidBridge.enterFloatingOverlay();
+            } else {
+                document.getElementById('spatial-floating-hud').classList.toggle('hud-visible');
+            }
+        }
+
+        function openStartupPermissionModal() {
+            const m = document.getElementById('startup-permission-modal');
+            m.classList.remove('hidden');
+            m.classList.add('flex');
+            refreshNativePermissionStatus();
+        }
+
+        function handleStartupPermissionDecision(allowed) {
+            const m = document.getElementById('startup-permission-modal');
+            m.classList.add('hidden');
+            m.classList.remove('flex');
+            localStorage.setItem('aero_perm_prompted', '1');
+            if (allowed) {
+                if (window.AndroidBridge && window.AndroidBridge.requestRuntimePermissions) {
+                    window.AndroidBridge.requestRuntimePermissions();
+                }
+                toggleBackgroundEngine();
+            }
+        }
+
+        window.refreshNativePermissionStatus = function() {
+            if (window.AndroidBridge && window.AndroidBridge.checkPermissionsJson) {
+                try {
+                    const st = JSON.parse(window.AndroidBridge.checkPermissionsJson());
+                    const camBadge = document.getElementById('startup-cam-badge');
+                    const accBadge = document.getElementById('startup-acc-badge');
+                    const ovBadge = document.getElementById('startup-ov-badge');
+                    if (camBadge && st.camera) {
+                        camBadge.textContent = 'GRANTED ✓';
+                        camBadge.className = 'px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-extrabold text-[9px] shrink-0';
+                    }
+                    if (accBadge && st.accessibility) {
+                        accBadge.textContent = 'ACTIVE ✓';
+                        accBadge.className = 'px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 font-extrabold text-[9px] shrink-0';
+                    }
+                    if (ovBadge && st.overlay) {
+                        ovBadge.textContent = 'ACTIVE ✓';
+                        ovBadge.className = 'px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 font-extrabold text-[9px] shrink-0';
+                    }
+                } catch (e) {}
+            }
+        };
+
+        function requestNativeAccessibilityPermission() {
+            if (window.AndroidBridge && window.AndroidBridge.openAccessibilitySettings) {
+                window.AndroidBridge.openAccessibilitySettings();
+            }
+        }
+
+        function requestNativeOverlayPermission() {
+            if (window.AndroidBridge && window.AndroidBridge.openOverlaySettings) {
+                window.AndroidBridge.openOverlaySettings();
+            }
+        }
+
+        function openGestureGuideModal() {
+            const m = document.getElementById('gesture-guide-modal');
+            m.classList.remove('hidden');
+            m.classList.add('flex');
+        }
+
+        function closeGestureGuideModal() {
+            const m = document.getElementById('gesture-guide-modal');
+            m.classList.add('hidden');
+            m.classList.remove('flex');
+        }
+
+        function openLegalModal() {
+            const m = document.getElementById('legal-modal');
+            m.classList.remove('hidden');
+            m.classList.add('flex');
+        }
+
+        function closeLegalModal() {
+            const m = document.getElementById('legal-modal');
+            m.classList.add('hidden');
+            m.classList.remove('flex');
+        }
+
+        function switchTab(tab) {
+            document.getElementById('view-launcher').classList.toggle('hidden', tab !== 'launcher');
+            document.getElementById('view-stream').classList.toggle('hidden', tab !== 'stream');
+            document.getElementById('view-admin').classList.toggle('hidden', tab !== 'admin');
+
+            document.getElementById('nav-launcher').className = tab === 'launcher'
+                ? 'AirClickable py-1.5 rounded-xl bg-cyan-500/15 text-cyan-400 font-extrabold text-[10px] flex flex-col items-center gap-0.5'
+                : 'AirClickable py-1.5 rounded-xl text-slate-400 font-bold text-[10px] flex flex-col items-center gap-0.5';
+            document.getElementById('nav-stream').className = tab === 'stream'
+                ? 'AirClickable py-1.5 rounded-xl bg-cyan-500/15 text-cyan-400 font-extrabold text-[10px] flex flex-col items-center gap-0.5'
+                : 'AirClickable py-1.5 rounded-xl text-slate-400 font-bold text-[10px] flex flex-col items-center gap-0.5';
+            document.getElementById('nav-admin').className = tab === 'admin'
+                ? 'AirClickable py-1.5 rounded-xl bg-cyan-500/15 text-cyan-400 font-extrabold text-[10px] flex flex-col items-center gap-0.5'
+                : 'AirClickable py-1.5 rounded-xl text-slate-400 font-bold text-[10px] flex flex-col items-center gap-0.5';
+        }
+
+        function toggleVoiceControl() {
+            showToast('🎙️', 'Voice Control', 'Say "Next", "Back", "Home", or "Pause"');
+        }
+
+        window.setNativeOverlayMode = function(isOverlay) {
+            document.body.classList.toggle('native-overlay-mode', !!isOverlay);
+        };
+
+        window.onload = () => {
+            renderUserApps();
+            refreshNativePermissionStatus();
+            if (!localStorage.getItem('aero_perm_prompted')) {
+                openStartupPermissionModal();
+            }
+        };
+    </script>
+</body>
+</html>

@@ -50,18 +50,8 @@ public class MainActivity extends Activity {
         systemWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 
         webView = new WebView(this);
-        webView.setBackgroundColor(Color.TRANSPARENT);
+        webView.setBackgroundColor(Color.parseColor("#050811"));
         setContentView(webView);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
-                checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{
-                    Manifest.permission.CAMERA,
-                    Manifest.permission.RECORD_AUDIO
-                }, PERMISSION_REQ_CODE);
-            }
-        }
 
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
@@ -86,6 +76,18 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_REQ_CODE && webView != null) {
+            runOnUiThread(() -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    webView.evaluateJavascript("if(window.refreshNativePermissionStatus) window.refreshNativePermissionStatus();", null);
+                }
+            });
+        }
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
         if ((isBackgroundEngineRunning || isFullMobileControlEnabled) && webView != null) {
@@ -106,6 +108,16 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         exitSystemFloatingOverlay();
+        if (webView != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            webView.evaluateJavascript("if(window.refreshNativePermissionStatus) window.refreshNativePermissionStatus();", null);
+        }
+    }
+
+    private void notifyWebOverlayState(boolean isOverlay) {
+        if (webView != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            final String script = "if(window.setNativeOverlayMode) window.setNativeOverlayMode(" + isOverlay + ");";
+            webView.post(() -> webView.evaluateJavascript(script, null));
+        }
     }
 
     private void enterMiniHandFloatingWindow() {
@@ -140,6 +152,7 @@ public class MainActivity extends Activity {
             }
 
             webView.setBackgroundColor(Color.TRANSPARENT);
+            notifyWebOverlayState(true);
 
             int overlayType = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
                     ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
@@ -175,12 +188,25 @@ public class MainActivity extends Activity {
         try {
             systemWindowManager.removeView(webView);
             isFloatingOverlayAttached = false;
+            notifyWebOverlayState(false);
             webView.setBackgroundColor(Color.parseColor("#050811"));
             setContentView(webView);
         } catch (Exception ignored) {}
     }
 
     public class AeroNativeBridge {
+
+        @JavascriptInterface
+        public void requestRuntimePermissions() {
+            runOnUiThread(() -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    requestPermissions(new String[]{
+                            Manifest.permission.CAMERA,
+                            Manifest.permission.RECORD_AUDIO
+                    }, PERMISSION_REQ_CODE);
+                }
+            });
+        }
 
         @JavascriptInterface
         public void startBackgroundService() {
@@ -190,17 +216,26 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void stopBackgroundService() {
             isBackgroundEngineRunning = false;
+            if (AeroAccessibilityService.instance != null) {
+                AeroAccessibilityService.instance.setCursorVisibility(false);
+            }
         }
 
         @JavascriptInterface
         public void setFullMobileControl(boolean enabled) {
             isFullMobileControlEnabled = enabled;
             isBackgroundEngineRunning = enabled || isBackgroundEngineRunning;
+            if (!enabled && !isBackgroundEngineRunning && AeroAccessibilityService.instance != null) {
+                AeroAccessibilityService.instance.setCursorVisibility(false);
+            }
         }
 
         @JavascriptInterface
         public void setHandVisible(boolean visible) {
             runOnUiThread(() -> {
+                if (!visible && AeroAccessibilityService.instance != null) {
+                    AeroAccessibilityService.instance.setCursorVisibility(false);
+                }
                 if (isFloatingOverlayAttached && webView != null && floatingOverlayParams != null) {
                     try {
                         floatingOverlayParams.alpha = visible ? 1.0f : 0.0f;
@@ -286,17 +321,14 @@ public class MainActivity extends Activity {
                             homeIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(homeIntent);
                         }
-                        return;
                     } else if ("BACK".equalsIgnoreCase(action)) {
                         if (AeroAccessibilityService.instance != null) {
                             AeroAccessibilityService.instance.performBackGesture();
                         } else {
                             onBackPressed();
                         }
-                        return;
                     } else if (AeroAccessibilityService.instance != null) {
                         AeroAccessibilityService.instance.performGlobalPhoneAction(action);
-                        return;
                     } else if ("NOTIFICATIONS".equalsIgnoreCase(action)) {
                         Object service = getSystemService("statusbar");
                         Class<?> statusbarManager = Class.forName("android.app.StatusBarManager");
@@ -336,8 +368,14 @@ public class MainActivity extends Activity {
             try {
                 boolean accEnabled = AeroAccessibilityService.instance != null;
                 boolean overlayEnabled = Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(MainActivity.this);
+                boolean camEnabled = Build.VERSION.SDK_INT < Build.VERSION_CODES.M ||
+                        checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
+                boolean micEnabled = Build.VERSION.SDK_INT < Build.VERSION_CODES.M ||
+                        checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
                 obj.put("accessibility", accEnabled);
                 obj.put("overlay", overlayEnabled);
+                obj.put("camera", camEnabled);
+                obj.put("microphone", micEnabled);
             } catch (Exception ignored) {}
             return obj.toString();
         }
@@ -390,6 +428,16 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public void updateSelectedApps(String jsonPackages) {}
+
+        @JavascriptInterface
+        public void injectAirTypedText(String typedText, boolean submitAfterTyping) {
+            if (AeroAccessibilityService.instance != null) {
+                AeroAccessibilityService.instance.injectAirTypedText(typedText, submitAfterTyping);
+            }
+        }
+
+        @JavascriptInterface
+        public void updateFloatingIndicatorBounds(float size, float horiz, float vert, float opacity) {}
 
         @JavascriptInterface
         public void enterFloatingOverlay() {
