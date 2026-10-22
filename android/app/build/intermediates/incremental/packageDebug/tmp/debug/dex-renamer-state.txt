@@ -1,10 +1,10 @@
-#Thu Oct 22 21:24:33 AST 2026
-base.0=C\:\\Aero sense ai\\android\\app\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes.dex
-base.1=C\:\\Aero sense ai\\android\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\0\\classes.dex
+#Thu Oct 22 22:38:49 AST 2026
 base.2=C\:\\Aero sense ai\\android\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\6\\classes.dex
-path.0=classes.dex
-path.1=0/classes.dex
 path.2=6/classes.dex
-renamed.0=classes.dex
-renamed.1=classes2.dex
+base.1=C\:\\Aero sense ai\\android\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\0\\classes.dex
+path.1=0/classes.dex
+base.0=C\:\\Aero sense ai\\android\\app\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes.dex
 renamed.2=classes3.dex
+renamed.1=classes2.dex
+renamed.0=classes.dex
+path.0=classes.dex

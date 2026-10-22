@@ -7,12 +7,13 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AeroSense AI">
     <meta name="theme-color" content="#050811">
-    <title>AeroSense AI™ — Touchless Finger-Fold, Back & Home Air OS</title>
+    <title>AeroSense AI™ — Touchless Hand Gesture, Advanced Settings & Air Keyboard OS</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
+    <!-- MediaPipe Hands & Camera Utils for 1-Hand & 2-Hand Tracking -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
@@ -58,96 +59,256 @@
             height: 18px;
             border-color: #10b981;
             background: rgba(16, 185, 129, 0.9);
-            box-shadow: 0 0 28px #10b981;
+            box-shadow: 0 0 24px rgba(16, 185, 129, 0.95);
         }
 
-        /* Transparent Bottom-Center Hand Skeleton Popup */
-        #spatial-floating-hud {
+        /* Dual Hand Air Cursors (Left Hand = Cyan, Right Hand = Purple) */
+        .air-hand-cursor {
             position: fixed;
-            bottom: 94px;
-            left: 50%;
-            transform: translateX(-50%) translateY(14px) scale(0.92);
-            width: 112px;
-            height: 138px;
-            background: rgba(12, 18, 30, 0.42);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border: 1.5px solid rgba(34, 211, 238, 0.5);
-            border-radius: 22px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55);
-            z-index: 8600;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: opacity 0.18s ease, transform 0.18s ease, width 0.2s ease, height 0.2s ease;
-            opacity: 0;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
             pointer-events: none;
-        }
-        #spatial-floating-hud.hud-visible {
-            opacity: 1;
-            pointer-events: auto;
-            transform: translateX(-50%) translateY(0) scale(1);
-        }
-        #spatial-floating-hud.hud-size-sm {
-            width: 86px;
-            height: 106px;
-            border-radius: 18px;
-        }
-        #spatial-floating-hud.hud-size-md {
-            width: 112px;
-            height: 138px;
-            border-radius: 22px;
-        }
-        #spatial-floating-hud.hud-size-lg {
-            width: 150px;
-            height: 184px;
-            border-radius: 26px;
-        }
-
-        /* 1-Finger Hold Crosshair Action Menu Overlay */
-        #fold-hold-menu {
-            position: fixed;
-            inset: 0;
-            z-index: 9400;
-            background: rgba(2, 6, 23, 0.65);
-            backdrop-filter: blur(6px);
+            z-index: 9999;
+            transform: translate(-50%, -50%);
             display: none;
             align-items: center;
             justify-content: center;
-            pointer-events: auto;
-            padding: 12px;
+            font-size: 9px;
+            font-weight: 900;
+            transition: width 0.08s ease, height 0.08s ease;
+        }
+        #air-cursor-left {
+            border: 2.5px solid #22d3ee;
+            background: rgba(34, 211, 238, 0.28);
+            box-shadow: 0 0 18px rgba(34, 211, 238, 0.9);
+            color: #ffffff;
+        }
+        #air-cursor-right {
+            border: 2.5px solid #a855f7;
+            background: rgba(168, 85, 247, 0.28);
+            box-shadow: 0 0 18px rgba(168, 85, 247, 0.9);
+            color: #ffffff;
+        }
+        .air-hand-cursor.pinching {
+            width: 20px;
+            height: 20px;
+            background: #10b981 !important;
+            border-color: #ffffff !important;
+            box-shadow: 0 0 26px #10b981 !important;
+        }
+
+        /* 1-Finger Fold & Hold Radial / Grid Menu */
+        #fold-hold-menu {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.85);
+            backdrop-filter: blur(14px);
+            z-index: 9200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s ease;
         }
         #fold-hold-menu.active {
             display: flex;
+            opacity: 1;
         }
         .hold-option-box {
-            background: rgba(30, 41, 59, 0.92);
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(148, 163, 184, 0.35);
+            background: rgba(15, 23, 42, 0.95);
+            border: 1.5px solid rgba(56, 189, 248, 0.3);
             border-radius: 18px;
-            padding: 10px 12px;
-            min-width: 92px;
+            padding: 14px 10px;
             text-align: center;
-            color: #ffffff;
-            font-weight: 800;
             font-size: 11px;
-            line-height: 1.25;
+            font-weight: 800;
+            color: #f1f5f9;
             transition: all 0.15s ease;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.45);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
         }
-        .hold-option-box.hovered, .hold-option-box:hover {
-            border-color: #22d3ee;
-            background: rgba(51, 65, 85, 0.98);
-            box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.4), 0 12px 30px rgba(0,0,0,0.6);
-            transform: scale(1.05);
+        .hold-option-box:active, .hold-option-box.hovered {
+            background: #0284c7;
+            border-color: #38bdf8;
+            transform: scale(1.06);
+            color: #ffffff;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.8);
         }
 
-        /* Dedicated Native Floating Overlay Mode */
+        /* Transparent Bottom-Center Floating Hand HUD */
+        #spatial-floating-hud {
+            position: fixed;
+            bottom: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(5, 8, 17, 0.45);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1.5px solid rgba(34, 211, 238, 0.35);
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.65), inset 0 0 14px rgba(34, 211, 238, 0.15);
+            z-index: 9000;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+            pointer-events: auto;
+            opacity: 0;
+            transition: opacity 0.2s ease, width 0.2s ease, height 0.2s ease;
+        }
+        #spatial-floating-hud.hud-visible {
+            opacity: 1;
+        }
+
+        .hud-size-sm { width: 90px; height: 110px; border-radius: 18px; }
+        .hud-size-md { width: 118px; height: 146px; border-radius: 22px; }
+        .hud-size-lg { width: 160px; height: 195px; border-radius: 26px; }
+
+        /* Spatial Touch Style Custom Range Sliders with Tick Marks */
+        .aero-slider-wrap {
+            position: relative;
+            width: 100%;
+            padding: 6px 0;
+        }
+        .aero-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 5px;
+            background: #334155;
+            border-radius: 999px;
+            outline: none;
+            position: relative;
+            z-index: 2;
+        }
+        .aero-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #cbd5e1;
+            border: 3px solid #3b82f6;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+        .aero-slider::-webkit-slider-thumb:active {
+            transform: scale(1.18);
+            background: #ffffff;
+        }
+        .slider-ticks {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 8px;
+            margin-top: -9px;
+            margin-bottom: 6px;
+            pointer-events: none;
+        }
+        .slider-ticks span {
+            width: 2px;
+            height: 11px;
+            background: #475569;
+            display: inline-block;
+        }
+
+        /* Settings Card Matching Spatial Touch UI */
+        .settings-group-card {
+            background: #121318;
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 26px;
+            padding: 20px 18px;
+        }
+
+        /* Dynamic Indicator Window (Live Controlled by Indicator Settings Tab) */
+        #dynamic-hand-indicator {
+            position: fixed;
+            bottom: 12%;
+            left: 50%;
+            transform: translate(-50%, 0);
+            width: 118px;
+            height: 144px;
+            background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: blur(8px);
+            border: 1.5px solid rgba(59, 130, 246, 0.55);
+            border-radius: 22px;
+            z-index: 8800;
+            overflow: hidden;
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            pointer-events: auto;
+            transition: opacity 0.15s ease;
+        }
+        #dynamic-hand-indicator.active {
+            display: flex;
+        }
+
+        /* Dynamic Control Interface (Island / Crosshair - Controlled by Controls Tab) */
+        #dynamic-control-interface {
+            position: fixed;
+            left: 50%;
+            bottom: 52%;
+            transform: translate(-50%, 50%);
+            width: 300px;
+            min-height: 190px;
+            z-index: 9100;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px;
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(12px);
+            border: 1.5px solid rgba(99, 102, 241, 0.5);
+            border-radius: 28px;
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.75);
+        }
+        #dynamic-control-interface.visible {
+            display: flex;
+        }
+
+        /* Air Keyboard Keys */
+        .air-key {
+            height: 42px;
+            border-radius: 10px;
+            background: rgba(30, 41, 59, 0.95);
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            color: #f8fafc;
+            font-weight: 800;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.1s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .air-key.key-hovered-left {
+            border-color: #22d3ee;
+            background: rgba(8, 145, 178, 0.45);
+            box-shadow: 0 0 14px rgba(34, 211, 238, 0.6);
+            transform: translateY(-2px) scale(1.06);
+        }
+        .air-key.key-hovered-right {
+            border-color: #a855f7;
+            background: rgba(126, 34, 206, 0.45);
+            box-shadow: 0 0 14px rgba(168, 85, 247, 0.6);
+            transform: translateY(-2px) scale(1.06);
+        }
+        .air-key:active, .air-key.key-pressed {
+            background: #10b981 !important;
+            color: #020617 !important;
+            transform: scale(0.94);
+        }
+
+        /* Native Android Floating Window Transparency */
         body.native-overlay-mode {
+            background-color: transparent !important;
             background: transparent !important;
         }
-        body.native-overlay-mode > *:not(#spatial-floating-hud):not(#fold-hold-menu) {
+        body.native-overlay-mode > *:not(#spatial-floating-hud):not(#fold-hold-menu):not(#dynamic-hand-indicator):not(#dynamic-control-interface):not(#air-keyboard-overlay) {
             display: none !important;
         }
         body.native-overlay-mode #spatial-floating-hud {
@@ -170,17 +331,210 @@
             background: linear-gradient(145deg, rgba(15, 23, 42, 0.96), rgba(8, 12, 22, 0.98));
             border: 1px solid rgba(56, 189, 248, 0.18);
         }
+
+        .module-card {
+            background: #121318;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 26px;
+            padding: 18px;
+        }
+
+        /* Animated Voice Equalizer Bars */
+        .voice-wave-bar {
+            width: 5px;
+            height: 10px;
+            border-radius: 999px;
+            background: #22d3ee;
+            transition: height 0.15s ease;
+        }
+        .listening-active .voice-wave-bar:nth-child(1) { animation: waveBounce 0.55s infinite ease-in-out 0.0s; }
+        .listening-active .voice-wave-bar:nth-child(2) { animation: waveBounce 0.55s infinite ease-in-out 0.12s; background: #465fff; }
+        .listening-active .voice-wave-bar:nth-child(3) { animation: waveBounce 0.55s infinite ease-in-out 0.24s; background: #10b981; }
+        .listening-active .voice-wave-bar:nth-child(4) { animation: waveBounce 0.55s infinite ease-in-out 0.15s; background: #a855f7; }
+        .listening-active .voice-wave-bar:nth-child(5) { animation: waveBounce 0.55s infinite ease-in-out 0.05s; }
+
+        @keyframes waveBounce {
+            0%, 100% { height: 8px; }
+            50% { height: 28px; }
+        }
+
+        /* Clean Minimalist Gesture + Phone Stage */
+        .gesture-stage {
+            background: radial-gradient(circle at 50% 50%, rgba(34, 211, 238, 0.10), rgba(15, 23, 42, 0.95) 75%);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 12px;
+        }
+
+        /* Mini Phone Screen Preview Animations */
+        .phone-reel-up { animation: reelScrollUp 2.2s infinite cubic-bezier(0.4, 0, 0.2, 1); }
+        .phone-reel-down { animation: reelScrollDown 2.2s infinite cubic-bezier(0.4, 0, 0.2, 1); }
+        .phone-back-slide { animation: phoneBackAnim 2.2s infinite ease-in-out; }
+        .phone-home-pop { animation: phoneHomeAnim 2.2s infinite ease-in-out; }
+        .phone-menu-pop { transform-origin: center; animation: phoneMenuAnim 2.8s infinite ease-in-out; }
+        .hold-ring-progress { stroke-dasharray: 100; stroke-dashoffset: 100; animation: holdRingFill 2.8s infinite linear; }
+        .pinch-ripple { animation: pinchShockwave 2s infinite ease-out; transform-box: fill-box; transform-origin: center; }
+
+        @keyframes reelScrollUp {
+            0%, 35% { transform: translateY(0); }
+            55%, 85% { transform: translateY(-28px); }
+            100% { transform: translateY(0); }
+        }
+        @keyframes reelScrollDown {
+            0%, 35% { transform: translateY(-28px); }
+            55%, 85% { transform: translateY(0); }
+            100% { transform: translateY(-28px); }
+        }
+        @keyframes phoneBackAnim {
+            0%, 35%, 90%, 100% { transform: translateX(0); opacity: 0.4; }
+            50%, 70% { transform: translateX(-8px); opacity: 1; }
+        }
+        @keyframes phoneHomeAnim {
+            0%, 35%, 90%, 100% { transform: scale(1); opacity: 0.35; }
+            50%, 75% { transform: scale(0.86); opacity: 1; }
+        }
+        @keyframes phoneMenuAnim {
+            0%, 42%, 90%, 100% { transform: scale(0.4); opacity: 0; }
+            55%, 82% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes holdRingFill {
+            0%, 20% { stroke-dashoffset: 100; }
+            55%, 85% { stroke-dashoffset: 0; }
+            90%, 100% { stroke-dashoffset: 100; }
+        }
+        @keyframes pinchShockwave {
+            0%, 40% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1); opacity: 1; }
+            75%, 100% { transform: scale(2.2); opacity: 0; }
+        }
+
     </style>
 </head>
 <body class="h-[100dvh] w-full flex flex-col bg-[#050811] text-slate-100 overflow-hidden">
 
-    <!-- Smooth Full-Screen Air Pointer Cursor -->
+    <!-- Smooth Full-Screen Air Pointer Cursor (1-Hand Engine) -->
     <div id="aero-cursor">
         <div class="w-2 h-2 rounded-full bg-emerald-400"></div>
     </div>
 
-    <!-- Hidden Raw Webcam Video Element -->
+    <!-- Dual Hand Air Cursors (L = Left Hand Cyan, R = Right Hand Purple) -->
+    <div id="air-cursor-left" class="air-hand-cursor">L</div>
+    <div id="air-cursor-right" class="air-hand-cursor">R</div>
+
+    <!-- Hidden Raw Webcam Video Elements -->
     <video id="webcam-video" class="hidden" playsinline muted></video>
+    <video id="module-webcam" class="hidden" playsinline muted></video>
+
+    <!-- FLOATING HAND INDICATOR (Live Controlled by 'Indicator' Settings Tab) -->
+    <div id="dynamic-hand-indicator">
+        <div class="px-2 pt-1.5 flex items-center justify-between text-[9px] font-extrabold text-cyan-300 z-10">
+            <span id="ind-hands-badge">🖐️ 0 Hands</span>
+            <button onclick="toggleAirKeyboard(true)" class="AirKeyTarget px-1.5 py-0.5 rounded bg-indigo-500/30 border border-indigo-400/50 text-white" title="Open Air Keyboard">
+                ⌨️
+            </button>
+        </div>
+        <div class="relative flex-1 w-full h-full flex items-center justify-center overflow-hidden">
+            <canvas id="module-skeleton-canvas" class="w-full h-full object-cover mirror-cam"></canvas>
+        </div>
+        <div class="px-2 pb-1.5 z-10">
+            <div class="w-full h-1 bg-slate-800 rounded-full overflow-hidden mb-0.5">
+                <div id="sign-hold-progress" class="h-full bg-blue-500 w-0 transition-all duration-75"></div>
+            </div>
+            <p id="ind-gesture-status" class="text-[9px] font-extrabold text-center text-emerald-300 truncate">Ready</p>
+        </div>
+    </div>
+
+    <!-- FLOATING CONTROL INTERFACE (Island / Crosshair - Controlled by 'Controls' Tab) -->
+    <div id="dynamic-control-interface">
+        <div class="w-full flex items-center justify-between px-1 mb-1">
+            <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-300">
+                <i class="fa-solid fa-sliders mr-1"></i><span id="ctrl-style-label">Island Control</span>
+            </span>
+            <button onclick="toggleControlInterface(false)" class="AirKeyTarget text-xs text-slate-400 hover:text-white px-2">✕</button>
+        </div>
+        <div id="ctrl-shortcuts-grid" class="grid grid-cols-3 gap-2 w-full">
+            <!-- Populated dynamically from Shortcuts settings -->
+        </div>
+    </div>
+
+    <!-- 1-HAND & 2-HAND AIR TYPING KEYBOARD OVERLAY (For Comments & Search) -->
+    <div id="air-keyboard-overlay" class="fixed inset-x-0 bottom-0 z-[9500] bg-slate-950/95 backdrop-blur-xl border-t-2 border-cyan-500/50 p-3 shadow-2xl hidden flex-col gap-2.5 max-w-lg mx-auto rounded-t-3xl">
+        <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+                <span class="px-2.5 py-1 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 text-[10px] font-extrabold">
+                    ⌨️ <span id="kb-hand-mode-text">1-Hand & 2-Hand Air Typing</span>
+                </span>
+                <span class="text-[10px] text-slate-400 font-semibold hidden sm:inline">
+                    Pinch 👌 or Fold ☝️ over keys
+                </span>
+            </div>
+            <div class="flex items-center gap-1.5">
+                <button onclick="toggleDwellTyping()" id="dwell-type-btn" class="AirKeyTarget px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-[10px] font-extrabold text-slate-300">
+                    Hover-Type: OFF
+                </button>
+                <button onclick="toggleAirKeyboard(false)" class="AirKeyTarget px-2.5 py-1 rounded-lg bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs font-extrabold">
+                    Close ✕
+                </button>
+            </div>
+        </div>
+
+        <!-- Live Typed Input Box + Search & Comment Buttons -->
+        <div class="flex items-center gap-1.5">
+            <div class="flex-1 relative">
+                <input id="air-typed-input" type="text" placeholder="Type comment or search with 1 or 2 hands..."
+                    class="w-full bg-slate-900 border border-cyan-500/40 rounded-xl px-3 py-2.5 text-sm font-bold text-white focus:outline-none">
+                <button onclick="clearAirInput()" class="AirKeyTarget absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs px-1.5">
+                    <i class="fa-solid fa-delete-left"></i>
+                </button>
+            </div>
+            <button onclick="submitAirText('COMMENT')" class="AirKeyTarget px-3 py-2.5 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-950 font-black text-xs whitespace-nowrap shadow-md">
+                💬 Comment
+            </button>
+            <button onclick="submitAirText('SEARCH')" class="AirKeyTarget px-3 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-black text-xs whitespace-nowrap shadow-md">
+                🔍 Search
+            </button>
+        </div>
+
+        <!-- Smart Word Suggestions & Quick Emojis -->
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+            <button onclick="insertQuickPhrase('Awesome video! 🔥')" class="AirKeyTarget px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] font-bold text-cyan-300 whitespace-nowrap">Awesome video! 🔥</button>
+            <button onclick="insertQuickPhrase('Love this ❤️')" class="AirKeyTarget px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] font-bold text-rose-300 whitespace-nowrap">Love this ❤️</button>
+            <button onclick="insertQuickPhrase('Nice song 🎵')" class="AirKeyTarget px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] font-bold text-purple-300 whitespace-nowrap">Nice song 🎵</button>
+            <button onclick="insertQuickPhrase('😂')" class="AirKeyTarget px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-xs">😂</button>
+            <button onclick="insertQuickPhrase('🔥')" class="AirKeyTarget px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-xs">🔥</button>
+            <button onclick="insertQuickPhrase('❤️')" class="AirKeyTarget px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-xs">❤️</button>
+            <button onclick="insertQuickPhrase('👏')" class="AirKeyTarget px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-xs">👏</button>
+        </div>
+
+        <!-- Split-Friendly QWERTY Keyboard Grid -->
+        <div id="qwerty-rows-container" class="space-y-1.5 select-none">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+
+
+    <!-- Floating Mini Voice Pill -->
+    <div id="floating-voice-hud" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[9000] bg-slate-950/95 backdrop-blur-xl border border-cyan-500/40 px-4 py-2 rounded-full shadow-2xl flex items-center gap-3 max-w-[92vw] transition-all duration-200">
+        <button id="hud-mic-btn" onclick="toggleVoiceRecognition()" class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 text-slate-300 flex items-center justify-center shrink-0 transition active:scale-95">
+            <i id="hud-mic-icon" class="fa-solid fa-microphone-slash text-xs"></i>
+        </button>
+        <div id="voice-wave-box" class="flex items-center gap-1 h-6">
+            <span class="voice-wave-bar"></span>
+            <span class="voice-wave-bar"></span>
+            <span class="voice-wave-bar"></span>
+            <span class="voice-wave-bar"></span>
+            <span class="voice-wave-bar"></span>
+        </div>
+        <div class="min-w-0 pr-1">
+            <p id="hud-voice-status" class="text-[9px] font-extrabold text-cyan-400 uppercase tracking-wider leading-none">Voice Standby</p>
+            <p id="hud-voice-transcript" class="text-[11px] font-bold text-white truncate max-w-[150px] mt-0.5">Say "Next", "Back", "Home"...</p>
+        </div>
+    </div>
 
     <!-- FIRST-LAUNCH STARTUP PERMISSION GATE MODAL -->
     <div id="startup-permission-modal" class="fixed inset-0 z-[9600] bg-slate-950/90 backdrop-blur-md hidden items-center justify-center p-4">
@@ -350,14 +704,17 @@
                 </div>
 
                 <div class="flex items-center gap-1.5 shrink-0">
+                    <button onclick="toggleAirKeyboard(true)" class="AirClickable w-8 h-8 rounded-xl bg-indigo-500/20 border border-indigo-400/40 text-indigo-300 hover:text-white flex items-center justify-center text-xs active:scale-95 transition" title="Air Keyboard">
+                        <i class="fa-solid fa-keyboard"></i>
+                    </button>
+                    <button onclick="switchTab('settings')" class="AirClickable w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 text-cyan-400 hover:text-cyan-300 flex items-center justify-center text-xs active:scale-95 transition" title="Spatial Settings">
+                        <i class="fa-solid fa-sliders"></i>
+                    </button>
                     <button onclick="openStartupPermissionModal()" class="AirClickable w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 text-cyan-400 hover:text-cyan-300 flex items-center justify-center text-xs active:scale-95 transition" title="Permissions Setup">
                         <i class="fa-solid fa-key"></i>
                     </button>
                     <button id="voice-btn" onclick="toggleVoiceControl()" class="AirClickable w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-cyan-400 flex items-center justify-center active:scale-95 transition" title="Voice Control">
                         <i id="voice-icon" class="fa-solid fa-microphone-slash text-xs"></i>
-                    </button>
-                    <button onclick="openLegalModal()" class="AirClickable w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 text-emerald-400 hover:text-emerald-300 flex items-center justify-center text-xs active:scale-95 transition" title="Privacy & Terms">
-                        <i class="fa-solid fa-shield-halved"></i>
                     </button>
                     <span id="header-bg-pill" class="px-2 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-400 font-extrabold text-[9px] uppercase tracking-wider whitespace-nowrap">
                         OFF
@@ -409,7 +766,6 @@
 
             <!-- VIEW 1: START & APPS -->
             <section id="view-launcher" class="space-y-3">
-                <!-- Center Power Start Card -->
                 <div class="bento-card rounded-3xl p-4 text-center flex flex-col items-center gap-2.5">
                     <div class="flex items-center gap-2">
                         <span class="px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[10px] font-extrabold">
@@ -429,7 +785,7 @@
                     </p>
                 </div>
 
-                <!-- Full Mobile OS Control Bar (Back, Home, Recents, Alerts) -->
+                <!-- Full Mobile OS Control Bar -->
                 <div class="bento-card rounded-3xl p-3.5 space-y-2.5">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2.5">
@@ -449,58 +805,587 @@
                     <div class="grid grid-cols-4 gap-1.5 pt-1">
                         <button onclick="executeSystemNavigation('BACK')" class="AirClickable py-2 rounded-xl bg-slate-900/90 border border-amber-500/30 text-amber-300 text-[10px] font-extrabold flex flex-col items-center gap-1 active:scale-95">
                             <i class="fa-solid fa-chevron-left text-xs"></i>
-                            <span>Back (3-Fold)</span>
+                            <span>Back ⬅️</span>
                         </button>
                         <button onclick="executeSystemNavigation('HOME')" class="AirClickable py-2 rounded-xl bg-slate-900/90 border border-emerald-500/30 text-emerald-300 text-[10px] font-extrabold flex flex-col items-center gap-1 active:scale-95">
                             <i class="fa-solid fa-house text-xs"></i>
-                            <span>Home (4-Fold)</span>
+                            <span>Home 🏠</span>
                         </button>
-                        <button onclick="executeSystemNavigation('RECENTS')" class="AirClickable py-2 rounded-xl bg-slate-900/90 border border-cyan-500/30 text-cyan-300 text-[10px] font-extrabold flex flex-col items-center gap-1 active:scale-95">
-                            <i class="fa-solid fa-clone text-xs"></i>
+                        <button onclick="executeSystemNavigation('RECENTS')" class="AirClickable py-2 rounded-xl bg-slate-900/90 border border-purple-500/30 text-purple-300 text-[10px] font-extrabold flex flex-col items-center gap-1 active:scale-95">
+                            <i class="fa-solid fa-table-cells-large text-xs"></i>
                             <span>Recents</span>
                         </button>
-                        <button onclick="executeSystemNavigation('NOTIFICATIONS')" class="AirClickable py-2 rounded-xl bg-slate-900/90 border border-purple-500/30 text-purple-300 text-[10px] font-extrabold flex flex-col items-center gap-1 active:scale-95">
+                        <button onclick="executeSystemNavigation('NOTIFICATIONS')" class="AirClickable py-2 rounded-xl bg-slate-900/90 border border-cyan-500/30 text-cyan-300 text-[10px] font-extrabold flex flex-col items-center gap-1 active:scale-95">
                             <i class="fa-solid fa-bell text-xs"></i>
                             <span>Alerts</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- User Added Mobile Apps Section -->
-                <div class="bento-card rounded-3xl p-3.5 space-y-2.5">
-                    <div class="flex items-center justify-between gap-2">
-                        <div>
-                            <h3 class="text-xs font-black text-cyan-300 uppercase tracking-wider">📱 Your Added Mobile Apps</h3>
-                            <p class="text-[10px] text-slate-400">Add apps from your phone to control with gestures</p>
+                <!-- User Installed Apps Controller -->
+                <div class="bento-card rounded-3xl p-3.5 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-black text-cyan-300 uppercase tracking-wider">📱 Gesture Control Apps</span>
                         </div>
-                        <button onclick="openDeviceAppPickerModal()" class="AirClickable px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-950 font-black text-[11px] whitespace-nowrap shadow-md active:scale-95 transition">
-                            + Add App
+                        <button onclick="openDeviceAppPickerModal()" class="AirClickable px-2.5 py-1 rounded-xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 font-extrabold text-[10px] flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Add App</span>
                         </button>
                     </div>
 
-                    <div id="user-apps-list" class="space-y-2"></div>
+                    <div id="user-apps-list" class="space-y-2">
+                        <!-- Populated dynamically -->
+                    </div>
                 </div>
             </section>
 
-            <!-- VIEW 2: STREAM DECK TESTER -->
+            <!-- VIEW 2: STREAM TEST -->
             <section id="view-stream" class="hidden space-y-3">
                 <div class="bento-card rounded-3xl p-4 text-center space-y-3">
-                    <span id="stream-badge" class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-extrabold">PLAYING</span>
-                    <div class="w-16 h-16 mx-auto rounded-2xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-2xl">
-                        <i id="stream-icon" class="fa-solid fa-film"></i>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-black text-cyan-300 uppercase tracking-wider">📺 Stream & Gesture Tester</span>
+                        <span id="stream-badge" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold text-[9px]">PAUSED</span>
                     </div>
-                    <h3 id="stream-title" class="text-base font-black text-white">SpaceX Booster Catch 4K</h3>
-                    <p id="stream-desc" class="text-xs text-slate-400">1-Finger Fold = Next Reel • 2-Finger Fold = Prev • 3-Fold = Back • 4-Fold = Home</p>
-                    <div class="grid grid-cols-4 gap-2 pt-2">
-                        <button onclick="executeAction('PREV')" class="AirClickable py-2 rounded-xl bg-slate-900 border border-slate-800 text-[10px] font-extrabold text-cyan-300">Prev (2-Fold)</button>
-                        <button onclick="executeAction('PLAY_PAUSE')" class="AirClickable py-2 rounded-xl bg-cyan-500 text-slate-950 text-[10px] font-black">Play/Pause</button>
-                        <button onclick="executeAction('LIKE')" class="AirClickable py-2 rounded-xl bg-slate-900 border border-slate-800 text-[10px] font-extrabold text-rose-400">Like ❤️</button>
-                        <button onclick="executeAction('NEXT')" class="AirClickable py-2 rounded-xl bg-slate-900 border border-slate-800 text-[10px] font-extrabold text-emerald-300">Next (1-Fold)</button>
+
+                    <div class="relative w-full aspect-video rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center overflow-hidden">
+                        <div class="text-center space-y-2 p-4">
+                            <i class="fa-solid fa-film text-cyan-400 text-3xl"></i>
+                            <p class="text-xs font-bold text-white">Interactive Reel / Video Simulator</p>
+                            <p class="text-[10px] text-slate-400">Pinch 👌 to Play/Pause • 1-Fold ☝️ to Next Reel</p>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-center gap-2">
+                        <button onclick="executeAction('PREV')" class="AirClickable px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs font-bold">
+                            ⏮️ Prev
+                        </button>
+                        <button onclick="executeAction('PLAY_PAUSE')" class="AirClickable px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-black text-xs">
+                            ⏯️ Play / Pause
+                        </button>
+                        <button onclick="executeAction('NEXT')" class="AirClickable px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs font-bold">
+                            ⏭️ Next
+                        </button>
                     </div>
                 </div>
             </section>
 
-            <!-- VIEW 3: ADMIN & ANALYTICS -->
+            <!-- VIEW 3: SPATIAL SETTINGS & 1/2-HAND AIR KEYBOARD MODULE -->
+            <section id="view-settings" class="hidden space-y-4">
+                <!-- Top Title + Camera & Air Keyboard Quick Launchers -->
+                <div class="flex items-center justify-between gap-2">
+                    <h2 class="text-xl font-black tracking-tight text-white">Spatial Settings</h2>
+                    <div class="flex items-center gap-1.5">
+                        <button id="cam-start-btn" onclick="toggleModuleCamera()" class="AirKeyTarget px-2.5 py-1.5 rounded-xl bg-emerald-500 text-slate-950 font-black text-xs flex items-center gap-1 shadow-lg">
+                            <i class="fa-solid fa-camera"></i>
+                            <span id="cam-start-label">Start 2-Hand AI</span>
+                        </button>
+                        <button onclick="toggleAirKeyboard(true)" class="AirKeyTarget px-2.5 py-1.5 rounded-xl bg-indigo-600 text-white font-black text-xs flex items-center gap-1 shadow-lg">
+                            <i class="fa-solid fa-keyboard"></i>
+                            <span>Air Keyboard</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Two-Hand Keyboard Sign Banner -->
+                <div class="p-3.5 rounded-2xl bg-gradient-to-r from-blue-950/90 via-indigo-950/90 to-slate-900 border border-blue-500/40 flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-blue-500/20 border border-blue-400/40 flex items-center justify-center text-lg shrink-0">
+                            🙌
+                        </div>
+                        <div>
+                            <p class="text-xs font-extrabold text-white">Two-Hand Sign: Open Air Keyboard</p>
+                            <p class="text-[11px] text-blue-200/80">Show <strong>Both Hands Pinch (👌+👌)</strong> or <strong>Dual L-Sign</strong> for 0.5s to type with 1 or 2 hands!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Pill Tabs: Gestures | Indicator | Controls -->
+                <div class="bg-[#16181f] p-1.5 rounded-full flex items-center gap-1.5 border border-white/5">
+                    <button onclick="switchSettingsTab('gestures')" id="stab-gestures"
+                        class="AirKeyTarget flex-1 py-2 px-3 rounded-full font-extrabold text-xs bg-[#465fff] text-white transition">
+                        Gestures
+                    </button>
+                    <button onclick="switchSettingsTab('indicator')" id="stab-indicator"
+                        class="AirKeyTarget flex-1 py-2 px-3 rounded-full font-extrabold text-xs text-slate-400 hover:text-white transition">
+                        Indicator
+                    </button>
+                    <button onclick="switchSettingsTab('controls')" id="stab-controls"
+                        class="AirKeyTarget flex-1 py-2 px-3 rounded-full font-extrabold text-xs text-slate-400 hover:text-white transition">
+                        Controls
+                    </button>
+                </div>
+
+                <!-- TAB 1: GESTURES -->
+                <div id="panel-gestures" class="space-y-4">
+                    <div class="settings-group-card space-y-4">
+                        <h3 class="text-base font-extrabold text-white">Basic Settings</h3>
+
+                        <div onclick="openDeviceAppPickerModal()" class="AirKeyTarget flex items-center justify-between py-1 cursor-pointer">
+                            <span class="text-sm font-bold text-white">App Settings</span>
+                            <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
+                        </div>
+
+                        <div onclick="cycleGestureType()" class="AirKeyTarget flex items-center justify-between py-1 cursor-pointer">
+                            <span class="text-sm font-bold text-white">Gesture Type</span>
+                            <div class="flex items-center gap-2">
+                                <span id="val-gesture-type" class="text-sm font-bold text-slate-400">FingerFold</span>
+                                <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between py-1">
+                            <span class="text-sm font-bold text-white">Gesture Sound</span>
+                            <button id="toggle-gesture-sound" onclick="toggleGestureSound()"
+                                class="AirKeyTarget w-13 h-7 rounded-full bg-[#465fff] p-1 flex items-center justify-end transition">
+                                <div class="w-5 h-5 rounded-full bg-white flex items-center justify-center text-[#465fff] text-[10px]">
+                                    <i id="icon-gesture-sound" class="fa-solid fa-check"></i>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="settings-group-card space-y-5">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-base font-extrabold text-white">Gesture Tuning</h3>
+                            <button onclick="resetGestureTuning()" class="AirKeyTarget text-xs font-extrabold text-[#465fff] hover:underline">
+                                Reset
+                            </button>
+                        </div>
+
+                        <div class="space-y-1">
+                            <span class="text-xs font-bold text-white">Performance</span>
+                            <div class="aero-slider-wrap">
+                                <input id="sl-performance" type="range" min="1" max="5" step="1" value="3"
+                                    oninput="updateSetting('performance', this.value)" class="aero-slider">
+                                <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] font-bold text-slate-400">
+                                <span>Battery Saver</span>
+                                <span>Faster Response</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <span class="text-xs font-bold text-white">Sensitivity</span>
+                            <div class="aero-slider-wrap">
+                                <input id="sl-sensitivity" type="range" min="1" max="5" step="1" value="3"
+                                    oninput="updateSetting('sensitivity', this.value)" class="aero-slider">
+                                <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] font-bold text-slate-400">
+                                <span>Stable</span>
+                                <span>Sensitive</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <span class="text-xs font-bold text-white">Drag Repeat Speed</span>
+                            <div class="aero-slider-wrap">
+                                <input id="sl-drag-speed" type="range" min="1" max="5" step="1" value="3"
+                                    oninput="updateSetting('dragRepeatSpeed', this.value)" class="aero-slider">
+                                <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] font-bold text-slate-400">
+                                <span>Slow</span>
+                                <span>Fast</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <span class="text-xs font-bold text-white">Pointer Speed</span>
+                            <div class="aero-slider-wrap">
+                                <input id="sl-pointer-speed" type="range" min="1" max="5" step="1" value="3"
+                                    oninput="updateSetting('pointerSpeed', this.value)" class="aero-slider">
+                                <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] font-bold text-slate-400">
+                                <span>Slow</span>
+                                <span>Fast</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-white">Hand Sign Hold Duration</span>
+                                <span id="lbl-hold-duration" class="text-xs font-bold text-slate-400">1.5s</span>
+                            </div>
+                            <div class="aero-slider-wrap">
+                                <input id="sl-hold-duration" type="range" min="1.0" max="2.0" step="0.25" value="1.5"
+                                    oninput="updateSetting('holdDuration', this.value)" class="aero-slider">
+                                <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] font-bold text-slate-400">
+                                <span>1.0s</span>
+                                <span>1.5s</span>
+                                <span>2.0s</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-white">Hand Sign Activation Delay</span>
+                                <span id="lbl-activation-delay" class="text-xs font-bold text-slate-400">1.0s</span>
+                            </div>
+                            <div class="aero-slider-wrap">
+                                <input id="sl-activation-delay" type="range" min="0.0" max="2.0" step="0.5" value="1.0"
+                                    oninput="updateSetting('activationDelay', this.value)" class="aero-slider">
+                                <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] font-bold text-slate-400">
+                                <span>0.0s</span>
+                                <span>1.0s</span>
+                                <span>2.0s</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <span class="text-xs font-bold text-white">Hand Sign Sensitivity</span>
+                            <div class="aero-slider-wrap">
+                                <input id="sl-sign-sensitivity" type="range" min="1" max="5" step="1" value="3"
+                                    oninput="updateSetting('signSensitivity', this.value)" class="aero-slider">
+                                <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] font-bold text-slate-400">
+                                <span>Stable</span>
+                                <span>Sensitive</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: INDICATOR -->
+                <div id="panel-indicator" class="space-y-4 hidden">
+                    <div class="settings-group-card space-y-5">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-base font-extrabold text-white">Indicator</h3>
+                            <button onclick="resetIndicatorSettings()" class="AirKeyTarget text-xs font-extrabold text-[#465fff] hover:underline">
+                                Reset
+                            </button>
+                        </div>
+
+                        <div class="flex items-center justify-between py-1">
+                            <span class="text-sm font-bold text-white">Camera PreView</span>
+                            <button id="toggle-cam-preview" onclick="toggleCameraPreview()"
+                                class="AirKeyTarget w-13 h-7 rounded-full bg-slate-700 p-1 flex items-center justify-start transition">
+                                <div class="w-5 h-5 rounded-full bg-white flex items-center justify-center text-slate-700 text-[10px]">
+                                    <i id="icon-cam-preview" class="fa-solid fa-xmark"></i>
+                                </div>
+                            </button>
+                        </div>
+
+                        <div class="space-y-1">
+                            <span class="text-xs font-bold text-white">Indicator Frequency</span>
+                            <div class="aero-slider-wrap">
+                                <input id="sl-ind-freq" type="range" min="1" max="4" step="1" value="2"
+                                    oninput="updateIndicator('frequency', this.value)" class="aero-slider">
+                                <div class="slider-ticks"><span></span><span></span><span></span><span></span></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] font-bold text-slate-400">
+                                <span>Never</span>
+                                <span>Always</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <span class="text-xs font-bold text-white">Opacity</span>
+                            <div class="aero-slider-wrap">
+                                <input id="sl-ind-opacity" type="range" min="15" max="100" step="5" value="60"
+                                    oninput="updateIndicator('opacity', this.value)" class="aero-slider">
+                                <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] font-bold text-slate-400">
+                                <span>Transparent</span>
+                                <span>Solid</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <span class="text-xs font-bold text-white">Size</span>
+                            <div class="aero-slider-wrap">
+                                <input id="sl-ind-size" type="range" min="80" max="200" step="10" value="120"
+                                    oninput="updateIndicator('size', this.value)" class="aero-slider">
+                                <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] font-bold text-slate-400">
+                                <span>Small</span>
+                                <span>Big</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <span class="text-xs font-bold text-white">Horizontal Position</span>
+                            <div class="aero-slider-wrap">
+                                <input id="sl-ind-horiz" type="range" min="15" max="85" step="5" value="50"
+                                    oninput="updateIndicator('horiz', this.value)" class="aero-slider">
+                                <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] font-bold text-slate-400">
+                                <span>Left</span>
+                                <span>Right</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <span class="text-xs font-bold text-white">Vertical Position</span>
+                            <div class="aero-slider-wrap">
+                                <input id="sl-ind-vert" type="range" min="8" max="82" step="2" value="14"
+                                    oninput="updateIndicator('vert', this.value)" class="aero-slider">
+                                <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] font-bold text-slate-400">
+                                <span>Bottom</span>
+                                <span>Top</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: CONTROLS -->
+                <div id="panel-controls" class="space-y-4 hidden">
+                    <div class="settings-group-card space-y-5">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-base font-extrabold text-white">Control Interface</h3>
+                            <button onclick="resetControlSettings()" class="AirKeyTarget text-xs font-extrabold text-[#465fff] hover:underline">
+                                Reset
+                            </button>
+                        </div>
+
+                        <div onclick="cycleControlStyle()" class="AirKeyTarget flex items-center justify-between py-1 cursor-pointer">
+                            <span class="text-sm font-bold text-white">Style</span>
+                            <div class="flex items-center gap-2">
+                                <span id="val-control-style" class="text-sm font-bold text-slate-400">Island</span>
+                                <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between py-1">
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm font-bold text-white">Always Show</span>
+                                <span class="px-2 py-0.5 rounded-full bg-[#465fff] text-white font-black text-[9px] border border-white/40">PRO</span>
+                            </div>
+                            <button id="toggle-ctrl-always" onclick="toggleControlAlwaysShow()"
+                                class="AirKeyTarget w-13 h-7 rounded-full bg-slate-700 p-1 flex items-center justify-start transition">
+                                <div class="w-5 h-5 rounded-full bg-white flex items-center justify-center text-slate-700 text-[10px]">
+                                    <i id="icon-ctrl-always" class="fa-solid fa-xmark"></i>
+                                </div>
+                            </button>
+                        </div>
+
+                        <div class="space-y-2">
+                            <div onclick="toggleShortcutsDrawer()" class="AirKeyTarget flex items-center justify-between py-1 cursor-pointer">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm font-bold text-white">Shortcuts</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-[#465fff] text-white font-black text-[9px] border border-white/40">PRO</span>
+                                </div>
+                                <i id="shortcuts-chevron" class="fa-solid fa-chevron-down text-slate-400 text-xs transition"></i>
+                            </div>
+                            <div id="shortcuts-drawer" class="hidden grid-cols-2 gap-2 pt-2">
+                                <!-- Dynamically rendered checkboxes -->
+                            </div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <span class="text-xs font-bold text-white">Width</span>
+                            <div class="aero-slider-wrap">
+                                <input id="sl-ctrl-width" type="range" min="220" max="360" step="10" value="300"
+                                    oninput="updateControlInterface('width', this.value)" class="aero-slider">
+                                <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] font-bold text-slate-400">
+                                <span>Small</span>
+                                <span>Big</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <span class="text-xs font-bold text-white">Height</span>
+                            <div class="aero-slider-wrap">
+                                <input id="sl-ctrl-height" type="range" min="140" max="300" step="10" value="190"
+                                    oninput="updateControlInterface('height', this.value)" class="aero-slider">
+                                <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] font-bold text-slate-400">
+                                <span>Small</span>
+                                <span>Big</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <span class="text-xs font-bold text-white">Horizontal Position</span>
+                            <div class="aero-slider-wrap">
+                                <input id="sl-ctrl-horiz" type="range" min="20" max="80" step="5" value="50"
+                                    oninput="updateControlInterface('horiz', this.value)" class="aero-slider">
+                                <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] font-bold text-slate-400">
+                                <span>Left</span>
+                                <span>Right</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <span class="text-xs font-bold text-white">Vertical Position</span>
+                            <div class="aero-slider-wrap">
+                                <input id="sl-ctrl-vert" type="range" min="20" max="80" step="5" value="52"
+                                    oninput="updateControlInterface('vert', this.value)" class="aero-slider">
+                                <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] font-bold text-slate-400">
+                                <span>Bottom</span>
+                                <span>Top</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- VIEW 4: VOICE CONTROL & MINIMALIST GESTURE GUIDE -->
+            <section id="view-guide" class="hidden space-y-4">
+                <!-- Header with Voice Toggle -->
+                <div class="flex items-center justify-between gap-2">
+                    <div>
+                        <span class="px-2.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-[9px] font-extrabold uppercase">
+                            Touchless Voice + Hand AI
+                        </span>
+                        <h2 class="text-xl font-black text-white mt-0.5">Voice & Gesture Guide</h2>
+                    </div>
+                    <button id="top-mic-toggle" onclick="toggleVoiceRecognition()" class="px-3 py-1.5 rounded-2xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-black text-xs flex items-center gap-1.5 shadow-lg active:scale-95 transition">
+                        <i id="top-mic-icon" class="fa-solid fa-microphone"></i>
+                        <span id="top-mic-label">Start Voice</span>
+                    </button>
+                </div>
+
+                <!-- Top Navigation Pill Tabs -->
+                <div class="bg-[#16181f] p-1.5 rounded-full flex items-center gap-1 border border-white/5">
+                    <button onclick="switchGuideTab('gestures')" id="gtab-gestures"
+                        class="flex-1 py-1.5 px-2 rounded-full font-extrabold text-xs bg-[#465fff] text-white transition">
+                        🖐️ Hand Guide
+                    </button>
+                    <button onclick="switchGuideTab('voice')" id="gtab-voice"
+                        class="flex-1 py-1.5 px-2 rounded-full font-extrabold text-xs text-slate-400 hover:text-white transition">
+                        🎙️ Voice Control
+                    </button>
+                    <button onclick="switchGuideTab('custom')" id="gtab-custom"
+                        class="flex-1 py-1.5 px-2 rounded-full font-extrabold text-xs text-slate-400 hover:text-white transition">
+                        ⚡ Custom
+                    </button>
+                </div>
+
+                <!-- TAB 1: VISUAL HAND GESTURE GUIDE -->
+                <div id="gpanel-gestures" class="space-y-3">
+                    <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                        <button onclick="filterGestureCards('ALL')" id="gfilt-ALL" class="px-3 py-1 rounded-full bg-cyan-500 text-slate-950 font-black text-[10px] whitespace-nowrap">All (7)</button>
+                        <button onclick="filterGestureCards('FOLD')" id="gfilt-FOLD" class="px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300 font-bold text-[10px] whitespace-nowrap">Finger-Fold</button>
+                        <button onclick="filterGestureCards('SYSTEM')" id="gfilt-SYSTEM" class="px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300 font-bold text-[10px] whitespace-nowrap">Back & Home</button>
+                        <button onclick="filterGestureCards('TYPING')" id="gfilt-TYPING" class="px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300 font-bold text-[10px] whitespace-nowrap">Air Keyboard</button>
+                    </div>
+                    <div id="gesture-guide-cards" class="space-y-3"></div>
+                </div>
+
+                <!-- TAB 2: VOICE CONTROL ENGINE -->
+                <div id="gpanel-voice" class="space-y-3 hidden">
+                    <div class="module-card space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-sm font-extrabold text-white">Voice AI Autopilot</h3>
+                                <p class="text-[10px] text-slate-400">Control Reels, Back, Home & Typing by voice</p>
+                            </div>
+                            <span id="voice-live-badge" class="px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-extrabold text-[9px] uppercase">
+                                OFFLINE
+                            </span>
+                        </div>
+
+                        <div class="flex items-center justify-between py-1 border-t border-white/5 pt-2">
+                            <span class="text-xs font-bold text-white">Language</span>
+                            <div class="flex items-center gap-1.5">
+                                <button onclick="setVoiceLanguage('en-US')" id="lang-en" class="px-2.5 py-1 rounded-lg bg-[#465fff] text-white font-extrabold text-xs">English</button>
+                                <button onclick="setVoiceLanguage('hi-IN')" id="lang-hi" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 font-extrabold text-xs">हिंदी / Hinglish</button>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between py-1">
+                            <div>
+                                <span class="text-xs font-bold text-white block">Continuous Listening</span>
+                                <span class="text-[9px] text-slate-400">Keep mic active in background</span>
+                            </div>
+                            <button id="toggle-continuous-voice" onclick="toggleContinuousMode()" class="w-11 h-6 rounded-full bg-[#465fff] p-0.5 flex items-center justify-end transition">
+                                <div class="w-4 h-4 rounded-full bg-white flex items-center justify-center text-[#465fff] text-[9px]"><i id="icon-continuous-voice" class="fa-solid fa-check"></i></div>
+                            </button>
+                        </div>
+
+                        <div class="flex items-center justify-between py-1">
+                            <div>
+                                <span class="text-xs font-bold text-white block">Voice Reply (TTS Audio)</span>
+                                <span class="text-[9px] text-slate-400">Speak confirmation when command runs</span>
+                            </div>
+                            <button id="toggle-tts-reply" onclick="toggleTtsReply()" class="w-11 h-6 rounded-full bg-[#465fff] p-0.5 flex items-center justify-end transition">
+                                <div class="w-4 h-4 rounded-full bg-white flex items-center justify-center text-[#465fff] text-[9px]"><i id="icon-tts-reply" class="fa-solid fa-check"></i></div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="module-card space-y-2.5">
+                        <h4 class="text-xs font-extrabold text-cyan-300 uppercase tracking-wider">🗣️ Built-In Voice Commands (Tap to Test)</h4>
+                        <div id="voice-commands-list" class="space-y-1.5"></div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: CUSTOM TRIGGER BUILDER -->
+                <div id="gpanel-custom" class="space-y-3 hidden">
+                    <div class="module-card space-y-3">
+                        <h3 class="text-sm font-extrabold text-white">Add Custom Voice & Gesture Trigger</h3>
+                        <p class="text-[11px] text-slate-400">Assign a hand gesture icon and voice phrase to any action.</p>
+
+                        <div class="space-y-2.5">
+                            <div>
+                                <label class="text-[11px] font-bold text-slate-300 block mb-1">Select Gesture Icon:</label>
+                                <div id="custom-gesture-icon-picker" class="grid grid-cols-6 gap-1.5 pt-0.5">
+                                    <button type="button" onclick="selectCustomIcon('☝️')" class="cust-icon-btn p-1.5 rounded-xl bg-cyan-500/20 border-2 border-cyan-400 text-base flex items-center justify-center">☝️</button>
+                                    <button type="button" onclick="selectCustomIcon('✌️')" class="cust-icon-btn p-1.5 rounded-xl bg-slate-900 border border-slate-700 text-base flex items-center justify-center">✌️</button>
+                                    <button type="button" onclick="selectCustomIcon('✊')" class="cust-icon-btn p-1.5 rounded-xl bg-slate-900 border border-slate-700 text-base flex items-center justify-center">✊</button>
+                                    <button type="button" onclick="selectCustomIcon('👌')" class="cust-icon-btn p-1.5 rounded-xl bg-slate-900 border border-slate-700 text-base flex items-center justify-center">👌</button>
+                                    <button type="button" onclick="selectCustomIcon('🖐️')" class="cust-icon-btn p-1.5 rounded-xl bg-slate-900 border border-slate-700 text-base flex items-center justify-center">🖐️</button>
+                                    <button type="button" onclick="selectCustomIcon('🙌')" class="cust-icon-btn p-1.5 rounded-xl bg-slate-900 border border-slate-700 text-base flex items-center justify-center">🙌</button>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="text-[11px] font-bold text-slate-300 block mb-1">When I say this voice phrase:</label>
+                                <input id="custom-voice-phrase" type="text" placeholder="e.g. Skip video / Aage badho"
+                                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-none focus:border-cyan-400">
+                            </div>
+
+                            <div>
+                                <label class="text-[11px] font-bold text-slate-300 block mb-1">Perform this Action:</label>
+                                <select id="custom-voice-action" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-none">
+                                    <option value="NEXT">☝️ Scroll Next Reel (Swipe Up)</option>
+                                    <option value="PREV">✌️ Previous Reel (Swipe Down)</option>
+                                    <option value="PLAY_PAUSE">👌 Play / Pause Video</option>
+                                    <option value="LIKE">❤️ Like / Heart Reel</option>
+                                    <option value="BACK">⬅️ System Back</option>
+                                    <option value="HOME">🏠 System Home Screen</option>
+                                    <option value="VOL_UP">🔊 Volume Up</option>
+                                    <option value="VOL_DOWN">🔉 Volume Down</option>
+                                    <option value="OPEN_KEYBOARD">⌨️ Open 2-Hand Air Keyboard</option>
+                                </select>
+                            </div>
+
+                            <button onclick="addCustomVoiceCommand()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-black text-xs shadow-lg active:scale-95 transition">
+                                + Save Custom Trigger
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="module-card space-y-2">
+                        <h4 class="text-xs font-extrabold uppercase tracking-wider text-purple-300">Saved Custom Triggers</h4>
+                        <div id="custom-triggers-list" class="space-y-1.5"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 4: ADMIN & ANALYTICS -->
             <section id="view-admin" class="hidden space-y-3">
                 <div class="bento-card rounded-3xl p-4 space-y-3">
                     <div class="flex items-center justify-between">
@@ -524,7 +1409,7 @@
             </section>
         </main>
 
-        <!-- 4. QUICK GESTURE TEST BAR (Includes 3-Fold Back & 4-Fold Home) -->
+        <!-- 4. QUICK GESTURE TEST BAR -->
         <div class="shrink-0 px-2.5 py-1.5 bg-slate-950 border-t border-slate-800/80 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
             <span class="text-[9px] font-extrabold text-slate-400 uppercase shrink-0">TEST:</span>
             <button onclick="simulateFingerGesture('FOLD_1')" class="AirClickable px-2.5 py-1 rounded-lg bg-slate-900 border border-cyan-500/30 text-cyan-300 text-[10px] font-extrabold whitespace-nowrap shrink-0">
@@ -542,24 +1427,31 @@
             <button onclick="openFoldHoldMenu()" class="AirClickable px-2.5 py-1 rounded-lg bg-slate-900 border border-indigo-500/40 text-indigo-300 text-[10px] font-extrabold whitespace-nowrap shrink-0">
                 ⏱️ Hold Menu
             </button>
+            <button onclick="toggleAirKeyboard(true)" class="AirClickable px-2.5 py-1 rounded-lg bg-slate-900 border border-cyan-500/40 text-cyan-300 text-[10px] font-extrabold whitespace-nowrap shrink-0">
+                ⌨️ Air Keyboard
+            </button>
         </div>
 
-        <!-- 5. BOTTOM NAVIGATION -->
+        <!-- 5. BOTTOM NAVIGATION (Apps | Stream | Settings | Gestures | Admin) -->
         <nav class="shrink-0 bg-[#04070f] border-t border-slate-800 px-2 py-1.5">
-            <div class="grid grid-cols-4 gap-1.5">
-                <button onclick="switchTab('launcher')" id="nav-launcher" class="AirClickable py-1.5 rounded-xl bg-cyan-500/15 text-cyan-400 font-extrabold text-[10px] flex flex-col items-center gap-0.5">
+            <div class="grid grid-cols-5 gap-1">
+                <button onclick="switchTab('launcher')" id="nav-launcher" class="AirClickable py-1.5 rounded-xl bg-cyan-500/15 text-cyan-400 font-extrabold text-[9px] flex flex-col items-center gap-0.5">
                     <i class="fa-solid fa-power-off text-xs"></i>
-                    <span>Start & Apps</span>
+                    <span>Apps</span>
                 </button>
-                <button onclick="switchTab('stream')" id="nav-stream" class="AirClickable py-1.5 rounded-xl text-slate-400 font-bold text-[10px] flex flex-col items-center gap-0.5">
+                <button onclick="switchTab('stream')" id="nav-stream" class="AirClickable py-1.5 rounded-xl text-slate-400 font-bold text-[9px] flex flex-col items-center gap-0.5">
                     <i class="fa-solid fa-circle-play text-xs"></i>
-                    <span>Stream Test</span>
+                    <span>Stream</span>
                 </button>
-                <button onclick="openGestureGuideModal()" class="AirClickable py-1.5 rounded-xl text-slate-400 font-bold text-[10px] flex flex-col items-center gap-0.5">
+                <button onclick="switchTab('settings')" id="nav-settings" class="AirClickable py-1.5 rounded-xl text-slate-400 font-bold text-[9px] flex flex-col items-center gap-0.5">
+                    <i class="fa-solid fa-sliders text-xs"></i>
+                    <span>Settings</span>
+                </button>
+                <button onclick="switchTab('guide')" id="nav-guide" class="AirClickable py-1.5 rounded-xl text-slate-400 font-bold text-[9px] flex flex-col items-center gap-0.5">
                     <i class="fa-solid fa-hand-sparkles text-xs"></i>
                     <span>Gestures</span>
                 </button>
-                <button onclick="switchTab('admin')" id="nav-admin" class="AirClickable py-1.5 rounded-xl text-slate-400 font-bold text-[10px] flex flex-col items-center gap-0.5">
+                <button onclick="switchTab('admin')" id="nav-admin" class="AirClickable py-1.5 rounded-xl text-slate-400 font-bold text-[9px] flex flex-col items-center gap-0.5">
                     <i class="fa-solid fa-user-shield text-xs"></i>
                     <span>Admin</span>
                 </button>
@@ -599,6 +1491,10 @@
                     <span class="font-bold text-emerald-400">👌 Index + Thumb Pinch</span>
                     <span class="text-slate-300">Air Tap / Play-Pause</span>
                 </div>
+                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-blue-500/40 flex justify-between">
+                    <span class="font-bold text-blue-300">🙌 Both Hands Pinch (👌+👌)</span>
+                    <span class="text-slate-200 font-bold">Open Air Keyboard</span>
+                </div>
             </div>
             <button onclick="closeGestureGuideModal()" class="w-full py-2.5 rounded-xl bg-cyan-500 text-slate-950 font-black text-xs">Got It</button>
         </div>
@@ -631,6 +1527,9 @@
     </div>
 
     <script>
+        // =====================================================================
+        // 1. ENGINE & GESTURE CORE STATE
+        // =====================================================================
         let engineRunning = false;
         let fullMobileControl = false;
         let handsInstance = null;
@@ -639,14 +1538,79 @@
         let hudSizeIdx = 1;
         let userAddedApps = JSON.parse(localStorage.getItem('aero_user_apps') || '[]');
 
-        // Smooth Cursor & Gesture State
         let smoothX = window.innerWidth / 2;
         let smoothY = window.innerHeight / 2;
-        let foldState = 0; // 0 = open, 1/2/3/4 = folded count
+        let foldState = 0;
         let foldStartTime = 0;
         let holdTriggered = false;
         let lastGestureTime = 0;
         let wasPinching = false;
+
+        // =====================================================================
+        // 2. SPATIAL SETTINGS STATE (Matching Screenshots 1, 2, 3, 4)
+        // =====================================================================
+        const defaultAeroSettings = {
+            gestureType: 'FingerFold',
+            gestureSound: true,
+            performance: 3,
+            sensitivity: 3,
+            dragRepeatSpeed: 3,
+            pointerSpeed: 3,
+            holdDuration: 1.5,
+            activationDelay: 1.0,
+            signSensitivity: 3,
+
+            // Indicator Tab
+            cameraPreview: false,
+            indFrequency: 2,
+            indOpacity: 60,
+            indSize: 120,
+            indHoriz: 50,
+            indVert: 14,
+
+            // Controls Tab
+            controlStyle: 'Island',
+            controlAlwaysShow: false,
+            ctrlWidth: 300,
+            ctrlHeight: 190,
+            ctrlHoriz: 50,
+            ctrlVert: 52,
+            shortcuts: [
+                { id: 'VOL_UP', label: 'Volume Up', enabled: true },
+                { id: 'VOL_DOWN', label: 'Volume Down', enabled: true },
+                { id: 'PLAY_PAUSE', label: 'Play / Pause', enabled: true },
+                { id: 'LIKE', label: 'Like ❤️', enabled: true },
+                { id: 'SWIPE_UP', label: 'Swipe Up', enabled: true },
+                { id: 'BACK', label: 'Back ⬅️', enabled: true },
+                { id: 'HOME', label: 'Home 🏠', enabled: true },
+                { id: 'KEYBOARD', label: 'Air Keyboard ⌨️', enabled: true }
+            ]
+        };
+
+        let aeroConfig = JSON.parse(localStorage.getItem('aero_spatial_settings')) || JSON.parse(JSON.stringify(defaultAeroSettings));
+
+        function saveAeroConfig() {
+            localStorage.setItem('aero_spatial_settings', JSON.stringify(aeroConfig));
+        }
+
+        // Tactile Web Audio Tone Synthesizer
+        let audioCtx = null;
+        function playGestureTone(freq = 580, duration = 0.055) {
+            if (!aeroConfig.gestureSound) return;
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {}
+        }
 
         function showToast(emoji, label, message) {
             const toast = document.getElementById('aero-toast');
@@ -660,9 +1624,599 @@
             }, 2200);
         }
 
+        // =====================================================================
+        // 3. SETTINGS UI CONTROLS & SWITCHERS
+        // =====================================================================
+        function switchSettingsTab(tab) {
+            playGestureTone(520, 0.04);
+            ['gestures', 'indicator', 'controls'].forEach(t => {
+                const panel = document.getElementById(`panel-${t}`);
+                if (panel) panel.classList.toggle('hidden', t !== tab);
+                const btn = document.getElementById(`stab-${t}`);
+                if (btn) {
+                    btn.className = t === tab
+                        ? 'AirKeyTarget flex-1 py-2 px-3 rounded-full font-extrabold text-xs bg-[#465fff] text-white transition'
+                        : 'AirKeyTarget flex-1 py-2 px-3 rounded-full font-extrabold text-xs text-slate-400 hover:text-white transition';
+                }
+            });
+            if (tab === 'controls') {
+                toggleControlInterface(true);
+            } else if (!aeroConfig.controlAlwaysShow) {
+                toggleControlInterface(false);
+            }
+        }
+
+        const gestureTypes = ['FingerFold', 'Pinch', 'Hybrid'];
+        function cycleGestureType() {
+            const idx = (gestureTypes.indexOf(aeroConfig.gestureType) + 1) % gestureTypes.length;
+            aeroConfig.gestureType = gestureTypes[idx];
+            document.getElementById('val-gesture-type').textContent = aeroConfig.gestureType;
+            saveAeroConfig();
+            playGestureTone(640, 0.05);
+        }
+
+        function toggleGestureSound() {
+            aeroConfig.gestureSound = !aeroConfig.gestureSound;
+            renderSettingsUI();
+            saveAeroConfig();
+            playGestureTone(700, 0.06);
+        }
+
+        function updateSetting(key, val) {
+            aeroConfig[key] = parseFloat(val);
+            if (key === 'holdDuration') {
+                document.getElementById('lbl-hold-duration').textContent = `${aeroConfig.holdDuration}s`;
+            } else if (key === 'activationDelay') {
+                document.getElementById('lbl-activation-delay').textContent = `${aeroConfig.activationDelay.toFixed(1)}s`;
+            }
+            saveAeroConfig();
+        }
+
+        function resetGestureTuning() {
+            ['performance', 'sensitivity', 'dragRepeatSpeed', 'pointerSpeed', 'holdDuration', 'activationDelay', 'signSensitivity'].forEach(k => {
+                aeroConfig[k] = defaultAeroSettings[k];
+            });
+            renderSettingsUI();
+            saveAeroConfig();
+            playGestureTone(440, 0.08);
+        }
+
+        function toggleCameraPreview() {
+            aeroConfig.cameraPreview = !aeroConfig.cameraPreview;
+            renderSettingsUI();
+            saveAeroConfig();
+            playGestureTone(600, 0.05);
+        }
+
+        function updateIndicator(prop, val) {
+            const num = parseFloat(val);
+            if (prop === 'frequency') aeroConfig.indFrequency = num;
+            if (prop === 'opacity') aeroConfig.indOpacity = num;
+            if (prop === 'size') aeroConfig.indSize = num;
+            if (prop === 'horiz') aeroConfig.indHoriz = num;
+            if (prop === 'vert') aeroConfig.indVert = num;
+            applyIndicatorStyles();
+            saveAeroConfig();
+        }
+
+        function applyIndicatorStyles() {
+            const ind = document.getElementById('dynamic-hand-indicator');
+            if (!ind) return;
+            ind.style.opacity = aeroConfig.indFrequency === 1 ? '0' : (aeroConfig.indOpacity / 100);
+            ind.style.width = `${aeroConfig.indSize}px`;
+            ind.style.height = `${Math.round(aeroConfig.indSize * 1.22)}px`;
+            ind.style.left = `${aeroConfig.indHoriz}%`;
+            ind.style.bottom = `${aeroConfig.indVert}%`;
+
+            if (window.AndroidBridge && window.AndroidBridge.updateFloatingIndicatorBounds) {
+                window.AndroidBridge.updateFloatingIndicatorBounds(
+                    aeroConfig.indSize,
+                    aeroConfig.indHoriz,
+                    aeroConfig.indVert,
+                    aeroConfig.indOpacity / 100
+                );
+            }
+        }
+
+        function resetIndicatorSettings() {
+            aeroConfig.cameraPreview = false;
+            aeroConfig.indFrequency = 2;
+            aeroConfig.indOpacity = 60;
+            aeroConfig.indSize = 120;
+            aeroConfig.indHoriz = 50;
+            aeroConfig.indVert = 14;
+            renderSettingsUI();
+            saveAeroConfig();
+            playGestureTone(440, 0.08);
+        }
+
+        const controlStyles = ['Island', 'Crosshair', 'Compact'];
+        function cycleControlStyle() {
+            const idx = (controlStyles.indexOf(aeroConfig.controlStyle) + 1) % controlStyles.length;
+            aeroConfig.controlStyle = controlStyles[idx];
+            renderSettingsUI();
+            saveAeroConfig();
+            playGestureTone(640, 0.05);
+        }
+
+        function toggleControlAlwaysShow() {
+            aeroConfig.controlAlwaysShow = !aeroConfig.controlAlwaysShow;
+            toggleControlInterface(aeroConfig.controlAlwaysShow);
+            renderSettingsUI();
+            saveAeroConfig();
+            playGestureTone(620, 0.05);
+        }
+
+        function toggleShortcutsDrawer() {
+            const drawer = document.getElementById('shortcuts-drawer');
+            drawer.classList.toggle('hidden');
+            drawer.classList.toggle('grid');
+        }
+
+        function toggleShortcutItem(id) {
+            const item = aeroConfig.shortcuts.find(s => s.id === id);
+            if (item) item.enabled = !item.enabled;
+            renderControlShortcuts();
+            saveAeroConfig();
+        }
+
+        function updateControlInterface(prop, val) {
+            const num = parseFloat(val);
+            if (prop === 'width') aeroConfig.ctrlWidth = num;
+            if (prop === 'height') aeroConfig.ctrlHeight = num;
+            if (prop === 'horiz') aeroConfig.ctrlHoriz = num;
+            if (prop === 'vert') aeroConfig.ctrlVert = num;
+            applyControlInterfaceStyles();
+            saveAeroConfig();
+        }
+
+        function applyControlInterfaceStyles() {
+            const ctrl = document.getElementById('dynamic-control-interface');
+            if (!ctrl) return;
+            ctrl.style.width = `${aeroConfig.ctrlWidth}px`;
+            ctrl.style.minHeight = `${aeroConfig.ctrlHeight}px`;
+            ctrl.style.left = `${aeroConfig.ctrlHoriz}%`;
+            ctrl.style.bottom = `${aeroConfig.ctrlVert}%`;
+            const lbl = document.getElementById('ctrl-style-label');
+            if (lbl) lbl.textContent = `${aeroConfig.controlStyle} Control`;
+        }
+
+        function toggleControlInterface(show) {
+            const ctrl = document.getElementById('dynamic-control-interface');
+            if (!ctrl) return;
+            if (show) ctrl.classList.add('visible');
+            else if (!aeroConfig.controlAlwaysShow) ctrl.classList.remove('visible');
+        }
+
+        function resetControlSettings() {
+            aeroConfig.controlStyle = 'Island';
+            aeroConfig.controlAlwaysShow = false;
+            aeroConfig.ctrlWidth = 300;
+            aeroConfig.ctrlHeight = 190;
+            aeroConfig.ctrlHoriz = 50;
+            aeroConfig.ctrlVert = 52;
+            renderSettingsUI();
+            saveAeroConfig();
+            playGestureTone(440, 0.08);
+        }
+
+        function renderControlShortcuts() {
+            const grid = document.getElementById('ctrl-shortcuts-grid');
+            const drawer = document.getElementById('shortcuts-drawer');
+            if (!grid || !drawer) return;
+            const active = aeroConfig.shortcuts.filter(s => s.enabled);
+
+            grid.innerHTML = active.map(s => `
+                <button onclick="executeControlShortcut('${s.id}')"
+                    class="AirKeyTarget py-2 px-1.5 rounded-2xl bg-slate-800/90 hover:bg-indigo-600/40 border border-slate-600/50 text-[11px] font-extrabold text-white transition active:scale-95 truncate">
+                    ${s.label}
+                </button>
+            `).join('');
+
+            drawer.innerHTML = aeroConfig.shortcuts.map(s => `
+                <button onclick="toggleShortcutItem('${s.id}')"
+                    class="p-2 rounded-xl border text-left text-xs font-bold flex items-center justify-between ${s.enabled ? 'bg-blue-600/20 border-blue-500 text-white' : 'bg-slate-900 border-slate-800 text-slate-500'}">
+                    <span>${s.label}</span>
+                    <i class="fa-solid ${s.enabled ? 'fa-check text-blue-400' : 'fa-plus'}"></i>
+                </button>
+            `).join('');
+        }
+
+        function executeControlShortcut(id) {
+            playGestureTone(740, 0.06);
+            if (id === 'KEYBOARD') {
+                toggleControlInterface(false);
+                toggleAirKeyboard(true);
+            } else if (id === 'BACK') {
+                executeSystemNavigation('BACK');
+            } else if (id === 'HOME') {
+                executeSystemNavigation('HOME');
+            } else if (id === 'VOL_UP') {
+                triggerHoldMenuOption('VOL_UP');
+            } else if (id === 'VOL_DOWN') {
+                triggerHoldMenuOption('VOL_DOWN');
+            } else if (id === 'PLAY_PAUSE') {
+                executeAction('PLAY_PAUSE');
+            } else if (id === 'LIKE') {
+                executeAction('LIKE');
+            } else if (id === 'SWIPE_UP') {
+                executeAction('NEXT');
+            } else {
+                showToast('⚡', 'Shortcut', id);
+            }
+        }
+
+        function renderSettingsUI() {
+            const vgt = document.getElementById('val-gesture-type');
+            if (vgt) vgt.textContent = aeroConfig.gestureType;
+
+            const sndBtn = document.getElementById('toggle-gesture-sound');
+            const sndIcon = document.getElementById('icon-gesture-sound');
+            if (sndBtn && sndIcon) {
+                sndBtn.className = aeroConfig.gestureSound
+                    ? 'AirKeyTarget w-13 h-7 rounded-full bg-[#465fff] p-1 flex items-center justify-end transition'
+                    : 'AirKeyTarget w-13 h-7 rounded-full bg-slate-700 p-1 flex items-center justify-start transition';
+                sndIcon.className = aeroConfig.gestureSound ? 'fa-solid fa-check text-[#465fff]' : 'fa-solid fa-xmark text-slate-700';
+            }
+
+            const slPerf = document.getElementById('sl-performance');
+            if (slPerf) slPerf.value = aeroConfig.performance;
+            const slSens = document.getElementById('sl-sensitivity');
+            if (slSens) slSens.value = aeroConfig.sensitivity;
+            const slDrag = document.getElementById('sl-drag-speed');
+            if (slDrag) slDrag.value = aeroConfig.dragRepeatSpeed;
+            const slPtr = document.getElementById('sl-pointer-speed');
+            if (slPtr) slPtr.value = aeroConfig.pointerSpeed;
+            const slHold = document.getElementById('sl-hold-duration');
+            if (slHold) slHold.value = aeroConfig.holdDuration;
+            const lblHold = document.getElementById('lbl-hold-duration');
+            if (lblHold) lblHold.textContent = `${aeroConfig.holdDuration}s`;
+            const slAct = document.getElementById('sl-activation-delay');
+            if (slAct) slAct.value = aeroConfig.activationDelay;
+            const lblAct = document.getElementById('lbl-activation-delay');
+            if (lblAct) lblAct.textContent = `${aeroConfig.activationDelay.toFixed(1)}s`;
+            const slSign = document.getElementById('sl-sign-sensitivity');
+            if (slSign) slSign.value = aeroConfig.signSensitivity;
+
+            const camBtn = document.getElementById('toggle-cam-preview');
+            const camIcon = document.getElementById('icon-cam-preview');
+            if (camBtn && camIcon) {
+                camBtn.className = aeroConfig.cameraPreview
+                    ? 'AirKeyTarget w-13 h-7 rounded-full bg-[#465fff] p-1 flex items-center justify-end transition'
+                    : 'AirKeyTarget w-13 h-7 rounded-full bg-slate-700 p-1 flex items-center justify-start transition';
+                camIcon.className = aeroConfig.cameraPreview ? 'fa-solid fa-check text-[#465fff]' : 'fa-solid fa-xmark text-slate-700';
+            }
+
+            const slFreq = document.getElementById('sl-ind-freq');
+            if (slFreq) slFreq.value = aeroConfig.indFrequency;
+            const slOpac = document.getElementById('sl-ind-opacity');
+            if (slOpac) slOpac.value = aeroConfig.indOpacity;
+            const slSize = document.getElementById('sl-ind-size');
+            if (slSize) slSize.value = aeroConfig.indSize;
+            const slHoriz = document.getElementById('sl-ind-horiz');
+            if (slHoriz) slHoriz.value = aeroConfig.indHoriz;
+            const slVert = document.getElementById('sl-ind-vert');
+            if (slVert) slVert.value = aeroConfig.indVert;
+            applyIndicatorStyles();
+
+            const vcs = document.getElementById('val-control-style');
+            if (vcs) vcs.textContent = aeroConfig.controlStyle;
+            const alwBtn = document.getElementById('toggle-ctrl-always');
+            const alwIcon = document.getElementById('icon-ctrl-always');
+            if (alwBtn && alwIcon) {
+                alwBtn.className = aeroConfig.controlAlwaysShow
+                    ? 'AirKeyTarget w-13 h-7 rounded-full bg-[#465fff] p-1 flex items-center justify-end transition'
+                    : 'AirKeyTarget w-13 h-7 rounded-full bg-slate-700 p-1 flex items-center justify-start transition';
+                alwIcon.className = aeroConfig.controlAlwaysShow ? 'fa-solid fa-check text-[#465fff]' : 'fa-solid fa-xmark text-slate-700';
+            }
+
+            const slCw = document.getElementById('sl-ctrl-width');
+            if (slCw) slCw.value = aeroConfig.ctrlWidth;
+            const slCh = document.getElementById('sl-ctrl-height');
+            if (slCh) slCh.value = aeroConfig.ctrlHeight;
+            const slChz = document.getElementById('sl-ctrl-horiz');
+            if (slChz) slChz.value = aeroConfig.ctrlHoriz;
+            const slCvt = document.getElementById('sl-ctrl-vert');
+            if (slCvt) slCvt.value = aeroConfig.ctrlVert;
+            applyControlInterfaceStyles();
+            renderControlShortcuts();
+        }
+
+        // =====================================================================
+        // 4. ONE-HAND & TWO-HAND AIR TYPING KEYBOARD ENGINE
+        // =====================================================================
+        const qwertyLayout = [
+            ['1','2','3','4','5','6','7','8','9','0'],
+            ['Q','W','E','R','T','Y','U','I','O','P'],
+            ['A','S','D','F','G','H','J','K','L'],
+            ['SHIFT','Z','X','C','V','B','N','M','⌫'],
+            ['123','🌐','SPACE','🔍','⏎']
+        ];
+        let isUpperCase = true;
+        let dwellTypingEnabled = false;
+
+        function buildAirKeyboard() {
+            const container = document.getElementById('qwerty-rows-container');
+            if (!container) return;
+            container.innerHTML = qwertyLayout.map(row => `
+                <div class="flex justify-center gap-1 w-full">
+                    ${row.map(key => {
+                        let widthClass = 'flex-1';
+                        let label = key;
+                        if (key === 'SPACE') { widthClass = 'flex-[4]'; label = 'SPACE (1/2 Hand)'; }
+                        else if (key === 'SHIFT' || key === '⌫' || key === '⏎') { widthClass = 'flex-[1.5]'; }
+                        return `<button data-air-key="${key}" onclick="handleAirKeyPress('${key}')" class="AirKeyTarget air-key ${widthClass}">${label}</button>`;
+                    }).join('')}
+                </div>
+            `).join('');
+        }
+
+        function handleAirKeyPress(key) {
+            playGestureTone(680, 0.045);
+            const input = document.getElementById('air-typed-input');
+            if (!input) return;
+            if (key === '⌫') {
+                input.value = input.value.slice(0, -1);
+            } else if (key === 'SPACE') {
+                input.value += ' ';
+            } else if (key === 'SHIFT') {
+                isUpperCase = !isUpperCase;
+            } else if (key === '🔍') {
+                submitAirText('SEARCH');
+                return;
+            } else if (key === '⏎') {
+                submitAirText('COMMENT');
+                return;
+            } else if (key !== '123' && key !== '🌐') {
+                const ch = isUpperCase ? key.toUpperCase() : key.toLowerCase();
+                input.value += ch;
+            }
+
+            if (window.AndroidBridge && window.AndroidBridge.injectAirTypedText) {
+                window.AndroidBridge.injectAirTypedText(input.value, false);
+            }
+        }
+
+        function insertQuickPhrase(phrase) {
+            playGestureTone(760, 0.06);
+            const input = document.getElementById('air-typed-input');
+            if (!input) return;
+            input.value = (input.value ? input.value + ' ' : '') + phrase;
+            if (window.AndroidBridge && window.AndroidBridge.injectAirTypedText) {
+                window.AndroidBridge.injectAirTypedText(input.value, false);
+            }
+        }
+
+        function clearAirInput() {
+            const input = document.getElementById('air-typed-input');
+            if (input) input.value = '';
+        }
+
+        function submitAirText(mode) {
+            const input = document.getElementById('air-typed-input');
+            const text = input ? input.value.trim() : '';
+            if (!text) return;
+            playGestureTone(880, 0.09);
+
+            if (window.AndroidBridge && window.AndroidBridge.injectAirTypedText) {
+                window.AndroidBridge.injectAirTypedText(text, true);
+            } else if (mode === 'SEARCH') {
+                window.open(`https://www.google.com/search?q=${encodeURIComponent(text)}`, '_blank');
+            }
+            showToast(mode === 'SEARCH' ? '🔍' : '💬', mode, text);
+        }
+
+        function toggleAirKeyboard(show) {
+            const kb = document.getElementById('air-keyboard-overlay');
+            if (!kb) return;
+            playGestureTone(show ? 780 : 460, 0.07);
+            if (show) {
+                kb.classList.remove('hidden');
+                kb.classList.add('flex');
+            } else {
+                kb.classList.add('hidden');
+                kb.classList.remove('flex');
+            }
+        }
+
+        function toggleDwellTyping() {
+            dwellTypingEnabled = !dwellTypingEnabled;
+            const btn = document.getElementById('dwell-type-btn');
+            if (btn) {
+                btn.textContent = dwellTypingEnabled ? 'Hover-Type: ON' : 'Hover-Type: OFF';
+                btn.className = dwellTypingEnabled
+                    ? 'AirKeyTarget px-2.5 py-1 rounded-lg bg-emerald-500 text-slate-950 text-[10px] font-black'
+                    : 'AirKeyTarget px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-[10px] font-extrabold text-slate-300';
+            }
+        }
+
+        // =====================================================================
+        // 5. MEDIAPIPE 2-HAND TRACKING + DUAL CURSORS & TWO-HAND SIGN
+        // =====================================================================
+        let moduleCamActive = false;
+        let mpHands = null;
+        let mpCam = null;
+
+        const handCursors = [
+            { x: window.innerWidth * 0.35, y: window.innerHeight * 0.5, pinching: false, hoveredEl: null, dwellStart: 0 },
+            { x: window.innerWidth * 0.65, y: window.innerHeight * 0.5, pinching: false, hoveredEl: null, dwellStart: 0 }
+        ];
+        let twoHandSignStart = 0;
+        let twoHandKeyboardTriggered = false;
+
+        function isHandMakingKeyboardSign(lm) {
+            const pinchDist = Math.hypot(lm[8].x - lm[4].x, lm[8].y - lm[4].y);
+            const indexExtended = lm[8].y < lm[6].y;
+            const middleFolded = lm[12].y > lm[10].y;
+            const ringFolded = lm[16].y > lm[14].y;
+            const thumbOut = Math.hypot(lm[4].x - lm[5].x, lm[4].y - lm[5].y) > 0.07;
+            return pinchDist < 0.06 || (indexExtended && middleFolded && ringFolded && thumbOut);
+        }
+
+        async function toggleModuleCamera() {
+            const videoEl = document.getElementById('module-webcam');
+            const canvasEl = document.getElementById('module-skeleton-canvas');
+            const ctx = canvasEl ? canvasEl.getContext('2d') : null;
+            const cursorL = document.getElementById('air-cursor-left');
+            const cursorR = document.getElementById('air-cursor-right');
+            const dynInd = document.getElementById('dynamic-hand-indicator');
+
+            if (moduleCamActive) {
+                moduleCamActive = false;
+                if (mpCam) await mpCam.stop();
+                if (cursorL) cursorL.style.display = 'none';
+                if (cursorR) cursorR.style.display = 'none';
+                if (dynInd) dynInd.classList.remove('active');
+                document.getElementById('cam-start-label').textContent = 'Start 2-Hand AI';
+                return;
+            }
+
+            if (!mpHands) {
+                mpHands = new Hands({
+                    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+                });
+                mpHands.setOptions({
+                    maxNumHands: 2,
+                    modelComplexity: 1,
+                    minDetectionConfidence: 0.62,
+                    minTrackingConfidence: 0.62
+                });
+
+                mpHands.onResults((results) => {
+                    if (!canvasEl || !ctx) return;
+                    canvasEl.width = 240;
+                    canvasEl.height = 280;
+                    ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+
+                    document.querySelectorAll('.key-hovered-left, .key-hovered-right').forEach(el => {
+                        el.classList.remove('key-hovered-left', 'key-hovered-right');
+                    });
+
+                    if (aeroConfig.cameraPreview && results.image) {
+                        ctx.drawImage(results.image, 0, 0, canvasEl.width, canvasEl.height);
+                    }
+
+                    const hands = results.multiHandLandmarks || [];
+                    const hBadge = document.getElementById('ind-hands-badge');
+                    if (hBadge) hBadge.textContent = `🖐️ ${hands.length} Hand${hands.length === 1 ? '' : 's'}`;
+                    const kbMode = document.getElementById('kb-hand-mode-text');
+                    if (kbMode) {
+                        kbMode.textContent = hands.length === 2 ? '🙌 2-Hand Dual Typing Active' : '☝️ 1-Hand Air Typing Active';
+                    }
+
+                    if (hands.length === 2 && isHandMakingKeyboardSign(hands[0]) && isHandMakingKeyboardSign(hands[1])) {
+                        if (!twoHandSignStart) twoHandSignStart = Date.now();
+                        const elapsed = Date.now() - twoHandSignStart;
+                        const pct = Math.min(100, (elapsed / 500) * 100);
+                        const pBar = document.getElementById('sign-hold-progress');
+                        if (pBar) pBar.style.width = `${pct}%`;
+                        if (elapsed >= 500 && !twoHandKeyboardTriggered) {
+                            twoHandKeyboardTriggered = true;
+                            toggleAirKeyboard(true);
+                            const st = document.getElementById('ind-gesture-status');
+                            if (st) st.textContent = '⌨️ 2-Hand Keyboard!';
+                        }
+                    } else {
+                        twoHandSignStart = 0;
+                        twoHandKeyboardTriggered = false;
+                        const pBar = document.getElementById('sign-hold-progress');
+                        if (pBar) pBar.style.width = '0%';
+                    }
+
+                    const lerpFactor = 0.18 + (aeroConfig.pointerSpeed * 0.11);
+                    const pinchThreshold = 0.042 + (aeroConfig.sensitivity * 0.005);
+
+                    [0, 1].forEach(hIdx => {
+                        const domCursor = hIdx === 0 ? cursorL : cursorR;
+                        if (!hands[hIdx]) {
+                            if (domCursor) domCursor.style.display = 'none';
+                            return;
+                        }
+
+                        const lm = hands[hIdx];
+                        drawConnectors(ctx, lm, HAND_CONNECTIONS, {
+                            color: hIdx === 0 ? '#22d3ee' : '#a855f7',
+                            lineWidth: 3
+                        });
+                        drawLandmarks(ctx, lm, { color: '#10b981', lineWidth: 1, radius: 2.5 });
+
+                        const rawX = 1 - lm[8].x;
+                        const rawY = lm[8].y;
+                        const normX = Math.max(0, Math.min(1, (rawX - 0.15) / 0.70));
+                        const normY = Math.max(0, Math.min(1, (rawY - 0.15) / 0.68));
+
+                        const st = handCursors[hIdx];
+                        st.x += (normX * window.innerWidth - st.x) * lerpFactor;
+                        st.y += (normY * window.innerHeight - st.y) * lerpFactor;
+
+                        if (domCursor) {
+                            domCursor.style.display = 'flex';
+                            domCursor.style.left = `${st.x}px`;
+                            domCursor.style.top = `${st.y}px`;
+                        }
+
+                        const pinchDist = Math.hypot(lm[8].x - lm[4].x, lm[8].y - lm[4].y);
+                        const isPinching = pinchDist < pinchThreshold;
+                        if (domCursor) domCursor.classList.toggle('pinching', isPinching);
+
+                        const targetEl = document.elementFromPoint(st.x, st.y);
+                        const clickable = targetEl ? targetEl.closest('.AirKeyTarget, .AirClickable, .air-key, button') : null;
+
+                        if (clickable) {
+                            clickable.classList.add(hIdx === 0 ? 'key-hovered-left' : 'key-hovered-right');
+
+                            if (dwellTypingEnabled) {
+                                if (st.hoveredEl !== clickable) {
+                                    st.hoveredEl = clickable;
+                                    st.dwellStart = Date.now();
+                                } else if (Date.now() - st.dwellStart > 550) {
+                                    st.dwellStart = Date.now() + 400;
+                                    clickable.click();
+                                }
+                            }
+                        } else {
+                            st.hoveredEl = null;
+                        }
+
+                        if (isPinching && !st.pinching) {
+                            st.pinching = true;
+                            if (clickable) {
+                                clickable.classList.add('key-pressed');
+                                setTimeout(() => clickable.classList.remove('key-pressed'), 140);
+                                clickable.click();
+                            }
+                        } else if (!isPinching) {
+                            st.pinching = false;
+                        }
+                    });
+                });
+            }
+
+            mpCam = new Camera(videoEl, {
+                onFrame: async () => {
+                    if (moduleCamActive && mpHands) {
+                        await mpHands.send({ image: videoEl });
+                    }
+                },
+                width: 320,
+                height: 240,
+                facingMode: 'user'
+            });
+
+            await mpCam.start();
+            moduleCamActive = true;
+            if (dynInd) dynInd.classList.add('active');
+            document.getElementById('cam-start-label').textContent = '2-Hand Live';
+        }
+
+        // =====================================================================
+        // 6. APPS & FINGER-FOLD SYSTEM INTEGRATION
+        // =====================================================================
         function renderUserApps() {
             const container = document.getElementById('user-apps-list');
-            document.getElementById('selected-apps-count').textContent = `${userAddedApps.length} User Apps`;
+            const countEl = document.getElementById('selected-apps-count');
+            if (countEl) countEl.textContent = `${userAddedApps.length} User Apps`;
+            if (!container) return;
             if (userAddedApps.length === 0) {
                 container.innerHTML = `
                     <div class="p-3 rounded-2xl bg-slate-900/60 border border-slate-800/80 text-center text-[11px] text-slate-400">
@@ -901,19 +2455,20 @@
                             drawConnectors(ctx, lm, HAND_CONNECTIONS, { color: '#22d3ee', lineWidth: 3 });
                             drawLandmarks(ctx, lm, { color: '#10b981', lineWidth: 1, radius: 2.5 });
 
-                            // Expanded Safe-Box Mapping for effortless top-to-bottom full screen reach
                             const rawX = 1 - lm[8].x;
                             const rawY = lm[8].y;
                             const normX = Math.max(0, Math.min(1, (rawX - 0.18) / 0.64));
                             const normY = Math.max(0, Math.min(1, (rawY - 0.18) / 0.60));
 
-                            smoothX += (normX * window.innerWidth - smoothX) * 0.42;
-                            smoothY += (normY * window.innerHeight - smoothY) * 0.42;
+                            const lerp = 0.20 + (aeroConfig.pointerSpeed * 0.08);
+                            smoothX += (normX * window.innerWidth - smoothX) * lerp;
+                            smoothY += (normY * window.innerHeight - smoothY) * lerp;
                             cursor.style.left = `${smoothX}px`;
                             cursor.style.top = `${smoothY}px`;
 
                             const pinchDist = Math.hypot(lm[8].x - lm[4].x, lm[8].y - lm[4].y);
-                            const isPinching = pinchDist < 0.052;
+                            const pinchThresh = 0.045 + (aeroConfig.sensitivity * 0.005);
+                            const isPinching = pinchDist < pinchThresh;
                             cursor.classList.toggle('pinching', isPinching);
 
                             if (window.AndroidBridge && window.AndroidBridge.updateGlobalAirCursor) {
@@ -924,7 +2479,7 @@
                                 wasPinching = true;
                                 const targetEl = document.elementFromPoint(smoothX, smoothY);
                                 if (targetEl) {
-                                    const clickable = targetEl.closest('.AirClickable, button');
+                                    const clickable = targetEl.closest('.AirClickable, .AirKeyTarget, .air-key, button');
                                     if (clickable) clickable.click();
                                 }
                                 if (window.AndroidBridge && window.AndroidBridge.triggerGlobalAirTap) {
@@ -934,7 +2489,6 @@
                                 wasPinching = false;
                             }
 
-                            // Detect Finger-Fold Count (Index, Middle, Ring, Pinky)
                             const idxFold = isFingerFolded(lm, 8, 6);
                             const midFold = isFingerFolded(lm, 12, 10);
                             const ringFold = isFingerFolded(lm, 16, 14);
@@ -961,9 +2515,10 @@
                                 holdTriggered = false;
                             } else if (currentFoldCount === 1 && foldState === 1) {
                                 const elapsed = now - foldStartTime;
-                                const pct = Math.min(100, (elapsed / 600) * 100);
+                                const holdMax = (aeroConfig.holdDuration || 1.5) * 450;
+                                const pct = Math.min(100, (elapsed / holdMax) * 100);
                                 document.getElementById('fold-hold-bar').style.width = `${pct}%`;
-                                if (elapsed >= 600 && !holdTriggered) {
+                                if (elapsed >= holdMax && !holdTriggered) {
                                     holdTriggered = true;
                                     openFoldHoldMenu();
                                 }
@@ -1090,9 +2645,7 @@
         }
 
         function openGestureGuideModal() {
-            const m = document.getElementById('gesture-guide-modal');
-            m.classList.remove('hidden');
-            m.classList.add('flex');
+            switchTab('guide');
         }
 
         function closeGestureGuideModal() {
@@ -1116,21 +2669,417 @@
         function switchTab(tab) {
             document.getElementById('view-launcher').classList.toggle('hidden', tab !== 'launcher');
             document.getElementById('view-stream').classList.toggle('hidden', tab !== 'stream');
+            document.getElementById('view-settings').classList.toggle('hidden', tab !== 'settings');
+            const vGuide = document.getElementById('view-guide');
+            if (vGuide) vGuide.classList.toggle('hidden', tab !== 'guide');
             document.getElementById('view-admin').classList.toggle('hidden', tab !== 'admin');
 
-            document.getElementById('nav-launcher').className = tab === 'launcher'
-                ? 'AirClickable py-1.5 rounded-xl bg-cyan-500/15 text-cyan-400 font-extrabold text-[10px] flex flex-col items-center gap-0.5'
-                : 'AirClickable py-1.5 rounded-xl text-slate-400 font-bold text-[10px] flex flex-col items-center gap-0.5';
-            document.getElementById('nav-stream').className = tab === 'stream'
-                ? 'AirClickable py-1.5 rounded-xl bg-cyan-500/15 text-cyan-400 font-extrabold text-[10px] flex flex-col items-center gap-0.5'
-                : 'AirClickable py-1.5 rounded-xl text-slate-400 font-bold text-[10px] flex flex-col items-center gap-0.5';
-            document.getElementById('nav-admin').className = tab === 'admin'
-                ? 'AirClickable py-1.5 rounded-xl bg-cyan-500/15 text-cyan-400 font-extrabold text-[10px] flex flex-col items-center gap-0.5'
-                : 'AirClickable py-1.5 rounded-xl text-slate-400 font-bold text-[10px] flex flex-col items-center gap-0.5';
+            const tabs = ['launcher', 'stream', 'settings', 'guide', 'admin'];
+            tabs.forEach(t => {
+                const navBtn = document.getElementById(`nav-${t}`);
+                if (navBtn) {
+                    navBtn.className = tab === t
+                        ? 'AirClickable py-1.5 rounded-xl bg-cyan-500/15 text-cyan-400 font-extrabold text-[9px] flex flex-col items-center gap-0.5'
+                        : 'AirClickable py-1.5 rounded-xl text-slate-400 font-bold text-[9px] flex flex-col items-center gap-0.5';
+                }
+            });
+        }
+
+
+        // =====================================================================
+        // 7. VOICE RECOGNITION & INTERACTIVE GESTURE GUIDE ENGINE
+        // =====================================================================
+        let selectedCustomIcon = '☝️';
+
+        function selectCustomIcon(icon) {
+            selectedCustomIcon = icon;
+            document.querySelectorAll('.cust-icon-btn').forEach(btn => {
+                if (btn.textContent === icon) {
+                    btn.className = 'cust-icon-btn p-1.5 rounded-xl bg-cyan-500/20 border-2 border-cyan-400 text-base flex items-center justify-center';
+                } else {
+                    btn.className = 'cust-icon-btn p-1.5 rounded-xl bg-slate-900 border border-slate-700 text-base flex items-center justify-center';
+                }
+            });
+        }
+
+        function buildMinimalGestureStage(mode) {
+            let phoneScreenContent = '';
+            let gestureSymbol = '☝️';
+
+            if (mode === 'FOLD_1') {
+                gestureSymbol = '☝️';
+                phoneScreenContent = `
+                    <g class="phone-reel-up">
+                        <rect x="6" y="8" width="44" height="34" rx="5" fill="#1e293b"/>
+                        <rect x="6" y="46" width="44" height="34" rx="5" fill="#0284c7"/>
+                        <polygon points="25,58 25,68 34,63" fill="#fff"/>
+                    </g>
+                    <path d="M28 74 L28 16 M22 22 L28 15 L34 22" stroke="#22d3ee" stroke-width="2.2" stroke-linecap="round"/>`;
+            } else if (mode === 'FOLD_2') {
+                gestureSymbol = '✌️';
+                phoneScreenContent = `
+                    <g class="phone-reel-down">
+                        <rect x="6" y="8" width="44" height="34" rx="5" fill="#7e22ce"/>
+                        <polygon points="25,20 25,30 34,25" fill="#fff"/>
+                        <rect x="6" y="46" width="44" height="34" rx="5" fill="#1e293b"/>
+                    </g>
+                    <path d="M28 16 L28 74 M22 68 L28 75 L34 68" stroke="#c084fc" stroke-width="2.2" stroke-linecap="round"/>`;
+            } else if (mode === 'FOLD_3') {
+                gestureSymbol = '🤟';
+                phoneScreenContent = `
+                    <g class="phone-back-slide">
+                        <rect x="10" y="24" width="36" height="42" rx="6" fill="rgba(245,158,11,0.2)" stroke="#fbbf24" stroke-width="1.5"/>
+                        <path d="M34 45 L20 45 M26 38 L19 45 L26 52" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </g>
+                    <text x="28" y="80" text-anchor="middle" fill="#fcd34d" font-size="7" font-weight="800">BACK</text>`;
+            } else if (mode === 'FOLD_4') {
+                gestureSymbol = '✊';
+                phoneScreenContent = `
+                    <g class="phone-home-pop">
+                        <rect x="10" y="16" width="14" height="14" rx="3" fill="#34d399"/>
+                        <rect x="32" y="16" width="14" height="14" rx="3" fill="#38bdf8"/>
+                        <rect x="10" y="36" width="14" height="14" rx="3" fill="#a855f7"/>
+                        <rect x="32" y="36" width="14" height="14" rx="3" fill="#f59e0b"/>
+                        <rect x="16" y="62" width="24" height="4" rx="2" fill="#fff"/>
+                    </g>
+                    <text x="28" y="80" text-anchor="middle" fill="#6ee7b7" font-size="7" font-weight="800">HOME</text>`;
+            } else if (mode === 'HOLD') {
+                gestureSymbol = '⏱️☝️';
+                phoneScreenContent = `
+                    <circle cx="28" cy="44" r="16" stroke="#334155" stroke-width="3"/>
+                    <circle cx="28" cy="44" r="16" stroke="#6366f1" stroke-width="3" class="hold-ring-progress" transform="rotate(-90 28 44)"/>
+                    <g class="phone-menu-pop">
+                        <rect x="6" y="22" width="44" height="44" rx="8" fill="#1e1b4b" stroke="#818cf8" stroke-width="1.5"/>
+                        <rect x="11" y="27" width="15" height="14" rx="3" fill="#4f46e5"/>
+                        <rect x="30" y="27" width="15" height="14" rx="3" fill="#06b6d4"/>
+                    </g>
+                    <text x="28" y="82" text-anchor="middle" fill="#a5b4fc" font-size="6.5" font-weight="800">MENU</text>`;
+            } else if (mode === 'PINCH') {
+                gestureSymbol = '👌';
+                phoneScreenContent = `
+                    <rect x="0" y="0" width="56" height="90" rx="10" fill="#090d16" stroke="#334155" stroke-width="2"/>
+                    <circle cx="28" cy="45" r="14" fill="rgba(16,185,129,0.2)" stroke="#10b981" stroke-width="1.8"/>
+                    <polygon points="25,39 25,51 35,45" fill="#10b981"/>
+                    <circle cx="28" cy="45" r="18" stroke="#22d3ee" stroke-width="1.5" class="pinch-ripple"/>
+                    <text x="28" y="80" text-anchor="middle" fill="#67e8f9" font-size="7" font-weight="800">TAP</text>`;
+            } else if (mode === 'TWO_HAND') {
+                gestureSymbol = '🙌';
+                phoneScreenContent = `
+                    <rect x="0" y="0" width="56" height="90" rx="10" fill="#090d16" stroke="#f43f5e" stroke-width="2"/>
+                    <rect x="6" y="10" width="44" height="12" rx="3" fill="#1e293b"/>
+                    <text x="28" y="18" text-anchor="middle" fill="#38bdf8" font-size="6" font-weight="800">Type...</text>
+                    <g fill="#334155" transform="translate(4, 28)">
+                        <rect x="2" y="2" width="8" height="8" rx="2"/><rect x="12" y="2" width="8" height="8" rx="2" fill="#22d3ee"/>
+                        <rect x="22" y="2" width="8" height="8" rx="2"/><rect x="32" y="2" width="8" height="8" rx="2"/>
+                        <rect x="7" y="13" width="34" height="8" rx="2" fill="#10b981"/>
+                    </g>
+                    <text x="28" y="80" text-anchor="middle" fill="#fda4af" font-size="7" font-weight="800">KEYBOARD</text>`;
+            }
+
+            return `
+            <div class="gesture-stage w-full h-24">
+                <div class="flex flex-col items-center justify-center bg-slate-900/90 border border-slate-700/80 px-4 py-3 rounded-2xl shadow-lg">
+                    <span class="text-3xl">${gestureSymbol}</span>
+                    <span class="text-[9px] font-extrabold text-cyan-300 uppercase tracking-wider mt-1">Air Gesture</span>
+                </div>
+                <i class="fa-solid fa-arrow-right-long text-slate-500 text-sm"></i>
+                <div class="relative w-14 h-22 bg-slate-950 rounded-xl border border-slate-700 flex items-center justify-center overflow-hidden shadow-md">
+                    <svg class="w-full h-full" viewBox="0 0 56 90" fill="none">
+                        ${phoneScreenContent}
+                    </svg>
+                </div>
+            </div>`;
+        }
+
+        const HAND_GESTURE_GUIDE = [
+            { id: 'FOLD_1', category: 'FOLD', badge: 'Most Used', badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40', title: '☝️ 1-Finger Fold & Open', actionLabel: 'Scroll Next Reel (Swipe Up)', howTo: 'Keep palm facing camera, bend ONLY Index finger down and open back up.', voiceEquivalent: '"Next" or "Agla"', actionCode: 'NEXT', stageHtml: buildMinimalGestureStage('FOLD_1') },
+            { id: 'FOLD_2', category: 'FOLD', badge: 'Reels / Shorts', badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/40', title: '✌️ 2-Finger Fold & Open', actionLabel: 'Previous Reel (Swipe Down)', howTo: 'Bend Index and Middle fingers down together and open back up.', voiceEquivalent: '"Previous" or "Pichla"', actionCode: 'PREV', stageHtml: buildMinimalGestureStage('FOLD_2') },
+            { id: 'FOLD_3_BACK', category: 'SYSTEM', badge: 'System OS', badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40', title: '⬅️ 3-Finger Fold & Open', actionLabel: 'System Back Navigation', howTo: 'Bend Index, Middle, and Ring fingers down together to trigger Back.', voiceEquivalent: '"Back" or "Wapas"', actionCode: 'BACK', stageHtml: buildMinimalGestureStage('FOLD_3') },
+            { id: 'FOLD_4_HOME', category: 'SYSTEM', badge: 'System OS', badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40', title: '🏠 4-Finger Fold (Fist & Open)', actionLabel: 'Go to Phone Home Screen', howTo: 'Curl all 4 fingers into a gentle fist and open palm to jump to Home.', voiceEquivalent: '"Home" or "Home Screen"', actionCode: 'HOME', stageHtml: buildMinimalGestureStage('FOLD_4') },
+            { id: 'FOLD_HOLD', category: 'FOLD', badge: 'Island Menu', badgeColor: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40', title: '⏱️ 1-Finger Fold & Hold (1.5s)', actionLabel: 'Open Floating Action Menu', howTo: 'Bend Index finger and hold 1.5s until ring fills to pop open controls.', voiceEquivalent: '"Open Menu" or "Controls"', actionCode: 'HOLD_MENU', stageHtml: buildMinimalGestureStage('HOLD') },
+            { id: 'PINCH_TAP', category: 'FOLD', badge: 'Air Pointer', badgeColor: 'bg-blue-500/20 text-blue-300 border-blue-500/40', title: '👌 Index + Thumb Pinch', actionLabel: 'Air Tap / Play & Pause', howTo: 'Aim cursor with Index finger, touch Thumb and Index tips together.', voiceEquivalent: '"Play", "Pause" or "Click"', actionCode: 'PLAY_PAUSE', stageHtml: buildMinimalGestureStage('PINCH') },
+            { id: 'TWO_HAND_KB', category: 'TYPING', badge: '2-Hand Sign', badgeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/40', title: '🙌 Dual-Hand L-Sign / Pinch', actionLabel: 'Open Air Keyboard for Comments', howTo: 'Hold both hands up or Pinch for 0.5s to open split QWERTY Air Keyboard.', voiceEquivalent: '"Open Keyboard" or "Comment..."', actionCode: 'OPEN_KEYBOARD', stageHtml: buildMinimalGestureStage('TWO_HAND') }
+        ];
+
+        const BUILTIN_VOICE_COMMANDS = [
+            { action: 'NEXT', title: 'Scroll Next Reel / Video', phrases: ['next', 'scroll', 'swipe up', 'agla', 'aage'], displaySay: '"Next" / "Agla"', icon: 'fa-forward-step text-cyan-400' },
+            { action: 'PREV', title: 'Previous Reel / Video', phrases: ['previous', 'prev', 'swipe down', 'pichla', 'peeche'], displaySay: '"Previous" / "Pichla"', icon: 'fa-backward-step text-purple-400' },
+            { action: 'PLAY_PAUSE', title: 'Play or Pause Media', phrases: ['play', 'pause', 'stop', 'resume', 'ruko', 'chalu karo'], displaySay: '"Play" / "Pause" / "Ruko"', icon: 'fa-play-pause text-emerald-400' },
+            { action: 'LIKE', title: 'Like / Heart Current Video', phrases: ['like', 'heart', 'love', 'boost', 'pasand'], displaySay: '"Like" / "Heart"', icon: 'fa-heart text-rose-400' },
+            { action: 'BACK', title: 'System Back Navigation', phrases: ['back', 'go back', 'wapas', 'peeche jao'], displaySay: '"Back" / "Wapas"', icon: 'fa-chevron-left text-amber-400' },
+            { action: 'HOME', title: 'Go to Phone Home Screen', phrases: ['home', 'home screen', 'ghar', 'main screen'], displaySay: '"Home" / "Home Screen"', icon: 'fa-house text-emerald-400' },
+            { action: 'VOL_UP', title: 'Volume Up', phrases: ['volume up', 'louder', 'aawaz badhao', 'tej karo'], displaySay: '"Volume Up" / "Aawaz Badhao"', icon: 'fa-volume-high text-blue-400' },
+            { action: 'VOL_DOWN', title: 'Volume Down', phrases: ['volume down', 'quieter', 'aawaz kam karo'], displaySay: '"Volume Down" / "Aawaz Kam"', icon: 'fa-volume-low text-indigo-400' },
+            { action: 'OPEN_KEYBOARD', title: 'Open Air Keyboard', phrases: ['keyboard', 'open keyboard', 'type'], displaySay: '"Open Keyboard"', icon: 'fa-keyboard text-pink-400' }
+        ];
+
+        let customVoiceTriggers = JSON.parse(localStorage.getItem('aero_custom_voice_triggers') || '[]');
+        let voiceState = { listening: false, continuous: true, ttsReply: true, lang: 'en-US', recognition: null };
+
+        function renderGestureCards(filter = 'ALL') {
+            ['ALL', 'FOLD', 'SYSTEM', 'TYPING'].forEach(f => {
+                const btn = document.getElementById(`gfilt-${f}`);
+                if (btn) {
+                    btn.className = f === filter
+                        ? 'px-3 py-1 rounded-full bg-cyan-500 text-slate-950 font-black text-[10px] whitespace-nowrap'
+                        : 'px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300 font-bold text-[10px] whitespace-nowrap';
+                }
+            });
+
+            const list = filter === 'ALL' ? HAND_GESTURE_GUIDE : HAND_GESTURE_GUIDE.filter(g => g.category === filter);
+            const container = document.getElementById('gesture-guide-cards');
+            if (!container) return;
+            container.innerHTML = list.map(g => `
+                <div class="module-card flex flex-col gap-3">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="px-2.5 py-0.5 rounded-full border text-[9px] font-extrabold uppercase ${g.badgeColor}">${g.badge}</span>
+                        <span class="text-[10px] font-bold text-slate-400">🎙️ Say: <strong class="text-cyan-300">${g.voiceEquivalent}</strong></span>
+                    </div>
+
+                    <div>
+                        <h3 class="text-sm font-black text-white">${g.title}</h3>
+                        <p class="text-xs font-extrabold text-cyan-400">${g.actionLabel}</p>
+                    </div>
+
+                    ${g.stageHtml}
+
+                    <p class="text-[11px] text-slate-300 leading-relaxed bg-slate-900/70 p-2.5 rounded-xl border border-white/5">
+                        <strong class="text-white">How to do it:</strong> ${g.howTo}
+                    </p>
+
+                    <button onclick="dispatchVoiceOrGestureAction('${g.actionCode}', 'Hand Guide Test')"
+                        class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-extrabold text-cyan-300 active:scale-95 transition">
+                        ⚡ Test Gesture Action Now
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function filterGestureCards(category) { renderGestureCards(category); }
+
+        function renderVoiceCommandsList() {
+            const container = document.getElementById('voice-commands-list');
+            if (!container) return;
+            container.innerHTML = BUILTIN_VOICE_COMMANDS.map(cmd => `
+                <div onclick="dispatchVoiceOrGestureAction('${cmd.action}', 'Voice: ${cmd.displaySay}')"
+                    class="p-2.5 rounded-2xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 flex items-center justify-between gap-2 cursor-pointer active:scale-98 transition">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="w-7 h-7 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center shrink-0">
+                            <i class="fa-solid ${cmd.icon} text-xs"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-xs font-extrabold text-white truncate">${cmd.title}</p>
+                            <p class="text-[10px] text-cyan-300 font-bold truncate">Say: ${cmd.displaySay}</p>
+                        </div>
+                    </div>
+                    <span class="px-2 py-0.5 rounded-lg bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-[9px] font-extrabold shrink-0">Test ▶</span>
+                </div>
+            `).join('');
+        }
+
+        function renderCustomTriggers() {
+            const container = document.getElementById('custom-triggers-list');
+            if (!container) return;
+            if (customVoiceTriggers.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-2">No custom voice phrases saved yet.</p>`;
+                return;
+            }
+            container.innerHTML = customVoiceTriggers.map((item, idx) => `
+                <div class="p-2 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="text-base">${item.icon || '☝️'}</span>
+                        <div>
+                            <p class="text-xs font-extrabold text-white">"${item.phrase}"</p>
+                            <p class="text-[10px] text-emerald-400 font-bold">Action: ${item.action}</p>
+                        </div>
+                    </div>
+                    <button onclick="removeCustomVoiceCommand(${idx})" class="px-2 py-1 rounded-lg bg-rose-500/15 text-rose-400 text-xs font-bold">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function addCustomVoiceCommand() {
+            const phraseInput = document.getElementById('custom-voice-phrase');
+            const actionSelect = document.getElementById('custom-voice-action');
+            if (!phraseInput || !actionSelect) return;
+            const phrase = phraseInput.value.trim().toLowerCase();
+            if (!phrase) {
+                showToast('⚠️', 'Empty Phrase', 'Please enter a voice phrase first');
+                return;
+            }
+            customVoiceTriggers.push({ phrase, action: actionSelect.value, icon: selectedCustomIcon });
+            localStorage.setItem('aero_custom_voice_triggers', JSON.stringify(customVoiceTriggers));
+            phraseInput.value = '';
+            renderCustomTriggers();
+            showToast('✅', 'Trigger Saved', `Icon ${selectedCustomIcon} + Say "${phrase}" saved!`);
+        }
+
+        function removeCustomVoiceCommand(index) {
+            customVoiceTriggers.splice(index, 1);
+            localStorage.setItem('aero_custom_voice_triggers', JSON.stringify(customVoiceTriggers));
+            renderCustomTriggers();
+        }
+
+        function initSpeechRecognition() {
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRec) return null;
+            const rec = new SpeechRec();
+            rec.continuous = true;
+            rec.interimResults = true;
+            rec.lang = voiceState.lang;
+
+            rec.onstart = () => { voiceState.listening = true; updateVoiceUI(); };
+            rec.onresult = (event) => {
+                let finalTranscript = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript;
+                }
+                if (finalTranscript) {
+                    const transEl = document.getElementById('hud-voice-transcript');
+                    if (transEl) transEl.textContent = `"${finalTranscript.trim()}"`;
+                    parseAndExecuteVoiceCommand(finalTranscript.trim().toLowerCase());
+                }
+            };
+            rec.onend = () => {
+                if (voiceState.listening && voiceState.continuous) { try { rec.start(); } catch (e) {} }
+                else { voiceState.listening = false; updateVoiceUI(); }
+            };
+            return rec;
+        }
+
+        window.onNativeVoiceTranscript = function(phrase) {
+            const transEl = document.getElementById('hud-voice-transcript');
+            if (transEl) transEl.textContent = `"${phrase}"`;
+            parseAndExecuteVoiceCommand(phrase.toLowerCase());
+        };
+
+        function toggleVoiceRecognition() {
+            if (voiceState.listening) {
+                voiceState.listening = false;
+                if (voiceState.recognition) { try { voiceState.recognition.stop(); } catch (e) {} }
+                if (window.AndroidBridge && window.AndroidBridge.stopNativeVoiceRecognition) {
+                    window.AndroidBridge.stopNativeVoiceRecognition();
+                }
+                updateVoiceUI();
+                showToast('⏹️', 'Voice Paused', 'Microphone stopped');
+                return;
+            }
+            if (!voiceState.recognition) voiceState.recognition = initSpeechRecognition();
+            if (voiceState.recognition) {
+                try {
+                    voiceState.recognition.lang = voiceState.lang;
+                    voiceState.recognition.start();
+                } catch (e) {}
+            }
+            if (window.AndroidBridge && window.AndroidBridge.startNativeVoiceRecognition) {
+                window.AndroidBridge.startNativeVoiceRecognition(voiceState.lang);
+            }
+            voiceState.listening = true;
+            updateVoiceUI();
+            showToast('🎙️', 'Voice AI Live', 'Say "Next", "Back", "Home"...');
+        }
+
+        function parseAndExecuteVoiceCommand(transcript) {
+            for (const custom of customVoiceTriggers) {
+                if (transcript.includes(custom.phrase)) {
+                    dispatchVoiceOrGestureAction(custom.action, `Custom: "${custom.phrase}"`);
+                    return;
+                }
+            }
+            for (const cmd of BUILTIN_VOICE_COMMANDS) {
+                for (const phrase of cmd.phrases) {
+                    if (transcript === phrase || transcript.includes(phrase)) {
+                        dispatchVoiceOrGestureAction(cmd.action, `Heard "${transcript}"`);
+                        return;
+                    }
+                }
+            }
+        }
+
+        function dispatchVoiceOrGestureAction(actionCode, sourceLabel) {
+            showToast('⚡', sourceLabel, `Action: ${actionCode}`);
+            if (voiceState.ttsReply && ('speechSynthesis' in window)) {
+                try {
+                    window.speechSynthesis.cancel();
+                    const utter = new SpeechSynthesisUtterance(actionCode.replace('_', ' '));
+                    utter.lang = voiceState.lang;
+                    window.speechSynthesis.speak(utter);
+                } catch (e) {}
+            }
+            if (actionCode === 'NEXT') executeAction('NEXT');
+            else if (actionCode === 'PREV') executeAction('PREV');
+            else if (actionCode === 'BACK') executeSystemNavigation('BACK');
+            else if (actionCode === 'HOME') executeSystemNavigation('HOME');
+            else if (actionCode === 'PLAY_PAUSE') executeAction('PLAY_PAUSE');
+            else if (actionCode === 'LIKE') executeAction('LIKE');
+            else if (actionCode === 'VOL_UP') triggerHoldMenuOption('VOL_UP');
+            else if (actionCode === 'VOL_DOWN') triggerHoldMenuOption('VOL_DOWN');
+            else if (actionCode === 'OPEN_KEYBOARD') toggleAirKeyboard(true);
+            else if (actionCode === 'HOLD_MENU') openFoldHoldMenu();
+        }
+
+        function updateVoiceUI() {
+            const waveBox = document.getElementById('voice-wave-box');
+            const hudStatus = document.getElementById('hud-voice-status');
+            const hudMicBtn = document.getElementById('hud-mic-btn');
+            const hudMicIcon = document.getElementById('hud-mic-icon');
+            const topLabel = document.getElementById('top-mic-label');
+            const liveBadge = document.getElementById('voice-live-badge');
+            const headerVoiceIcon = document.getElementById('voice-icon');
+
+            if (voiceState.listening) {
+                if (waveBox) waveBox.classList.add('listening-active');
+                if (hudStatus) hudStatus.textContent = `Listening (${voiceState.lang})`;
+                if (hudMicBtn) hudMicBtn.className = 'w-8 h-8 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center shrink-0 shadow-lg';
+                if (hudMicIcon) hudMicIcon.className = 'fa-solid fa-microphone text-xs';
+                if (topLabel) topLabel.textContent = 'Listening...';
+                if (liveBadge) {
+                    liveBadge.textContent = '● LIVE';
+                    liveBadge.className = 'px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-extrabold text-[9px] uppercase';
+                }
+                if (headerVoiceIcon) headerVoiceIcon.className = 'fa-solid fa-microphone text-cyan-400 text-xs animate-pulse';
+            } else {
+                if (waveBox) waveBox.classList.remove('listening-active');
+                if (hudStatus) hudStatus.textContent = 'Voice Standby';
+                if (hudMicBtn) hudMicBtn.className = 'w-8 h-8 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center shrink-0';
+                if (hudMicIcon) hudMicIcon.className = 'fa-solid fa-microphone-slash text-xs';
+                if (topLabel) topLabel.textContent = 'Start Voice';
+                if (liveBadge) {
+                    liveBadge.textContent = 'OFFLINE';
+                    liveBadge.className = 'px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-extrabold text-[9px] uppercase';
+                }
+                if (headerVoiceIcon) headerVoiceIcon.className = 'fa-solid fa-microphone-slash text-xs';
+            }
+        }
+
+        function setVoiceLanguage(lang) {
+            voiceState.lang = lang;
+            const lEn = document.getElementById('lang-en');
+            const lHi = document.getElementById('lang-hi');
+            if (lEn) lEn.className = lang === 'en-US' ? 'px-2.5 py-1 rounded-lg bg-[#465fff] text-white font-extrabold text-xs' : 'px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 font-extrabold text-xs';
+            if (lHi) lHi.className = lang === 'hi-IN' ? 'px-2.5 py-1 rounded-lg bg-[#465fff] text-white font-extrabold text-xs' : 'px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 font-extrabold text-xs';
+        }
+
+        function toggleContinuousMode() { voiceState.continuous = !voiceState.continuous; }
+        function toggleTtsReply() { voiceState.ttsReply = !voiceState.ttsReply; }
+
+        function switchGuideTab(tab) {
+            ['gestures', 'voice', 'custom'].forEach(t => {
+                const p = document.getElementById(`gpanel-${t}`);
+                if (p) p.classList.toggle('hidden', t !== tab);
+                const b = document.getElementById(`gtab-${t}`);
+                if (b) {
+                    b.className = t === tab
+                        ? 'flex-1 py-1.5 px-2 rounded-full font-extrabold text-xs bg-[#465fff] text-white transition'
+                        : 'flex-1 py-1.5 px-2 rounded-full font-extrabold text-xs text-slate-400 hover:text-white transition';
+                }
+            });
         }
 
         function toggleVoiceControl() {
-            showToast('🎙️', 'Voice Control', 'Say "Next", "Back", "Home", or "Pause"');
+            toggleVoiceRecognition();
         }
 
         window.setNativeOverlayMode = function(isOverlay) {
@@ -1140,6 +3089,11 @@
         window.onload = () => {
             renderUserApps();
             refreshNativePermissionStatus();
+            buildAirKeyboard();
+            renderSettingsUI();
+            renderGestureCards('ALL');
+            renderVoiceCommandsList();
+            renderCustomTriggers();
             if (!localStorage.getItem('aero_perm_prompted')) {
                 openStartupPermissionModal();
             }

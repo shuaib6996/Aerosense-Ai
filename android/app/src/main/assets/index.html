@@ -331,6 +331,88 @@
             background: linear-gradient(145deg, rgba(15, 23, 42, 0.96), rgba(8, 12, 22, 0.98));
             border: 1px solid rgba(56, 189, 248, 0.18);
         }
+
+        .module-card {
+            background: #121318;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 26px;
+            padding: 18px;
+        }
+
+        /* Animated Voice Equalizer Bars */
+        .voice-wave-bar {
+            width: 5px;
+            height: 10px;
+            border-radius: 999px;
+            background: #22d3ee;
+            transition: height 0.15s ease;
+        }
+        .listening-active .voice-wave-bar:nth-child(1) { animation: waveBounce 0.55s infinite ease-in-out 0.0s; }
+        .listening-active .voice-wave-bar:nth-child(2) { animation: waveBounce 0.55s infinite ease-in-out 0.12s; background: #465fff; }
+        .listening-active .voice-wave-bar:nth-child(3) { animation: waveBounce 0.55s infinite ease-in-out 0.24s; background: #10b981; }
+        .listening-active .voice-wave-bar:nth-child(4) { animation: waveBounce 0.55s infinite ease-in-out 0.15s; background: #a855f7; }
+        .listening-active .voice-wave-bar:nth-child(5) { animation: waveBounce 0.55s infinite ease-in-out 0.05s; }
+
+        @keyframes waveBounce {
+            0%, 100% { height: 8px; }
+            50% { height: 28px; }
+        }
+
+        /* Clean Minimalist Gesture + Phone Stage */
+        .gesture-stage {
+            background: radial-gradient(circle at 50% 50%, rgba(34, 211, 238, 0.10), rgba(15, 23, 42, 0.95) 75%);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 12px;
+        }
+
+        /* Mini Phone Screen Preview Animations */
+        .phone-reel-up { animation: reelScrollUp 2.2s infinite cubic-bezier(0.4, 0, 0.2, 1); }
+        .phone-reel-down { animation: reelScrollDown 2.2s infinite cubic-bezier(0.4, 0, 0.2, 1); }
+        .phone-back-slide { animation: phoneBackAnim 2.2s infinite ease-in-out; }
+        .phone-home-pop { animation: phoneHomeAnim 2.2s infinite ease-in-out; }
+        .phone-menu-pop { transform-origin: center; animation: phoneMenuAnim 2.8s infinite ease-in-out; }
+        .hold-ring-progress { stroke-dasharray: 100; stroke-dashoffset: 100; animation: holdRingFill 2.8s infinite linear; }
+        .pinch-ripple { animation: pinchShockwave 2s infinite ease-out; transform-box: fill-box; transform-origin: center; }
+
+        @keyframes reelScrollUp {
+            0%, 35% { transform: translateY(0); }
+            55%, 85% { transform: translateY(-28px); }
+            100% { transform: translateY(0); }
+        }
+        @keyframes reelScrollDown {
+            0%, 35% { transform: translateY(-28px); }
+            55%, 85% { transform: translateY(0); }
+            100% { transform: translateY(-28px); }
+        }
+        @keyframes phoneBackAnim {
+            0%, 35%, 90%, 100% { transform: translateX(0); opacity: 0.4; }
+            50%, 70% { transform: translateX(-8px); opacity: 1; }
+        }
+        @keyframes phoneHomeAnim {
+            0%, 35%, 90%, 100% { transform: scale(1); opacity: 0.35; }
+            50%, 75% { transform: scale(0.86); opacity: 1; }
+        }
+        @keyframes phoneMenuAnim {
+            0%, 42%, 90%, 100% { transform: scale(0.4); opacity: 0; }
+            55%, 82% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes holdRingFill {
+            0%, 20% { stroke-dashoffset: 100; }
+            55%, 85% { stroke-dashoffset: 0; }
+            90%, 100% { stroke-dashoffset: 100; }
+        }
+        @keyframes pinchShockwave {
+            0%, 40% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1); opacity: 1; }
+            75%, 100% { transform: scale(2.2); opacity: 0; }
+        }
+
     </style>
 </head>
 <body class="h-[100dvh] w-full flex flex-col bg-[#050811] text-slate-100 overflow-hidden">
@@ -432,6 +514,25 @@
         <!-- Split-Friendly QWERTY Keyboard Grid -->
         <div id="qwerty-rows-container" class="space-y-1.5 select-none">
             <!-- Populated by JS -->
+        </div>
+    </div>
+
+
+    <!-- Floating Mini Voice Pill -->
+    <div id="floating-voice-hud" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[9000] bg-slate-950/95 backdrop-blur-xl border border-cyan-500/40 px-4 py-2 rounded-full shadow-2xl flex items-center gap-3 max-w-[92vw] transition-all duration-200">
+        <button id="hud-mic-btn" onclick="toggleVoiceRecognition()" class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 text-slate-300 flex items-center justify-center shrink-0 transition active:scale-95">
+            <i id="hud-mic-icon" class="fa-solid fa-microphone-slash text-xs"></i>
+        </button>
+        <div id="voice-wave-box" class="flex items-center gap-1 h-6">
+            <span class="voice-wave-bar"></span>
+            <span class="voice-wave-bar"></span>
+            <span class="voice-wave-bar"></span>
+            <span class="voice-wave-bar"></span>
+            <span class="voice-wave-bar"></span>
+        </div>
+        <div class="min-w-0 pr-1">
+            <p id="hud-voice-status" class="text-[9px] font-extrabold text-cyan-400 uppercase tracking-wider leading-none">Voice Standby</p>
+            <p id="hud-voice-transcript" class="text-[11px] font-bold text-white truncate max-w-[150px] mt-0.5">Say "Next", "Back", "Home"...</p>
         </div>
     </div>
 
@@ -1139,6 +1240,151 @@
                 </div>
             </section>
 
+
+            <!-- VIEW 4: VOICE CONTROL & MINIMALIST GESTURE GUIDE -->
+            <section id="view-guide" class="hidden space-y-4">
+                <!-- Header with Voice Toggle -->
+                <div class="flex items-center justify-between gap-2">
+                    <div>
+                        <span class="px-2.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-[9px] font-extrabold uppercase">
+                            Touchless Voice + Hand AI
+                        </span>
+                        <h2 class="text-xl font-black text-white mt-0.5">Voice & Gesture Guide</h2>
+                    </div>
+                    <button id="top-mic-toggle" onclick="toggleVoiceRecognition()" class="px-3 py-1.5 rounded-2xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-black text-xs flex items-center gap-1.5 shadow-lg active:scale-95 transition">
+                        <i id="top-mic-icon" class="fa-solid fa-microphone"></i>
+                        <span id="top-mic-label">Start Voice</span>
+                    </button>
+                </div>
+
+                <!-- Top Navigation Pill Tabs -->
+                <div class="bg-[#16181f] p-1.5 rounded-full flex items-center gap-1 border border-white/5">
+                    <button onclick="switchGuideTab('gestures')" id="gtab-gestures"
+                        class="flex-1 py-1.5 px-2 rounded-full font-extrabold text-xs bg-[#465fff] text-white transition">
+                        🖐️ Hand Guide
+                    </button>
+                    <button onclick="switchGuideTab('voice')" id="gtab-voice"
+                        class="flex-1 py-1.5 px-2 rounded-full font-extrabold text-xs text-slate-400 hover:text-white transition">
+                        🎙️ Voice Control
+                    </button>
+                    <button onclick="switchGuideTab('custom')" id="gtab-custom"
+                        class="flex-1 py-1.5 px-2 rounded-full font-extrabold text-xs text-slate-400 hover:text-white transition">
+                        ⚡ Custom
+                    </button>
+                </div>
+
+                <!-- TAB 1: VISUAL HAND GESTURE GUIDE -->
+                <div id="gpanel-gestures" class="space-y-3">
+                    <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                        <button onclick="filterGestureCards('ALL')" id="gfilt-ALL" class="px-3 py-1 rounded-full bg-cyan-500 text-slate-950 font-black text-[10px] whitespace-nowrap">All (7)</button>
+                        <button onclick="filterGestureCards('FOLD')" id="gfilt-FOLD" class="px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300 font-bold text-[10px] whitespace-nowrap">Finger-Fold</button>
+                        <button onclick="filterGestureCards('SYSTEM')" id="gfilt-SYSTEM" class="px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300 font-bold text-[10px] whitespace-nowrap">Back & Home</button>
+                        <button onclick="filterGestureCards('TYPING')" id="gfilt-TYPING" class="px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300 font-bold text-[10px] whitespace-nowrap">Air Keyboard</button>
+                    </div>
+                    <div id="gesture-guide-cards" class="space-y-3"></div>
+                </div>
+
+                <!-- TAB 2: VOICE CONTROL ENGINE -->
+                <div id="gpanel-voice" class="space-y-3 hidden">
+                    <div class="module-card space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-sm font-extrabold text-white">Voice AI Autopilot</h3>
+                                <p class="text-[10px] text-slate-400">Control Reels, Back, Home & Typing by voice</p>
+                            </div>
+                            <span id="voice-live-badge" class="px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-extrabold text-[9px] uppercase">
+                                OFFLINE
+                            </span>
+                        </div>
+
+                        <div class="flex items-center justify-between py-1 border-t border-white/5 pt-2">
+                            <span class="text-xs font-bold text-white">Language</span>
+                            <div class="flex items-center gap-1.5">
+                                <button onclick="setVoiceLanguage('en-US')" id="lang-en" class="px-2.5 py-1 rounded-lg bg-[#465fff] text-white font-extrabold text-xs">English</button>
+                                <button onclick="setVoiceLanguage('hi-IN')" id="lang-hi" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 font-extrabold text-xs">हिंदी / Hinglish</button>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between py-1">
+                            <div>
+                                <span class="text-xs font-bold text-white block">Continuous Listening</span>
+                                <span class="text-[9px] text-slate-400">Keep mic active in background</span>
+                            </div>
+                            <button id="toggle-continuous-voice" onclick="toggleContinuousMode()" class="w-11 h-6 rounded-full bg-[#465fff] p-0.5 flex items-center justify-end transition">
+                                <div class="w-4 h-4 rounded-full bg-white flex items-center justify-center text-[#465fff] text-[9px]"><i id="icon-continuous-voice" class="fa-solid fa-check"></i></div>
+                            </button>
+                        </div>
+
+                        <div class="flex items-center justify-between py-1">
+                            <div>
+                                <span class="text-xs font-bold text-white block">Voice Reply (TTS Audio)</span>
+                                <span class="text-[9px] text-slate-400">Speak confirmation when command runs</span>
+                            </div>
+                            <button id="toggle-tts-reply" onclick="toggleTtsReply()" class="w-11 h-6 rounded-full bg-[#465fff] p-0.5 flex items-center justify-end transition">
+                                <div class="w-4 h-4 rounded-full bg-white flex items-center justify-center text-[#465fff] text-[9px]"><i id="icon-tts-reply" class="fa-solid fa-check"></i></div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="module-card space-y-2.5">
+                        <h4 class="text-xs font-extrabold text-cyan-300 uppercase tracking-wider">🗣️ Built-In Voice Commands (Tap to Test)</h4>
+                        <div id="voice-commands-list" class="space-y-1.5"></div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: CUSTOM TRIGGER BUILDER -->
+                <div id="gpanel-custom" class="space-y-3 hidden">
+                    <div class="module-card space-y-3">
+                        <h3 class="text-sm font-extrabold text-white">Add Custom Voice & Gesture Trigger</h3>
+                        <p class="text-[11px] text-slate-400">Assign a hand gesture icon and voice phrase to any action.</p>
+
+                        <div class="space-y-2.5">
+                            <div>
+                                <label class="text-[11px] font-bold text-slate-300 block mb-1">Select Gesture Icon:</label>
+                                <div id="custom-gesture-icon-picker" class="grid grid-cols-6 gap-1.5 pt-0.5">
+                                    <button type="button" onclick="selectCustomIcon('☝️')" class="cust-icon-btn p-1.5 rounded-xl bg-cyan-500/20 border-2 border-cyan-400 text-base flex items-center justify-center">☝️</button>
+                                    <button type="button" onclick="selectCustomIcon('✌️')" class="cust-icon-btn p-1.5 rounded-xl bg-slate-900 border border-slate-700 text-base flex items-center justify-center">✌️</button>
+                                    <button type="button" onclick="selectCustomIcon('✊')" class="cust-icon-btn p-1.5 rounded-xl bg-slate-900 border border-slate-700 text-base flex items-center justify-center">✊</button>
+                                    <button type="button" onclick="selectCustomIcon('👌')" class="cust-icon-btn p-1.5 rounded-xl bg-slate-900 border border-slate-700 text-base flex items-center justify-center">👌</button>
+                                    <button type="button" onclick="selectCustomIcon('🖐️')" class="cust-icon-btn p-1.5 rounded-xl bg-slate-900 border border-slate-700 text-base flex items-center justify-center">🖐️</button>
+                                    <button type="button" onclick="selectCustomIcon('🙌')" class="cust-icon-btn p-1.5 rounded-xl bg-slate-900 border border-slate-700 text-base flex items-center justify-center">🙌</button>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="text-[11px] font-bold text-slate-300 block mb-1">When I say this voice phrase:</label>
+                                <input id="custom-voice-phrase" type="text" placeholder="e.g. Skip video / Aage badho"
+                                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-none focus:border-cyan-400">
+                            </div>
+
+                            <div>
+                                <label class="text-[11px] font-bold text-slate-300 block mb-1">Perform this Action:</label>
+                                <select id="custom-voice-action" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-none">
+                                    <option value="NEXT">☝️ Scroll Next Reel (Swipe Up)</option>
+                                    <option value="PREV">✌️ Previous Reel (Swipe Down)</option>
+                                    <option value="PLAY_PAUSE">👌 Play / Pause Video</option>
+                                    <option value="LIKE">❤️ Like / Heart Reel</option>
+                                    <option value="BACK">⬅️ System Back</option>
+                                    <option value="HOME">🏠 System Home Screen</option>
+                                    <option value="VOL_UP">🔊 Volume Up</option>
+                                    <option value="VOL_DOWN">🔉 Volume Down</option>
+                                    <option value="OPEN_KEYBOARD">⌨️ Open 2-Hand Air Keyboard</option>
+                                </select>
+                            </div>
+
+                            <button onclick="addCustomVoiceCommand()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-black text-xs shadow-lg active:scale-95 transition">
+                                + Save Custom Trigger
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="module-card space-y-2">
+                        <h4 class="text-xs font-extrabold uppercase tracking-wider text-purple-300">Saved Custom Triggers</h4>
+                        <div id="custom-triggers-list" class="space-y-1.5"></div>
+                    </div>
+                </div>
+            </section>
+
             <!-- VIEW 4: ADMIN & ANALYTICS -->
             <section id="view-admin" class="hidden space-y-3">
                 <div class="bento-card rounded-3xl p-4 space-y-3">
@@ -1201,7 +1447,7 @@
                     <i class="fa-solid fa-sliders text-xs"></i>
                     <span>Settings</span>
                 </button>
-                <button onclick="openGestureGuideModal()" class="AirClickable py-1.5 rounded-xl text-slate-400 font-bold text-[9px] flex flex-col items-center gap-0.5">
+                <button onclick="switchTab('guide')" id="nav-guide" class="AirClickable py-1.5 rounded-xl text-slate-400 font-bold text-[9px] flex flex-col items-center gap-0.5">
                     <i class="fa-solid fa-hand-sparkles text-xs"></i>
                     <span>Gestures</span>
                 </button>
@@ -2399,9 +2645,7 @@
         }
 
         function openGestureGuideModal() {
-            const m = document.getElementById('gesture-guide-modal');
-            m.classList.remove('hidden');
-            m.classList.add('flex');
+            switchTab('guide');
         }
 
         function closeGestureGuideModal() {
@@ -2426,9 +2670,11 @@
             document.getElementById('view-launcher').classList.toggle('hidden', tab !== 'launcher');
             document.getElementById('view-stream').classList.toggle('hidden', tab !== 'stream');
             document.getElementById('view-settings').classList.toggle('hidden', tab !== 'settings');
+            const vGuide = document.getElementById('view-guide');
+            if (vGuide) vGuide.classList.toggle('hidden', tab !== 'guide');
             document.getElementById('view-admin').classList.toggle('hidden', tab !== 'admin');
 
-            const tabs = ['launcher', 'stream', 'settings', 'admin'];
+            const tabs = ['launcher', 'stream', 'settings', 'guide', 'admin'];
             tabs.forEach(t => {
                 const navBtn = document.getElementById(`nav-${t}`);
                 if (navBtn) {
@@ -2439,8 +2685,401 @@
             });
         }
 
+
+        // =====================================================================
+        // 7. VOICE RECOGNITION & INTERACTIVE GESTURE GUIDE ENGINE
+        // =====================================================================
+        let selectedCustomIcon = '☝️';
+
+        function selectCustomIcon(icon) {
+            selectedCustomIcon = icon;
+            document.querySelectorAll('.cust-icon-btn').forEach(btn => {
+                if (btn.textContent === icon) {
+                    btn.className = 'cust-icon-btn p-1.5 rounded-xl bg-cyan-500/20 border-2 border-cyan-400 text-base flex items-center justify-center';
+                } else {
+                    btn.className = 'cust-icon-btn p-1.5 rounded-xl bg-slate-900 border border-slate-700 text-base flex items-center justify-center';
+                }
+            });
+        }
+
+        function buildMinimalGestureStage(mode) {
+            let phoneScreenContent = '';
+            let gestureSymbol = '☝️';
+
+            if (mode === 'FOLD_1') {
+                gestureSymbol = '☝️';
+                phoneScreenContent = `
+                    <g class="phone-reel-up">
+                        <rect x="6" y="8" width="44" height="34" rx="5" fill="#1e293b"/>
+                        <rect x="6" y="46" width="44" height="34" rx="5" fill="#0284c7"/>
+                        <polygon points="25,58 25,68 34,63" fill="#fff"/>
+                    </g>
+                    <path d="M28 74 L28 16 M22 22 L28 15 L34 22" stroke="#22d3ee" stroke-width="2.2" stroke-linecap="round"/>`;
+            } else if (mode === 'FOLD_2') {
+                gestureSymbol = '✌️';
+                phoneScreenContent = `
+                    <g class="phone-reel-down">
+                        <rect x="6" y="8" width="44" height="34" rx="5" fill="#7e22ce"/>
+                        <polygon points="25,20 25,30 34,25" fill="#fff"/>
+                        <rect x="6" y="46" width="44" height="34" rx="5" fill="#1e293b"/>
+                    </g>
+                    <path d="M28 16 L28 74 M22 68 L28 75 L34 68" stroke="#c084fc" stroke-width="2.2" stroke-linecap="round"/>`;
+            } else if (mode === 'FOLD_3') {
+                gestureSymbol = '🤟';
+                phoneScreenContent = `
+                    <g class="phone-back-slide">
+                        <rect x="10" y="24" width="36" height="42" rx="6" fill="rgba(245,158,11,0.2)" stroke="#fbbf24" stroke-width="1.5"/>
+                        <path d="M34 45 L20 45 M26 38 L19 45 L26 52" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </g>
+                    <text x="28" y="80" text-anchor="middle" fill="#fcd34d" font-size="7" font-weight="800">BACK</text>`;
+            } else if (mode === 'FOLD_4') {
+                gestureSymbol = '✊';
+                phoneScreenContent = `
+                    <g class="phone-home-pop">
+                        <rect x="10" y="16" width="14" height="14" rx="3" fill="#34d399"/>
+                        <rect x="32" y="16" width="14" height="14" rx="3" fill="#38bdf8"/>
+                        <rect x="10" y="36" width="14" height="14" rx="3" fill="#a855f7"/>
+                        <rect x="32" y="36" width="14" height="14" rx="3" fill="#f59e0b"/>
+                        <rect x="16" y="62" width="24" height="4" rx="2" fill="#fff"/>
+                    </g>
+                    <text x="28" y="80" text-anchor="middle" fill="#6ee7b7" font-size="7" font-weight="800">HOME</text>`;
+            } else if (mode === 'HOLD') {
+                gestureSymbol = '⏱️☝️';
+                phoneScreenContent = `
+                    <circle cx="28" cy="44" r="16" stroke="#334155" stroke-width="3"/>
+                    <circle cx="28" cy="44" r="16" stroke="#6366f1" stroke-width="3" class="hold-ring-progress" transform="rotate(-90 28 44)"/>
+                    <g class="phone-menu-pop">
+                        <rect x="6" y="22" width="44" height="44" rx="8" fill="#1e1b4b" stroke="#818cf8" stroke-width="1.5"/>
+                        <rect x="11" y="27" width="15" height="14" rx="3" fill="#4f46e5"/>
+                        <rect x="30" y="27" width="15" height="14" rx="3" fill="#06b6d4"/>
+                    </g>
+                    <text x="28" y="82" text-anchor="middle" fill="#a5b4fc" font-size="6.5" font-weight="800">MENU</text>`;
+            } else if (mode === 'PINCH') {
+                gestureSymbol = '👌';
+                phoneScreenContent = `
+                    <rect x="0" y="0" width="56" height="90" rx="10" fill="#090d16" stroke="#334155" stroke-width="2"/>
+                    <circle cx="28" cy="45" r="14" fill="rgba(16,185,129,0.2)" stroke="#10b981" stroke-width="1.8"/>
+                    <polygon points="25,39 25,51 35,45" fill="#10b981"/>
+                    <circle cx="28" cy="45" r="18" stroke="#22d3ee" stroke-width="1.5" class="pinch-ripple"/>
+                    <text x="28" y="80" text-anchor="middle" fill="#67e8f9" font-size="7" font-weight="800">TAP</text>`;
+            } else if (mode === 'TWO_HAND') {
+                gestureSymbol = '🙌';
+                phoneScreenContent = `
+                    <rect x="0" y="0" width="56" height="90" rx="10" fill="#090d16" stroke="#f43f5e" stroke-width="2"/>
+                    <rect x="6" y="10" width="44" height="12" rx="3" fill="#1e293b"/>
+                    <text x="28" y="18" text-anchor="middle" fill="#38bdf8" font-size="6" font-weight="800">Type...</text>
+                    <g fill="#334155" transform="translate(4, 28)">
+                        <rect x="2" y="2" width="8" height="8" rx="2"/><rect x="12" y="2" width="8" height="8" rx="2" fill="#22d3ee"/>
+                        <rect x="22" y="2" width="8" height="8" rx="2"/><rect x="32" y="2" width="8" height="8" rx="2"/>
+                        <rect x="7" y="13" width="34" height="8" rx="2" fill="#10b981"/>
+                    </g>
+                    <text x="28" y="80" text-anchor="middle" fill="#fda4af" font-size="7" font-weight="800">KEYBOARD</text>`;
+            }
+
+            return `
+            <div class="gesture-stage w-full h-24">
+                <div class="flex flex-col items-center justify-center bg-slate-900/90 border border-slate-700/80 px-4 py-3 rounded-2xl shadow-lg">
+                    <span class="text-3xl">${gestureSymbol}</span>
+                    <span class="text-[9px] font-extrabold text-cyan-300 uppercase tracking-wider mt-1">Air Gesture</span>
+                </div>
+                <i class="fa-solid fa-arrow-right-long text-slate-500 text-sm"></i>
+                <div class="relative w-14 h-22 bg-slate-950 rounded-xl border border-slate-700 flex items-center justify-center overflow-hidden shadow-md">
+                    <svg class="w-full h-full" viewBox="0 0 56 90" fill="none">
+                        ${phoneScreenContent}
+                    </svg>
+                </div>
+            </div>`;
+        }
+
+        const HAND_GESTURE_GUIDE = [
+            { id: 'FOLD_1', category: 'FOLD', badge: 'Most Used', badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40', title: '☝️ 1-Finger Fold & Open', actionLabel: 'Scroll Next Reel (Swipe Up)', howTo: 'Keep palm facing camera, bend ONLY Index finger down and open back up.', voiceEquivalent: '"Next" or "Agla"', actionCode: 'NEXT', stageHtml: buildMinimalGestureStage('FOLD_1') },
+            { id: 'FOLD_2', category: 'FOLD', badge: 'Reels / Shorts', badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/40', title: '✌️ 2-Finger Fold & Open', actionLabel: 'Previous Reel (Swipe Down)', howTo: 'Bend Index and Middle fingers down together and open back up.', voiceEquivalent: '"Previous" or "Pichla"', actionCode: 'PREV', stageHtml: buildMinimalGestureStage('FOLD_2') },
+            { id: 'FOLD_3_BACK', category: 'SYSTEM', badge: 'System OS', badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40', title: '⬅️ 3-Finger Fold & Open', actionLabel: 'System Back Navigation', howTo: 'Bend Index, Middle, and Ring fingers down together to trigger Back.', voiceEquivalent: '"Back" or "Wapas"', actionCode: 'BACK', stageHtml: buildMinimalGestureStage('FOLD_3') },
+            { id: 'FOLD_4_HOME', category: 'SYSTEM', badge: 'System OS', badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40', title: '🏠 4-Finger Fold (Fist & Open)', actionLabel: 'Go to Phone Home Screen', howTo: 'Curl all 4 fingers into a gentle fist and open palm to jump to Home.', voiceEquivalent: '"Home" or "Home Screen"', actionCode: 'HOME', stageHtml: buildMinimalGestureStage('FOLD_4') },
+            { id: 'FOLD_HOLD', category: 'FOLD', badge: 'Island Menu', badgeColor: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40', title: '⏱️ 1-Finger Fold & Hold (1.5s)', actionLabel: 'Open Floating Action Menu', howTo: 'Bend Index finger and hold 1.5s until ring fills to pop open controls.', voiceEquivalent: '"Open Menu" or "Controls"', actionCode: 'HOLD_MENU', stageHtml: buildMinimalGestureStage('HOLD') },
+            { id: 'PINCH_TAP', category: 'FOLD', badge: 'Air Pointer', badgeColor: 'bg-blue-500/20 text-blue-300 border-blue-500/40', title: '👌 Index + Thumb Pinch', actionLabel: 'Air Tap / Play & Pause', howTo: 'Aim cursor with Index finger, touch Thumb and Index tips together.', voiceEquivalent: '"Play", "Pause" or "Click"', actionCode: 'PLAY_PAUSE', stageHtml: buildMinimalGestureStage('PINCH') },
+            { id: 'TWO_HAND_KB', category: 'TYPING', badge: '2-Hand Sign', badgeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/40', title: '🙌 Dual-Hand L-Sign / Pinch', actionLabel: 'Open Air Keyboard for Comments', howTo: 'Hold both hands up or Pinch for 0.5s to open split QWERTY Air Keyboard.', voiceEquivalent: '"Open Keyboard" or "Comment..."', actionCode: 'OPEN_KEYBOARD', stageHtml: buildMinimalGestureStage('TWO_HAND') }
+        ];
+
+        const BUILTIN_VOICE_COMMANDS = [
+            { action: 'NEXT', title: 'Scroll Next Reel / Video', phrases: ['next', 'scroll', 'swipe up', 'agla', 'aage'], displaySay: '"Next" / "Agla"', icon: 'fa-forward-step text-cyan-400' },
+            { action: 'PREV', title: 'Previous Reel / Video', phrases: ['previous', 'prev', 'swipe down', 'pichla', 'peeche'], displaySay: '"Previous" / "Pichla"', icon: 'fa-backward-step text-purple-400' },
+            { action: 'PLAY_PAUSE', title: 'Play or Pause Media', phrases: ['play', 'pause', 'stop', 'resume', 'ruko', 'chalu karo'], displaySay: '"Play" / "Pause" / "Ruko"', icon: 'fa-play-pause text-emerald-400' },
+            { action: 'LIKE', title: 'Like / Heart Current Video', phrases: ['like', 'heart', 'love', 'boost', 'pasand'], displaySay: '"Like" / "Heart"', icon: 'fa-heart text-rose-400' },
+            { action: 'BACK', title: 'System Back Navigation', phrases: ['back', 'go back', 'wapas', 'peeche jao'], displaySay: '"Back" / "Wapas"', icon: 'fa-chevron-left text-amber-400' },
+            { action: 'HOME', title: 'Go to Phone Home Screen', phrases: ['home', 'home screen', 'ghar', 'main screen'], displaySay: '"Home" / "Home Screen"', icon: 'fa-house text-emerald-400' },
+            { action: 'VOL_UP', title: 'Volume Up', phrases: ['volume up', 'louder', 'aawaz badhao', 'tej karo'], displaySay: '"Volume Up" / "Aawaz Badhao"', icon: 'fa-volume-high text-blue-400' },
+            { action: 'VOL_DOWN', title: 'Volume Down', phrases: ['volume down', 'quieter', 'aawaz kam karo'], displaySay: '"Volume Down" / "Aawaz Kam"', icon: 'fa-volume-low text-indigo-400' },
+            { action: 'OPEN_KEYBOARD', title: 'Open Air Keyboard', phrases: ['keyboard', 'open keyboard', 'type'], displaySay: '"Open Keyboard"', icon: 'fa-keyboard text-pink-400' }
+        ];
+
+        let customVoiceTriggers = JSON.parse(localStorage.getItem('aero_custom_voice_triggers') || '[]');
+        let voiceState = { listening: false, continuous: true, ttsReply: true, lang: 'en-US', recognition: null };
+
+        function renderGestureCards(filter = 'ALL') {
+            ['ALL', 'FOLD', 'SYSTEM', 'TYPING'].forEach(f => {
+                const btn = document.getElementById(`gfilt-${f}`);
+                if (btn) {
+                    btn.className = f === filter
+                        ? 'px-3 py-1 rounded-full bg-cyan-500 text-slate-950 font-black text-[10px] whitespace-nowrap'
+                        : 'px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300 font-bold text-[10px] whitespace-nowrap';
+                }
+            });
+
+            const list = filter === 'ALL' ? HAND_GESTURE_GUIDE : HAND_GESTURE_GUIDE.filter(g => g.category === filter);
+            const container = document.getElementById('gesture-guide-cards');
+            if (!container) return;
+            container.innerHTML = list.map(g => `
+                <div class="module-card flex flex-col gap-3">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="px-2.5 py-0.5 rounded-full border text-[9px] font-extrabold uppercase ${g.badgeColor}">${g.badge}</span>
+                        <span class="text-[10px] font-bold text-slate-400">🎙️ Say: <strong class="text-cyan-300">${g.voiceEquivalent}</strong></span>
+                    </div>
+
+                    <div>
+                        <h3 class="text-sm font-black text-white">${g.title}</h3>
+                        <p class="text-xs font-extrabold text-cyan-400">${g.actionLabel}</p>
+                    </div>
+
+                    ${g.stageHtml}
+
+                    <p class="text-[11px] text-slate-300 leading-relaxed bg-slate-900/70 p-2.5 rounded-xl border border-white/5">
+                        <strong class="text-white">How to do it:</strong> ${g.howTo}
+                    </p>
+
+                    <button onclick="dispatchVoiceOrGestureAction('${g.actionCode}', 'Hand Guide Test')"
+                        class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-extrabold text-cyan-300 active:scale-95 transition">
+                        ⚡ Test Gesture Action Now
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function filterGestureCards(category) { renderGestureCards(category); }
+
+        function renderVoiceCommandsList() {
+            const container = document.getElementById('voice-commands-list');
+            if (!container) return;
+            container.innerHTML = BUILTIN_VOICE_COMMANDS.map(cmd => `
+                <div onclick="dispatchVoiceOrGestureAction('${cmd.action}', 'Voice: ${cmd.displaySay}')"
+                    class="p-2.5 rounded-2xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 flex items-center justify-between gap-2 cursor-pointer active:scale-98 transition">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="w-7 h-7 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center shrink-0">
+                            <i class="fa-solid ${cmd.icon} text-xs"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-xs font-extrabold text-white truncate">${cmd.title}</p>
+                            <p class="text-[10px] text-cyan-300 font-bold truncate">Say: ${cmd.displaySay}</p>
+                        </div>
+                    </div>
+                    <span class="px-2 py-0.5 rounded-lg bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-[9px] font-extrabold shrink-0">Test ▶</span>
+                </div>
+            `).join('');
+        }
+
+        function renderCustomTriggers() {
+            const container = document.getElementById('custom-triggers-list');
+            if (!container) return;
+            if (customVoiceTriggers.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-2">No custom voice phrases saved yet.</p>`;
+                return;
+            }
+            container.innerHTML = customVoiceTriggers.map((item, idx) => `
+                <div class="p-2 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="text-base">${item.icon || '☝️'}</span>
+                        <div>
+                            <p class="text-xs font-extrabold text-white">"${item.phrase}"</p>
+                            <p class="text-[10px] text-emerald-400 font-bold">Action: ${item.action}</p>
+                        </div>
+                    </div>
+                    <button onclick="removeCustomVoiceCommand(${idx})" class="px-2 py-1 rounded-lg bg-rose-500/15 text-rose-400 text-xs font-bold">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function addCustomVoiceCommand() {
+            const phraseInput = document.getElementById('custom-voice-phrase');
+            const actionSelect = document.getElementById('custom-voice-action');
+            if (!phraseInput || !actionSelect) return;
+            const phrase = phraseInput.value.trim().toLowerCase();
+            if (!phrase) {
+                showToast('⚠️', 'Empty Phrase', 'Please enter a voice phrase first');
+                return;
+            }
+            customVoiceTriggers.push({ phrase, action: actionSelect.value, icon: selectedCustomIcon });
+            localStorage.setItem('aero_custom_voice_triggers', JSON.stringify(customVoiceTriggers));
+            phraseInput.value = '';
+            renderCustomTriggers();
+            showToast('✅', 'Trigger Saved', `Icon ${selectedCustomIcon} + Say "${phrase}" saved!`);
+        }
+
+        function removeCustomVoiceCommand(index) {
+            customVoiceTriggers.splice(index, 1);
+            localStorage.setItem('aero_custom_voice_triggers', JSON.stringify(customVoiceTriggers));
+            renderCustomTriggers();
+        }
+
+        function initSpeechRecognition() {
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRec) return null;
+            const rec = new SpeechRec();
+            rec.continuous = true;
+            rec.interimResults = true;
+            rec.lang = voiceState.lang;
+
+            rec.onstart = () => { voiceState.listening = true; updateVoiceUI(); };
+            rec.onresult = (event) => {
+                let finalTranscript = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript;
+                }
+                if (finalTranscript) {
+                    const transEl = document.getElementById('hud-voice-transcript');
+                    if (transEl) transEl.textContent = `"${finalTranscript.trim()}"`;
+                    parseAndExecuteVoiceCommand(finalTranscript.trim().toLowerCase());
+                }
+            };
+            rec.onend = () => {
+                if (voiceState.listening && voiceState.continuous) { try { rec.start(); } catch (e) {} }
+                else { voiceState.listening = false; updateVoiceUI(); }
+            };
+            return rec;
+        }
+
+        window.onNativeVoiceTranscript = function(phrase) {
+            const transEl = document.getElementById('hud-voice-transcript');
+            if (transEl) transEl.textContent = `"${phrase}"`;
+            parseAndExecuteVoiceCommand(phrase.toLowerCase());
+        };
+
+        function toggleVoiceRecognition() {
+            if (voiceState.listening) {
+                voiceState.listening = false;
+                if (voiceState.recognition) { try { voiceState.recognition.stop(); } catch (e) {} }
+                if (window.AndroidBridge && window.AndroidBridge.stopNativeVoiceRecognition) {
+                    window.AndroidBridge.stopNativeVoiceRecognition();
+                }
+                updateVoiceUI();
+                showToast('⏹️', 'Voice Paused', 'Microphone stopped');
+                return;
+            }
+            if (!voiceState.recognition) voiceState.recognition = initSpeechRecognition();
+            if (voiceState.recognition) {
+                try {
+                    voiceState.recognition.lang = voiceState.lang;
+                    voiceState.recognition.start();
+                } catch (e) {}
+            }
+            if (window.AndroidBridge && window.AndroidBridge.startNativeVoiceRecognition) {
+                window.AndroidBridge.startNativeVoiceRecognition(voiceState.lang);
+            }
+            voiceState.listening = true;
+            updateVoiceUI();
+            showToast('🎙️', 'Voice AI Live', 'Say "Next", "Back", "Home"...');
+        }
+
+        function parseAndExecuteVoiceCommand(transcript) {
+            for (const custom of customVoiceTriggers) {
+                if (transcript.includes(custom.phrase)) {
+                    dispatchVoiceOrGestureAction(custom.action, `Custom: "${custom.phrase}"`);
+                    return;
+                }
+            }
+            for (const cmd of BUILTIN_VOICE_COMMANDS) {
+                for (const phrase of cmd.phrases) {
+                    if (transcript === phrase || transcript.includes(phrase)) {
+                        dispatchVoiceOrGestureAction(cmd.action, `Heard "${transcript}"`);
+                        return;
+                    }
+                }
+            }
+        }
+
+        function dispatchVoiceOrGestureAction(actionCode, sourceLabel) {
+            showToast('⚡', sourceLabel, `Action: ${actionCode}`);
+            if (voiceState.ttsReply && ('speechSynthesis' in window)) {
+                try {
+                    window.speechSynthesis.cancel();
+                    const utter = new SpeechSynthesisUtterance(actionCode.replace('_', ' '));
+                    utter.lang = voiceState.lang;
+                    window.speechSynthesis.speak(utter);
+                } catch (e) {}
+            }
+            if (actionCode === 'NEXT') executeAction('NEXT');
+            else if (actionCode === 'PREV') executeAction('PREV');
+            else if (actionCode === 'BACK') executeSystemNavigation('BACK');
+            else if (actionCode === 'HOME') executeSystemNavigation('HOME');
+            else if (actionCode === 'PLAY_PAUSE') executeAction('PLAY_PAUSE');
+            else if (actionCode === 'LIKE') executeAction('LIKE');
+            else if (actionCode === 'VOL_UP') triggerHoldMenuOption('VOL_UP');
+            else if (actionCode === 'VOL_DOWN') triggerHoldMenuOption('VOL_DOWN');
+            else if (actionCode === 'OPEN_KEYBOARD') toggleAirKeyboard(true);
+            else if (actionCode === 'HOLD_MENU') openFoldHoldMenu();
+        }
+
+        function updateVoiceUI() {
+            const waveBox = document.getElementById('voice-wave-box');
+            const hudStatus = document.getElementById('hud-voice-status');
+            const hudMicBtn = document.getElementById('hud-mic-btn');
+            const hudMicIcon = document.getElementById('hud-mic-icon');
+            const topLabel = document.getElementById('top-mic-label');
+            const liveBadge = document.getElementById('voice-live-badge');
+            const headerVoiceIcon = document.getElementById('voice-icon');
+
+            if (voiceState.listening) {
+                if (waveBox) waveBox.classList.add('listening-active');
+                if (hudStatus) hudStatus.textContent = `Listening (${voiceState.lang})`;
+                if (hudMicBtn) hudMicBtn.className = 'w-8 h-8 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center shrink-0 shadow-lg';
+                if (hudMicIcon) hudMicIcon.className = 'fa-solid fa-microphone text-xs';
+                if (topLabel) topLabel.textContent = 'Listening...';
+                if (liveBadge) {
+                    liveBadge.textContent = '● LIVE';
+                    liveBadge.className = 'px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-extrabold text-[9px] uppercase';
+                }
+                if (headerVoiceIcon) headerVoiceIcon.className = 'fa-solid fa-microphone text-cyan-400 text-xs animate-pulse';
+            } else {
+                if (waveBox) waveBox.classList.remove('listening-active');
+                if (hudStatus) hudStatus.textContent = 'Voice Standby';
+                if (hudMicBtn) hudMicBtn.className = 'w-8 h-8 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center shrink-0';
+                if (hudMicIcon) hudMicIcon.className = 'fa-solid fa-microphone-slash text-xs';
+                if (topLabel) topLabel.textContent = 'Start Voice';
+                if (liveBadge) {
+                    liveBadge.textContent = 'OFFLINE';
+                    liveBadge.className = 'px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-extrabold text-[9px] uppercase';
+                }
+                if (headerVoiceIcon) headerVoiceIcon.className = 'fa-solid fa-microphone-slash text-xs';
+            }
+        }
+
+        function setVoiceLanguage(lang) {
+            voiceState.lang = lang;
+            const lEn = document.getElementById('lang-en');
+            const lHi = document.getElementById('lang-hi');
+            if (lEn) lEn.className = lang === 'en-US' ? 'px-2.5 py-1 rounded-lg bg-[#465fff] text-white font-extrabold text-xs' : 'px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 font-extrabold text-xs';
+            if (lHi) lHi.className = lang === 'hi-IN' ? 'px-2.5 py-1 rounded-lg bg-[#465fff] text-white font-extrabold text-xs' : 'px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 font-extrabold text-xs';
+        }
+
+        function toggleContinuousMode() { voiceState.continuous = !voiceState.continuous; }
+        function toggleTtsReply() { voiceState.ttsReply = !voiceState.ttsReply; }
+
+        function switchGuideTab(tab) {
+            ['gestures', 'voice', 'custom'].forEach(t => {
+                const p = document.getElementById(`gpanel-${t}`);
+                if (p) p.classList.toggle('hidden', t !== tab);
+                const b = document.getElementById(`gtab-${t}`);
+                if (b) {
+                    b.className = t === tab
+                        ? 'flex-1 py-1.5 px-2 rounded-full font-extrabold text-xs bg-[#465fff] text-white transition'
+                        : 'flex-1 py-1.5 px-2 rounded-full font-extrabold text-xs text-slate-400 hover:text-white transition';
+                }
+            });
+        }
+
         function toggleVoiceControl() {
-            showToast('🎙️', 'Voice Control', 'Say "Next", "Back", "Home", or "Pause"');
+            toggleVoiceRecognition();
         }
 
         window.setNativeOverlayMode = function(isOverlay) {
@@ -2452,6 +3091,9 @@
             refreshNativePermissionStatus();
             buildAirKeyboard();
             renderSettingsUI();
+            renderGestureCards('ALL');
+            renderVoiceCommandsList();
+            renderCustomTriggers();
             if (!localStorage.getItem('aero_perm_prompted')) {
                 openStartupPermissionModal();
             }

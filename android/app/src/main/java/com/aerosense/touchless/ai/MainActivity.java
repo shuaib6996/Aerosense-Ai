@@ -41,6 +41,7 @@ public class MainActivity extends Activity {
     private WindowManager systemWindowManager;
     private WindowManager.LayoutParams floatingOverlayParams;
     private String currentHudSize = "md";
+    private final AeroVoiceControlPatch voiceControlPatch = new AeroVoiceControlPatch();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -440,6 +441,16 @@ public class MainActivity extends Activity {
         public void updateFloatingIndicatorBounds(float size, float horiz, float vert, float opacity) {}
 
         @JavascriptInterface
+        public void startNativeVoiceRecognition(String languageTag) {
+            voiceControlPatch.startListening(MainActivity.this, webView, languageTag);
+        }
+
+        @JavascriptInterface
+        public void stopNativeVoiceRecognition() {
+            voiceControlPatch.stopListening();
+        }
+
+        @JavascriptInterface
         public void enterFloatingOverlay() {
             isBackgroundEngineRunning = true;
             runOnUiThread(() -> enterMiniHandFloatingWindow());
@@ -473,6 +484,14 @@ public class MainActivity extends Activity {
             webView.goBack();
         } else {
             super.onBackPressed();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (voiceControlPatch != null) {
+            voiceControlPatch.stopListening();
         }
     }
 }
