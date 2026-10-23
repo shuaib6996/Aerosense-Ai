@@ -159,9 +159,9 @@
             opacity: 1;
         }
 
-        .hud-size-sm { width: 90px; height: 110px; border-radius: 18px; }
-        .hud-size-md { width: 118px; height: 146px; border-radius: 22px; }
-        .hud-size-lg { width: 160px; height: 195px; border-radius: 26px; }
+        .hud-size-sm { width: 88px; height: 108px; border-radius: 24px; }
+        .hud-size-md { width: 118px; height: 146px; border-radius: 28px; }
+        .hud-size-lg { width: 156px; height: 190px; border-radius: 32px; }
 
         /* Spatial Touch Style Custom Range Sliders with Tick Marks */
         .aero-slider-wrap {
@@ -304,24 +304,53 @@
         }
 
         /* Native Android Floating Window Transparency */
+        html.native-overlay-mode,
         body.native-overlay-mode {
             background-color: transparent !important;
             background: transparent !important;
         }
-        body.native-overlay-mode > *:not(#spatial-floating-hud):not(#fold-hold-menu):not(#dynamic-hand-indicator):not(#dynamic-control-interface):not(#air-keyboard-overlay) {
+        body.native-overlay-mode > *:not(#spatial-floating-hud):not(#fold-hold-menu):not(#air-keyboard-overlay) {
+            display: none !important;
+        }
+        body.native-overlay-mode #app-shell,
+        body.native-overlay-mode header,
+        body.native-overlay-mode main,
+        body.native-overlay-mode nav,
+        body.native-overlay-mode #floating-voice-hud,
+        body.native-overlay-mode #dynamic-hand-indicator,
+        body.native-overlay-mode #dynamic-control-interface {
             display: none !important;
         }
         body.native-overlay-mode #spatial-floating-hud {
+            display: flex !important;
             position: fixed !important;
             inset: 0 !important;
             left: 0 !important;
+            top: 0 !important;
             bottom: 0 !important;
-            width: 100vw !important;
-            height: 100vh !important;
-            border-radius: 20px !important;
-            opacity: 1 !important;
+            right: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            margin: 0 !important;
             transform: none !important;
+            opacity: 1 !important;
+            background: rgba(5, 8, 17, 0.40) !important;
+            backdrop-filter: blur(14px) !important;
+            -webkit-backdrop-filter: blur(14px) !important;
+            border: 1.5px solid rgba(34, 211, 238, 0.45) !important;
+            border-radius: 24px !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 0 14px rgba(34, 211, 238, 0.15) !important;
             pointer-events: auto !important;
+            overflow: hidden !important;
+        }
+        body.native-overlay-mode #spatial-floating-hud.hud-size-sm {
+            border-radius: 24px !important;
+        }
+        body.native-overlay-mode #spatial-floating-hud.hud-size-md {
+            border-radius: 28px !important;
+        }
+        body.native-overlay-mode #spatial-floating-hud.hud-size-lg {
+            border-radius: 32px !important;
         }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -659,16 +688,21 @@
         </div>
     </div>
 
-    <!-- TRANSPARENT BOTTOM-CENTER HAND POPUP -->
-    <div id="spatial-floating-hud" class="hud-size-md">
+    <!-- TRANSPARENT BOTTOM-CENTER HAND POPUP (Default: SM with rounded corners) -->
+    <div id="spatial-floating-hud" class="hud-size-sm">
         <div class="px-2 pt-1.5 pb-0.5 flex items-center justify-between z-10">
             <span class="flex items-center gap-1 text-[8px] font-extrabold text-emerald-400 uppercase tracking-wider truncate">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping shrink-0"></span>
                 <span id="mini-hud-app" class="truncate">Hand</span>
             </span>
-            <button onclick="cyclePopupHudSize()" class="AirClickable px-1.5 py-0.5 rounded bg-slate-900/80 border border-cyan-500/40 text-[8px] font-extrabold text-cyan-300 hover:text-white whitespace-nowrap shrink-0" title="Resize HUD">
-                <i class="fa-solid fa-up-right-and-down-left-from-center mr-0.5"></i><span id="hud-size-label">M</span>
-            </button>
+            <div class="flex items-center gap-1 shrink-0">
+                <button onclick="cyclePopupHudSize()" class="AirClickable px-1.5 py-0.5 rounded-lg bg-slate-900/80 border border-cyan-500/40 text-[8px] font-extrabold text-cyan-300 hover:text-white whitespace-nowrap" title="Resize HUD (SM / MD / LG)">
+                    <i class="fa-solid fa-up-right-and-down-left-from-center mr-0.5"></i><span id="hud-size-label">SM</span>
+                </button>
+                <button onclick="toggleBackgroundEngine()" class="AirClickable w-4 h-4 rounded-full bg-red-500/20 border border-red-500/40 text-red-400 hover:text-white flex items-center justify-center text-[8px]" title="Close / Stop Hand Tracking">
+                    ✕
+                </button>
+            </div>
         </div>
 
         <div class="relative flex-1 w-full h-full flex items-center justify-center overflow-hidden">
@@ -695,7 +729,7 @@
     </div>
 
     <!-- RESPONSIVE MOBILE CONTAINER -->
-    <div class="w-full max-w-md mx-auto h-full flex flex-col justify-between overflow-hidden border-x border-slate-800/50 bg-[#050811]">
+    <div id="app-shell" class="w-full max-w-md mx-auto h-full flex flex-col justify-between overflow-hidden border-x border-slate-800/50 bg-[#050811]">
 
         <!-- 1. ZERO-WRAP TOP HEADER -->
         <header class="shrink-0 px-3 pt-2.5 pb-2 bg-slate-950 border-b border-slate-800/80 flex flex-col gap-2">
@@ -748,7 +782,7 @@
 
                 <button onclick="cyclePopupHudSize()" class="AirClickable h-8 px-2 rounded-xl bg-slate-900 border border-slate-800 text-cyan-300 text-[11px] font-extrabold flex items-center justify-center gap-1.5 whitespace-nowrap active:scale-95 transition">
                     <i class="fa-solid fa-expand text-[10px] shrink-0"></i>
-                    <span id="header-hud-size">HUD: M</span>
+                    <span id="header-hud-size">HUD: SM</span>
                 </button>
             </div>
         </header>
@@ -1595,7 +1629,7 @@
         let handsInstance = null;
         let cameraInstance = null;
         let hudSizes = ['sm', 'md', 'lg'];
-        let hudSizeIdx = 1;
+        let hudSizeIdx = 0;
         let userAddedApps = JSON.parse(localStorage.getItem('aero_user_apps') || '[]');
 
         let smoothX = window.innerWidth / 2;
@@ -2479,6 +2513,9 @@
                 if (window.AndroidBridge && window.AndroidBridge.stopBackgroundService) {
                     window.AndroidBridge.stopBackgroundService();
                 }
+                if (window.AndroidBridge && window.AndroidBridge.exitFloatingOverlay) {
+                    window.AndroidBridge.exitFloatingOverlay();
+                }
                 showToast('⏹️', 'Engine Stopped', 'Hand tracking paused');
                 return;
             }
@@ -3267,10 +3304,27 @@
         }
 
         window.setNativeOverlayMode = function(isOverlay) {
-            document.body.classList.toggle('native-overlay-mode', !!isOverlay);
-            if (!isOverlay) {
-                document.body.classList.remove('native-overlay-mode');
-                document.body.style.backgroundColor = '#050811';
+            const isO = !!isOverlay;
+            document.documentElement.classList.toggle('native-overlay-mode', isO);
+            document.body.classList.toggle('native-overlay-mode', isO);
+            const appShell = document.getElementById('app-shell');
+            const floatingHud = document.getElementById('spatial-floating-hud');
+            const voiceHud = document.getElementById('floating-voice-hud');
+
+            if (isO) {
+                document.documentElement.style.background = 'transparent';
+                document.body.style.background = 'transparent';
+                if (appShell) appShell.style.display = 'none';
+                if (voiceHud) voiceHud.style.display = 'none';
+                if (floatingHud) {
+                    floatingHud.classList.add('hud-visible');
+                    floatingHud.style.opacity = '1';
+                }
+            } else {
+                document.documentElement.style.background = '#050811';
+                document.body.style.background = '#050811';
+                if (appShell) appShell.style.display = '';
+                if (voiceHud) voiceHud.style.display = '';
             }
         };
 

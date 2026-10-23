@@ -41,7 +41,7 @@ public class MainActivity extends Activity {
     private boolean isFloatingOverlayAttached = false;
     private WindowManager systemWindowManager;
     private WindowManager.LayoutParams floatingOverlayParams;
-    private String currentHudSize = "md";
+    private String currentHudSize = "sm";
     private final AeroVoiceControlPatch voiceControlPatch = new AeroVoiceControlPatch();
 
     @Override
@@ -127,6 +127,7 @@ public class MainActivity extends Activity {
                 if (!isFloatingOverlayAttached && webView != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                     webView.evaluateJavascript(
                             "if(window.setNativeOverlayMode) window.setNativeOverlayMode(false);" +
+                            "document.documentElement.classList.remove('native-overlay-mode');" +
                             "document.body.classList.remove('native-overlay-mode');" +
                             "document.body.style.backgroundColor='#050811';" +
                             "if(window.refreshNativePermissionStatus) window.refreshNativePermissionStatus();",
@@ -177,9 +178,9 @@ public class MainActivity extends Activity {
     }
 
     private int[] getHudDimensionsDp(String sizeKey) {
-        if ("sm".equals(sizeKey)) return new int[]{90, 110};
-        if ("lg".equals(sizeKey)) return new int[]{160, 195};
-        return new int[]{118, 146};
+        if ("lg".equals(sizeKey)) return new int[]{156, 190};
+        if ("md".equals(sizeKey)) return new int[]{118, 146};
+        return new int[]{88, 108}; // sm default: sleek & compact
     }
 
     private void enterSystemFloatingOverlay() {
@@ -187,6 +188,16 @@ public class MainActivity extends Activity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) return;
 
         try {
+            // Synchronously notify web to enter transparent overlay mode
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                webView.evaluateJavascript(
+                        "if(window.setNativeOverlayMode) window.setNativeOverlayMode(true);" +
+                        "document.documentElement.classList.add('native-overlay-mode');" +
+                        "document.body.classList.add('native-overlay-mode');",
+                        null
+                );
+            }
+
             if (webView.getParent() instanceof ViewGroup) {
                 ((ViewGroup) webView.getParent()).removeView(webView);
             }
@@ -258,6 +269,7 @@ public class MainActivity extends Activity {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && webView != null) {
                     webView.evaluateJavascript(
                             "if(window.setNativeOverlayMode) window.setNativeOverlayMode(false);" +
+                            "document.documentElement.classList.remove('native-overlay-mode');" +
                             "document.body.classList.remove('native-overlay-mode');" +
                             "document.body.style.backgroundColor='#050811';" +
                             "if(window.refreshNativePermissionStatus) window.refreshNativePermissionStatus();",
@@ -295,9 +307,16 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void stopBackgroundService() {
             isBackgroundEngineRunning = false;
+            runOnUiThread(() -> exitSystemFloatingOverlay());
             if (AeroAccessibilityService.instance != null) {
                 AeroAccessibilityService.instance.setCursorVisibility(false);
             }
+        }
+
+        @JavascriptInterface
+        public void exitFloatingOverlay() {
+            isBackgroundEngineRunning = false;
+            runOnUiThread(() -> exitSystemFloatingOverlay());
         }
 
         @JavascriptInterface
@@ -588,13 +607,24 @@ public class MainActivity extends Activity {
     public void onBackPressed() {
         if (webView != null && webView.canGoBack()) {
             webView.goBack();
-        } else {
-            super.onBackPressed();
+            return;
         }
+        if (isBackgroundEngineRunning || isFullMobileControlEnabled) {
+            enterMiniHandFloatingWindow();
+            moveTaskToBack(true);
+            return;
+        }
+        super.onBackPressed();
     }
 
     @Override
     protected void onDestroy() {
+        if (isFloatingOverlayAttached && systemWindowManager != null && webView != null) {
+            try {
+                systemWindowManager.removeView(webView);
+            } catch (Exception ignored) {}
+            isFloatingOverlayAttached = false;
+        }
         super.onDestroy();
         if (voiceControlPatch != null) {
             voiceControlPatch.stopListening();
