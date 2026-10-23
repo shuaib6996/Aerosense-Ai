@@ -5,5 +5,8 @@
     "java.project.sourcePaths": [
         "android/app/src/main/java"
     ],
+    "java.project.referencedLibraries": [
+        "C:/Users/shuai/AppData/Local/Android/Sdk/platforms/android-34/android.jar"
+    ],
     "java.errors.incompleteClasspath.severity": "ignore"
 }

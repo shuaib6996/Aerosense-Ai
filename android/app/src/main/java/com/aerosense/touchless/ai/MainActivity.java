@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.media.AudioManager;
@@ -74,6 +75,16 @@ public class MainActivity extends Activity {
         });
 
         webView.loadUrl("file:///android_asset/index.html");
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
+                checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{
+                        Manifest.permission.CAMERA,
+                        Manifest.permission.RECORD_AUDIO
+                }, PERMISSION_REQ_CODE);
+            }
+        }
     }
 
     @Override
@@ -82,7 +93,7 @@ public class MainActivity extends Activity {
         if (requestCode == PERMISSION_REQ_CODE && webView != null) {
             runOnUiThread(() -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    webView.evaluateJavascript("if(window.refreshNativePermissionStatus) window.refreshNativePermissionStatus();", null);
+                    webView.evaluateJavascript("if(window.onNativePermissionsResult) window.onNativePermissionsResult(); if(window.refreshNativePermissionStatus) window.refreshNativePermissionStatus();", null);
                 }
             });
         }
@@ -109,8 +120,36 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         exitSystemFloatingOverlay();
-        if (webView != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            webView.evaluateJavascript("if(window.refreshNativePermissionStatus) window.refreshNativePermissionStatus();", null);
+        if (webView != null) {
+            webView.onResume();
+            webView.resumeTimers();
+            webView.postDelayed(() -> {
+                if (!isFloatingOverlayAttached && webView != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    webView.evaluateJavascript(
+                            "if(window.setNativeOverlayMode) window.setNativeOverlayMode(false);" +
+                            "document.body.classList.remove('native-overlay-mode');" +
+                            "document.body.style.backgroundColor='#050811';" +
+                            "if(window.refreshNativePermissionStatus) window.refreshNativePermissionStatus();",
+                            null
+                    );
+                }
+            }, 120);
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        exitSystemFloatingOverlay();
+    }
+
+    @Override
+    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, Configuration newConfig) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
+        notifyWebOverlayState(isInPictureInPictureMode);
+        if (!isInPictureInPictureMode) {
+            exitSystemFloatingOverlay();
         }
     }
 
@@ -185,14 +224,48 @@ public class MainActivity extends Activity {
     }
 
     private void exitSystemFloatingOverlay() {
-        if (!isFloatingOverlayAttached || webView == null || systemWindowManager == null) return;
-        try {
-            systemWindowManager.removeView(webView);
-            isFloatingOverlayAttached = false;
+        if (systemWindowManager != null && webView != null) {
+            try {
+                if (isFloatingOverlayAttached) {
+                    systemWindowManager.removeView(webView);
+                }
+            } catch (Exception ignored) {
+                try {
+                    systemWindowManager.removeViewImmediate(webView);
+                } catch (Exception ignored2) {}
+            }
+        }
+        isFloatingOverlayAttached = false;
+
+        if (webView != null) {
+            try {
+                if (webView.getParent() instanceof ViewGroup) {
+                    ((ViewGroup) webView.getParent()).removeView(webView);
+                }
+                webView.setBackgroundColor(Color.parseColor("#050811"));
+                ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                );
+                webView.setLayoutParams(lp);
+                setContentView(webView);
+                webView.onResume();
+                webView.resumeTimers();
+            } catch (Exception ignored) {}
+
             notifyWebOverlayState(false);
-            webView.setBackgroundColor(Color.parseColor("#050811"));
-            setContentView(webView);
-        } catch (Exception ignored) {}
+            runOnUiThread(() -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && webView != null) {
+                    webView.evaluateJavascript(
+                            "if(window.setNativeOverlayMode) window.setNativeOverlayMode(false);" +
+                            "document.body.classList.remove('native-overlay-mode');" +
+                            "document.body.style.backgroundColor='#050811';" +
+                            "if(window.refreshNativePermissionStatus) window.refreshNativePermissionStatus();",
+                            null
+                    );
+                }
+            });
+        }
     }
 
     public class AeroNativeBridge {
@@ -201,10 +274,15 @@ public class MainActivity extends Activity {
         public void requestRuntimePermissions() {
             runOnUiThread(() -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    requestPermissions(new String[]{
-                            Manifest.permission.CAMERA,
-                            Manifest.permission.RECORD_AUDIO
-                    }, PERMISSION_REQ_CODE);
+                    if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
+                        checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                        requestPermissions(new String[]{
+                                Manifest.permission.CAMERA,
+                                Manifest.permission.RECORD_AUDIO
+                        }, PERMISSION_REQ_CODE);
+                    } else {
+                        Toast.makeText(MainActivity.this, "Camera & Microphone already granted!", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
         }
@@ -385,11 +463,15 @@ public class MainActivity extends Activity {
         public void openAccessibilitySettings() {
             runOnUiThread(() -> {
                 try {
-                    Toast.makeText(MainActivity.this, "Enable 'AeroSense AI Hand Control' in Accessibility", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "Enable 'AeroSense AI Hand Control' (Installed Apps)", Toast.LENGTH_LONG).show();
                     Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
-                } catch (Exception ignored) {}
+                } catch (Exception e1) {
+                    try {
+                        openAppSettings();
+                    } catch (Exception ignored) {}
+                }
             });
         }
 
@@ -400,9 +482,31 @@ public class MainActivity extends Activity {
                     try {
                         Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                                 Uri.parse("package:" + getPackageName()));
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(intent);
-                    } catch (Exception ignored) {}
+                    } catch (Exception e1) {
+                        try {
+                            Intent intent2 = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
+                            intent2.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent2);
+                        } catch (Exception e2) {
+                            openAppSettings();
+                        }
+                    }
                 }
+            });
+        }
+
+        @JavascriptInterface
+        public void openAppSettings() {
+            runOnUiThread(() -> {
+                try {
+                    Toast.makeText(MainActivity.this, "Grant Permissions in App Settings", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                    intent.setData(Uri.fromParts("package", getPackageName(), null));
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                } catch (Exception ignored) {}
             });
         }
 
@@ -473,7 +577,9 @@ public class MainActivity extends Activity {
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        if (!hasFocus && (isBackgroundEngineRunning || isFullMobileControlEnabled) && webView != null) {
+        if (hasFocus) {
+            exitSystemFloatingOverlay();
+        } else if ((isBackgroundEngineRunning || isFullMobileControlEnabled) && webView != null) {
             webView.dispatchWindowVisibilityChanged(View.VISIBLE);
         }
     }
