@@ -1,0 +1,17 @@
+# Android Build & Gradle Cache
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+android/.idea/caches/
+android/.idea/libraries/
+android/.idea/workspace.xml
+android/build/reports/
+
+# IDE & Editor
+.vscode/
+*.log
+
+# OS
+Thumbs.db
+.DS_Store
