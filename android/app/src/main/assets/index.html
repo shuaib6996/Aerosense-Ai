@@ -640,7 +640,7 @@
                     Later
                 </button>
                 <button onclick="handleStartupPermissionDecision(true)" class="AirClickable py-2.5 px-3 rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-black text-xs shadow-lg shadow-cyan-500/25 active:scale-95 transition">
-                    Allow & Start
+                    Done / Continue
                 </button>
             </div>
         </div>
@@ -734,7 +734,7 @@
         <!-- 1. ZERO-WRAP TOP HEADER -->
         <header class="shrink-0 px-3 pt-2.5 pb-2 bg-slate-950 border-b border-slate-800/80 flex flex-col gap-2">
             <div class="flex items-center justify-between gap-2">
-                <div class="flex items-center gap-2 min-w-0">
+                <div class="flex items-center gap-2 min-w-0 flex-1">
                     <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-500 via-blue-500 to-indigo-600 p-0.5 shadow-md shadow-cyan-500/20 shrink-0 flex items-center justify-center">
                         <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
                             <i class="fa-solid fa-hand-sparkles text-cyan-400 text-xs"></i>
@@ -742,22 +742,16 @@
                     </div>
                     <div class="flex flex-col min-w-0">
                         <div class="flex items-center gap-1.5">
-                            <span class="font-black text-sm text-white tracking-tight whitespace-nowrap leading-none">AeroSense AI</span>
+                            <span class="font-black text-sm text-white tracking-tight truncate leading-none">AeroSense AI</span>
                             <span id="cam-live-dot" class="w-1.5 h-1.5 rounded-full bg-slate-600 shrink-0"></span>
                         </div>
-                        <span class="text-[10px] text-slate-400 font-semibold tracking-wide leading-none mt-1 whitespace-nowrap truncate">Touchless Hand & Voice OS</span>
+                        <span class="text-[10px] text-slate-400 font-semibold tracking-wide leading-none mt-1 truncate">Touchless Hand & Voice OS</span>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-1.5 shrink-0">
                     <button onclick="toggleAirKeyboard(true)" class="AirClickable w-8 h-8 rounded-xl bg-indigo-500/20 border border-indigo-400/40 text-indigo-300 hover:text-white flex items-center justify-center text-xs active:scale-95 transition" title="Air Keyboard">
                         <i class="fa-solid fa-keyboard"></i>
-                    </button>
-                    <button onclick="switchTab('settings')" class="AirClickable w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 text-cyan-400 hover:text-cyan-300 flex items-center justify-center text-xs active:scale-95 transition" title="Spatial Settings">
-                        <i class="fa-solid fa-sliders"></i>
-                    </button>
-                    <button onclick="openStartupPermissionModal()" class="AirClickable w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 text-cyan-400 hover:text-cyan-300 flex items-center justify-center text-xs active:scale-95 transition" title="Permissions Setup">
-                        <i class="fa-solid fa-key"></i>
                     </button>
                     <button id="voice-btn" onclick="toggleVoiceControl()" class="AirClickable w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-cyan-400 flex items-center justify-center active:scale-95 transition" title="Voice Control">
                         <i id="voice-icon" class="fa-solid fa-microphone-slash text-xs"></i>
@@ -922,7 +916,7 @@
                         <div class="flex items-center gap-2">
                             <span class="text-xs font-black text-cyan-300 uppercase tracking-wider">📱 Gesture Control Apps</span>
                         </div>
-                        <button onclick="openDeviceAppPickerModal()" class="AirClickable px-2.5 py-1 rounded-xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 font-extrabold text-[10px] flex items-center gap-1">
+                        <button id="card-add-app-btn" onclick="openDeviceAppPickerModal()" class="AirClickable px-2.5 py-1 rounded-xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 font-extrabold text-[10px] flex items-center gap-1 active:scale-95 transition">
                             <i class="fa-solid fa-plus"></i>
                             <span>Add App</span>
                         </button>
@@ -1609,14 +1603,14 @@
     </div>
 
     <!-- DEVICE APP PICKER MODAL -->
-    <div id="device-app-modal" class="fixed inset-0 z-[9500] bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4">
+    <div id="device-app-modal" onclick="if(event.target === this) closeDeviceAppPickerModal()" class="fixed inset-0 z-[9500] bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4">
         <div class="bento-card rounded-3xl max-w-sm w-full p-4 space-y-3 border border-cyan-500/40 max-h-[85dvh] flex flex-col">
             <div class="flex items-center justify-between">
                 <h3 class="text-sm font-black text-white">📱 Select Phone Apps to Add</h3>
-                <button onclick="closeDeviceAppPickerModal()" class="text-slate-400 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="closeDeviceAppPickerModal()" class="AirClickable text-slate-400 hover:text-white text-base p-1.5 rounded-lg active:scale-95 transition" title="Close"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div id="device-picker-list" class="space-y-1.5 overflow-y-auto no-scrollbar flex-1"></div>
-            <button onclick="closeDeviceAppPickerModal()" class="w-full py-2 rounded-xl bg-slate-800 text-slate-200 font-extrabold text-xs">Done</button>
+            <button onclick="closeDeviceAppPickerModal()" class="AirClickable w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-black text-xs shadow-lg shadow-cyan-500/20 active:scale-95 transition">Done</button>
         </div>
     </div>
 
@@ -2309,15 +2303,24 @@
         function renderUserApps() {
             const container = document.getElementById('user-apps-list');
             const countEl = document.getElementById('selected-apps-count');
+            const cardAddBtn = document.getElementById('card-add-app-btn');
             if (countEl) countEl.textContent = `${userAddedApps.length} User Apps`;
             if (!container) return;
+
             if (userAddedApps.length === 0) {
+                if (cardAddBtn) cardAddBtn.style.display = 'none';
                 container.innerHTML = `
-                    <div class="p-3 rounded-2xl bg-slate-900/60 border border-slate-800/80 text-center text-[11px] text-slate-400">
-                        No apps added yet. Tap <strong class="text-cyan-300">+ Add App</strong> to scan your phone apps.
+                    <div class="p-4 rounded-2xl bg-slate-900/60 border border-dashed border-slate-800 text-center flex flex-col items-center justify-center gap-2">
+                        <p class="text-[11px] text-slate-400">No apps added yet</p>
+                        <button onclick="openDeviceAppPickerModal()" class="AirClickable px-3 py-1.5 rounded-xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 font-extrabold text-[11px] flex items-center gap-1.5 active:scale-95 transition">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Add App</span>
+                        </button>
                     </div>`;
                 return;
             }
+
+            if (cardAddBtn) cardAddBtn.style.display = 'flex';
             container.innerHTML = userAddedApps.map((app, idx) => `
                 <div class="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between gap-2">
                     <div class="min-w-0">
@@ -2325,10 +2328,10 @@
                         <p class="text-[10px] text-slate-400 truncate">${app.pkg}</p>
                     </div>
                     <div class="flex items-center gap-1.5 shrink-0">
-                        <button onclick="launchUserApp('${app.pkg}', '${app.name}')" class="AirClickable px-2.5 py-1 rounded-lg bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 font-extrabold text-[10px]">
+                        <button onclick="launchUserApp('${app.pkg}', '${app.name}')" class="AirClickable px-2.5 py-1 rounded-lg bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 font-extrabold text-[10px] active:scale-95 transition">
                             Open
                         </button>
-                        <button onclick="removeUserApp(${idx})" class="AirClickable px-2 py-1 rounded-lg bg-rose-500/15 text-rose-400 text-[10px]">
+                        <button onclick="removeUserApp(${idx})" class="AirClickable px-2 py-1 rounded-lg bg-rose-500/15 text-rose-400 text-[10px] active:scale-95 transition">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>
@@ -2337,14 +2340,20 @@
         }
 
         function openDeviceAppPickerModal() {
+            if (window.AndroidBridge && window.AndroidBridge.setModalState) {
+                window.AndroidBridge.setModalState(true);
+            }
             const modal = document.getElementById('device-app-modal');
             const listEl = document.getElementById('device-picker-list');
             let apps = [
-                { name: 'Instagram', pkg: 'com.instagram.android' },
+                { name: 'Gallery', pkg: 'com.sec.android.gallery3d' },
+                { name: 'Chrome', pkg: 'com.android.chrome' },
+                { name: 'Settings', pkg: 'com.android.settings' },
+                { name: 'Play Store', pkg: 'com.android.vending' },
                 { name: 'YouTube', pkg: 'com.google.android.youtube' },
+                { name: 'Instagram', pkg: 'com.instagram.android' },
                 { name: 'WhatsApp', pkg: 'com.whatsapp' },
-                { name: 'Spotify', pkg: 'com.spotify.music' },
-                { name: 'Chrome', pkg: 'com.android.chrome' }
+                { name: 'Spotify', pkg: 'com.spotify.music' }
             ];
             if (window.AndroidBridge && window.AndroidBridge.getInstalledDeviceApps) {
                 try {
@@ -2352,33 +2361,51 @@
                     if (nativeApps && nativeApps.length > 0) apps = nativeApps;
                 } catch (e) {}
             }
-            listEl.innerHTML = apps.map(a => `
-                <div class="p-2 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+            listEl.innerHTML = apps.map(a => {
+                const isAdded = userAddedApps.some(u => u.pkg === a.pkg);
+                const safeId = 'btn-add-' + a.pkg.replace(/[^a-zA-Z0-9]/g, '_');
+                return `
+                <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-2">
                     <div class="min-w-0 pr-2">
                         <p class="text-xs font-bold text-white truncate">${a.name}</p>
                         <p class="text-[9px] text-slate-400 truncate">${a.pkg}</p>
                     </div>
-                    <button onclick="addUserApp('${a.name.replace(/'/g, "")}', '${a.pkg}')" class="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 font-extrabold text-[10px] shrink-0">
-                        + Add
+                    <button id="${safeId}" onclick="addUserApp('${a.name.replace(/'/g, "\\'")}', '${a.pkg}')" class="AirClickable px-3 py-1 rounded-lg ${isAdded ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'} font-extrabold text-[10px] shrink-0 active:scale-95 transition">
+                        ${isAdded ? 'Done ✓' : '+ Add'}
                     </button>
                 </div>
-            `).join('');
+            `;
+            }).join('');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
         }
 
         function closeDeviceAppPickerModal() {
+            if (window.AndroidBridge && window.AndroidBridge.setModalState) {
+                window.AndroidBridge.setModalState(false);
+            }
             const modal = document.getElementById('device-app-modal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
         }
 
         function addUserApp(name, pkg) {
+            const safeId = 'btn-add-' + pkg.replace(/[^a-zA-Z0-9]/g, '_');
+            const btn = document.getElementById(safeId);
+
             if (!userAddedApps.some(a => a.pkg === pkg)) {
                 userAddedApps.push({ name, pkg });
                 localStorage.setItem('aero_user_apps', JSON.stringify(userAddedApps));
                 renderUserApps();
+                if (btn) {
+                    btn.textContent = 'Done ✓';
+                    btn.className = 'AirClickable px-3 py-1 rounded-lg bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-extrabold text-[10px] shrink-0 active:scale-95 transition';
+                }
                 showToast('📱', 'App Added', `${name} added to gesture control`);
+            } else {
+                showToast('✅', 'Already Added', `${name} is in gesture list`);
             }
         }
 
@@ -2386,7 +2413,45 @@
             userAddedApps.splice(idx, 1);
             localStorage.setItem('aero_user_apps', JSON.stringify(userAddedApps));
             renderUserApps();
+            showToast('🗑️', 'App Removed', 'Removed from gesture list');
         }
+
+        window.closeAllModals = function() {
+            let handled = false;
+            const deviceAppModal = document.getElementById('device-app-modal');
+            if (deviceAppModal && !deviceAppModal.classList.contains('hidden')) {
+                closeDeviceAppPickerModal();
+                handled = true;
+            }
+            const guideModal = document.getElementById('gesture-guide-modal');
+            if (guideModal && !guideModal.classList.contains('hidden')) {
+                closeGestureGuideModal();
+                handled = true;
+            }
+            const permModal = document.getElementById('startup-permission-modal');
+            if (permModal && !permModal.classList.contains('hidden')) {
+                handleStartupPermissionDecision(false);
+                handled = true;
+            }
+            const holdMenu = document.getElementById('fold-hold-menu');
+            if (holdMenu && holdMenu.classList.contains('menu-active')) {
+                closeFoldHoldMenu();
+                handled = true;
+            }
+            const kbOverlay = document.getElementById('air-keyboard-overlay');
+            if (kbOverlay && !kbOverlay.classList.contains('hidden')) {
+                toggleAirKeyboard(false);
+                handled = true;
+            }
+            if (!handled && typeof currentTab !== 'undefined' && currentTab !== 'launcher') {
+                switchTab('launcher');
+                handled = true;
+            }
+            if (window.AndroidBridge && window.AndroidBridge.setModalState) {
+                window.AndroidBridge.setModalState(false);
+            }
+            return handled;
+        };
 
         function launchUserApp(pkg, name) {
             showToast('🚀', 'Launching App', `Opening ${name} with Floating Hand HUD`);
@@ -2753,19 +2818,11 @@
             m.classList.add('hidden');
             m.classList.remove('flex');
             localStorage.setItem('aero_perm_prompted', '1');
-            toggleBackgroundEngine();
+            showToast('✅', 'Permissions Ready', 'Tap START button to activate Hand Control');
         }
 
         window.onNativePermissionsResult = function() {
             refreshNativePermissionStatus();
-            if (window.AndroidBridge && window.AndroidBridge.checkPermissionsJson) {
-                try {
-                    const st = JSON.parse(window.AndroidBridge.checkPermissionsJson());
-                    if (st.camera && !engineRunning) {
-                        toggleBackgroundEngine();
-                    }
-                } catch (e) {}
-            }
         };
 
         window.refreshNativePermissionStatus = function(showToastNotice) {

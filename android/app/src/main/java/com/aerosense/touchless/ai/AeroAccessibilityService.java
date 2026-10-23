@@ -29,6 +29,7 @@ public class AeroAccessibilityService extends AccessibilityService {
     private float smoothX = 540f;
     private float smoothY = 1200f;
     private long lastGestureDispatchTime = 0;
+    private volatile boolean isCursorEnabled = false;
 
     @Override
     protected void onServiceConnected() {
@@ -86,13 +87,14 @@ public class AeroAccessibilityService extends AccessibilityService {
                 cursorParams.gravity = Gravity.TOP | Gravity.START;
                 cursorParams.x = screenWidth / 2;
                 cursorParams.y = screenHeight / 2;
-
+                cursorContainer.setVisibility(View.GONE);
                 windowManager.addView(cursorContainer, cursorParams);
             } catch (Exception ignored) {}
         });
     }
 
     public void setCursorVisibility(boolean visible) {
+        this.isCursorEnabled = visible;
         mainHandler.post(() -> {
             if (cursorContainer != null) {
                 cursorContainer.setVisibility(visible ? View.VISIBLE : View.GONE);
@@ -101,8 +103,9 @@ public class AeroAccessibilityService extends AccessibilityService {
     }
 
     public void updateCursorPosition(float normX, float normY, boolean isPinching) {
+        if (!isCursorEnabled) return;
         mainHandler.post(() -> {
-            if (cursorContainer == null || cursorParams == null || windowManager == null) return;
+            if (cursorContainer == null || cursorParams == null || windowManager == null || !isCursorEnabled) return;
             try {
                 if (cursorContainer.getVisibility() != View.VISIBLE) {
                     cursorContainer.setVisibility(View.VISIBLE);

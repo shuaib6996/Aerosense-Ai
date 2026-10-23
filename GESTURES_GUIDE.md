@@ -47,9 +47,19 @@ AeroSense AI uses high-performance computer vision powered by MediaPipe to detec
 
 ---
 
-### 6. 🤖 Smart Presence Guard (Auto-Pause)
-- When enabled in the **Auto Lab** tab, AeroSense monitors hand visibility.
-- If no hand is detected in camera view for **8 continuous seconds**, media automatically pauses to preserve battery and prevent missing content.
+### 6. ☝️ 1-to-4 Finger Fold Controls & Hold Menu
+- **1-Finger Fold (Index Fold)**: Next Reel / Next Video.
+- **2-Finger Fold (Index + Middle Fold)**: Previous Reel / Previous Video.
+- **3-Finger Fold**: System Global Back (`⬅️ Back`).
+- **4-Finger Fold**: System Global Home (`🏠 Home`).
+- **Hold Any Fold for 1.2s**: Opens the **1-Finger Hold Radial Menu** for quick volume up/down, air click, keyboard, and app switcher.
+
+---
+
+### 7. 📱 Phone Apps Gesture Control
+- Select any installed phone apps (Instagram, YouTube, Chrome, Gallery, WhatsApp, Spotify, Settings) from the **Gesture Control Apps** manager.
+- Open apps directly with the **Floating Hand HUD** transparent overlay active.
+- Control short video reels, scroll feeds, swipe back and home without touching your phone.
 
 ---
 
@@ -68,12 +78,14 @@ Supported spoken keywords:
 | `"Like"` or `"Love"` | Add to favorites with like burst |
 | `"Louder"` or `"Volume Up"` | Increase volume by +15% |
 | `"Mute"` | Toggle audio mute |
+| `"Keyboard"` | Open Air Virtual Keyboard |
+| `"Hold Menu"` | Open Hold Radial Menu |
 
 ---
 
-## ⚙️ Customizing Gestures in the Auto Lab
-
-Navigate to the **Auto Lab** tab at the bottom to:
-1. Re-map any gesture (Pinch, Peace, Fist) to your preferred action.
-2. Adjust the pinch distance sensitivity slider (from `0.03` for tight pinches to `0.10` for loose detection).
-3. Toggle the 8-second Smart Presence Guard on or off.
+## ⚙️ Customizing Gestures in Settings
+Navigate to the **Settings** tab to:
+1. Re-map gesture sensitivities (Performance vs Precision slider).
+2. Switch HUD overlay sizes (**SM**, **MD**, **LG**).
+3. Toggle Air Keyboard single-hand or two-hand mode.
+4. Toggle Full Mobile Control & Accessibility service.

@@ -42,6 +42,7 @@ public class MainActivity extends Activity {
     private WindowManager systemWindowManager;
     private WindowManager.LayoutParams floatingOverlayParams;
     private String currentHudSize = "sm";
+    private boolean isModalOpenInWeb = false;
     private final AeroVoiceControlPatch voiceControlPatch = new AeroVoiceControlPatch();
 
     @Override
@@ -102,7 +103,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
-        if ((isBackgroundEngineRunning || isFullMobileControlEnabled) && webView != null) {
+        if (isBackgroundEngineRunning && webView != null) {
             webView.onResume();
             webView.resumeTimers();
         }
@@ -111,7 +112,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onUserLeaveHint() {
         super.onUserLeaveHint();
-        if (isBackgroundEngineRunning || isFullMobileControlEnabled) {
+        if (isBackgroundEngineRunning) {
             enterMiniHandFloatingWindow();
         }
     }
@@ -120,6 +121,9 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         exitSystemFloatingOverlay();
+        if (!isBackgroundEngineRunning && AeroAccessibilityService.instance != null) {
+            AeroAccessibilityService.instance.setCursorVisibility(false);
+        }
         if (webView != null) {
             webView.onResume();
             webView.resumeTimers();
@@ -302,6 +306,9 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void startBackgroundService() {
             isBackgroundEngineRunning = true;
+            if (AeroAccessibilityService.instance != null) {
+                AeroAccessibilityService.instance.setCursorVisibility(true);
+            }
         }
 
         @JavascriptInterface
@@ -317,12 +324,19 @@ public class MainActivity extends Activity {
         public void exitFloatingOverlay() {
             isBackgroundEngineRunning = false;
             runOnUiThread(() -> exitSystemFloatingOverlay());
+            if (AeroAccessibilityService.instance != null) {
+                AeroAccessibilityService.instance.setCursorVisibility(false);
+            }
+        }
+
+        @JavascriptInterface
+        public void setModalState(boolean isOpen) {
+            isModalOpenInWeb = isOpen;
         }
 
         @JavascriptInterface
         public void setFullMobileControl(boolean enabled) {
             isFullMobileControlEnabled = enabled;
-            isBackgroundEngineRunning = enabled || isBackgroundEngineRunning;
             if (!enabled && !isBackgroundEngineRunning && AeroAccessibilityService.instance != null) {
                 AeroAccessibilityService.instance.setCursorVisibility(false);
             }
@@ -331,8 +345,8 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void setHandVisible(boolean visible) {
             runOnUiThread(() -> {
-                if (!visible && AeroAccessibilityService.instance != null) {
-                    AeroAccessibilityService.instance.setCursorVisibility(false);
+                if (AeroAccessibilityService.instance != null) {
+                    AeroAccessibilityService.instance.setCursorVisibility(visible && isBackgroundEngineRunning);
                 }
                 if (isFloatingOverlayAttached && webView != null && floatingOverlayParams != null) {
                     try {
@@ -409,8 +423,9 @@ public class MainActivity extends Activity {
             runOnUiThread(() -> {
                 try {
                     if ("HOME".equalsIgnoreCase(action)) {
-                        isBackgroundEngineRunning = true;
-                        enterMiniHandFloatingWindow();
+                        if (isBackgroundEngineRunning) {
+                            enterMiniHandFloatingWindow();
+                        }
                         if (AeroAccessibilityService.instance != null) {
                             AeroAccessibilityService.instance.performHomeGesture();
                         } else {
@@ -531,7 +546,7 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public void updateGlobalAirCursor(float normX, float normY, boolean isPinching) {
-            if (AeroAccessibilityService.instance != null) {
+            if (isBackgroundEngineRunning && AeroAccessibilityService.instance != null) {
                 AeroAccessibilityService.instance.updateCursorPosition(normX, normY, isPinching);
             }
         }
@@ -575,15 +590,17 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public void enterFloatingOverlay() {
-            isBackgroundEngineRunning = true;
-            runOnUiThread(() -> enterMiniHandFloatingWindow());
+            if (isBackgroundEngineRunning) {
+                runOnUiThread(() -> enterMiniHandFloatingWindow());
+            }
         }
 
         @JavascriptInterface
         public void openTargetAppWithOverlay(String packageName, String appName) {
-            isBackgroundEngineRunning = true;
             runOnUiThread(() -> {
-                enterMiniHandFloatingWindow();
+                if (isBackgroundEngineRunning) {
+                    enterMiniHandFloatingWindow();
+                }
                 Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packageName);
                 if (launchIntent != null) {
                     launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -598,23 +615,51 @@ public class MainActivity extends Activity {
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus) {
             exitSystemFloatingOverlay();
-        } else if ((isBackgroundEngineRunning || isFullMobileControlEnabled) && webView != null) {
+        } else if (isBackgroundEngineRunning && webView != null) {
             webView.dispatchWindowVisibilityChanged(View.VISIBLE);
         }
     }
 
     @Override
     public void onBackPressed() {
+        if (isModalOpenInWeb && webView != null) {
+            isModalOpenInWeb = false;
+            runOnUiThread(() -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    webView.evaluateJavascript("if(window.closeAllModals) window.closeAllModals();", null);
+                }
+            });
+            return;
+        }
+
+        if (webView != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            webView.evaluateJavascript(
+                    "(function(){ return (window.closeAllModals ? window.closeAllModals() : false); })();",
+                    value -> {
+                        if ("true".equals(value)) {
+                            isModalOpenInWeb = false;
+                            return;
+                        }
+                        runOnUiThread(() -> handleAppBackNavigation());
+                    }
+            );
+            return;
+        }
+
+        handleAppBackNavigation();
+    }
+
+    private void handleAppBackNavigation() {
         if (webView != null && webView.canGoBack()) {
             webView.goBack();
             return;
         }
-        if (isBackgroundEngineRunning || isFullMobileControlEnabled) {
+        if (isBackgroundEngineRunning) {
             enterMiniHandFloatingWindow();
             moveTaskToBack(true);
             return;
         }
-        super.onBackPressed();
+        moveTaskToBack(true);
     }
 
     @Override
