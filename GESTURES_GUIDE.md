@@ -86,6 +86,6 @@ Supported spoken keywords:
 ## ⚙️ Customizing Gestures in Settings
 Navigate to the **Settings** tab to:
 1. Re-map gesture sensitivities (Performance vs Precision slider).
-2. Switch HUD overlay sizes (**SM**, **MD**, **LG**).
+2. Adjust Hand Gesture Popup Size with the dedicated Slider (50px to 88px max compact limit) and instant ready standby state.
 3. Toggle Air Keyboard single-hand or two-hand mode.
 4. Toggle Full Mobile Control & Accessibility service.

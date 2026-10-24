@@ -43,6 +43,8 @@ public class MainActivity extends Activity {
     private WindowManager systemWindowManager;
     private WindowManager.LayoutParams floatingOverlayParams;
     private String currentHudSize = "sm";
+    private int customHudWidthDp = 68;
+    private int customHudHeightDp = 84;
     private boolean isModalOpenInWeb = false;
     private final AeroVoiceControlPatch voiceControlPatch = new AeroVoiceControlPatch();
 
@@ -183,9 +185,12 @@ public class MainActivity extends Activity {
     }
 
     private int[] getHudDimensionsDp(String sizeKey) {
-        if ("lg".equals(sizeKey)) return new int[]{156, 190};
-        if ("md".equals(sizeKey)) return new int[]{118, 146};
-        return new int[]{88, 108}; // sm default: sleek & compact
+        if (customHudWidthDp > 0 && customHudHeightDp > 0) {
+            return new int[]{customHudWidthDp, customHudHeightDp};
+        }
+        if ("lg".equals(sizeKey)) return new int[]{88, 108};
+        if ("md".equals(sizeKey)) return new int[]{78, 96};
+        return new int[]{68, 84}; // default sleek & compact (max 88px)
     }
 
     private void enterSystemFloatingOverlay() {
@@ -393,7 +398,26 @@ public class MainActivity extends Activity {
                 }
                 if (isFloatingOverlayAttached && webView != null && floatingOverlayParams != null) {
                     try {
-                        floatingOverlayParams.alpha = visible ? 1.0f : 0.0f;
+                        // Keep popup overlay smoothly visible at 1.0f while engine is running
+                        floatingOverlayParams.alpha = 1.0f;
+                        systemWindowManager.updateViewLayout(webView, floatingOverlayParams);
+                    } catch (Exception ignored) {}
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public void setCustomHudDimensions(int widthDp, int heightDp) {
+            final int w = Math.min(88, Math.max(50, widthDp));
+            final int h = Math.min(108, Math.max(62, heightDp));
+            customHudWidthDp = w;
+            customHudHeightDp = h;
+            runOnUiThread(() -> {
+                if (isFloatingOverlayAttached && webView != null && floatingOverlayParams != null && systemWindowManager != null) {
+                    try {
+                        float density = getResources().getDisplayMetrics().density;
+                        floatingOverlayParams.width = (int) (w * density);
+                        floatingOverlayParams.height = (int) (h * density);
                         systemWindowManager.updateViewLayout(webView, floatingOverlayParams);
                     } catch (Exception ignored) {}
                 }

@@ -121,6 +121,9 @@
             bottom: 14px;
             left: 50%;
             transform: translateX(-50%);
+            width: 68px;
+            height: 84px;
+            border-radius: 20px;
             background: rgba(5, 8, 17, 0.45);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
@@ -133,7 +136,7 @@
             overflow: hidden;
             pointer-events: auto;
             opacity: 0;
-            transition: opacity 0.2s ease, width 0.2s ease, height 0.2s ease;
+            transition: opacity 0.2s ease, width 0.15s ease, height 0.15s ease;
             cursor: grab;
             user-select: none;
             -webkit-user-select: none;
@@ -656,8 +659,8 @@
         </div>
     </div>
 
-    <!-- TRANSPARENT DRAGGABLE HAND POPUP (Default: SM with rounded corners, freely positionable) -->
-    <div id="spatial-floating-hud" class="hud-size-sm">
+    <!-- TRANSPARENT DRAGGABLE HAND POPUP (Default: 68px with rounded corners, freely positionable, max 88px) -->
+    <div id="spatial-floating-hud">
         <div class="w-full flex justify-center pt-1 pb-0 pointer-events-none">
             <div class="w-7 h-1 rounded-full bg-cyan-400/50"></div>
         </div>
@@ -667,8 +670,8 @@
                 <span id="mini-hud-app" class="truncate">Hand</span>
             </span>
             <div class="flex items-center gap-1 shrink-0">
-                <button onclick="cyclePopupHudSize()" class="AirClickable px-1.5 py-0.5 rounded-lg bg-slate-900/80 border border-cyan-500/40 text-[8px] font-extrabold text-cyan-300 hover:text-white whitespace-nowrap" title="Resize HUD (SM / MD / LG)">
-                    <i class="fa-solid fa-up-right-and-down-left-from-center mr-0.5"></i><span id="hud-size-label">SM</span>
+                <button onclick="openHudSizeModal()" class="AirClickable px-1.5 py-0.5 rounded-lg bg-slate-900/80 border border-cyan-500/40 text-[8px] font-extrabold text-cyan-300 hover:text-white whitespace-nowrap" title="Popup Size Slider (50px - 88px)">
+                    <i class="fa-solid fa-expand text-[7px] mr-0.5"></i><span id="hud-size-label">68px</span>
                 </button>
                 <button onclick="toggleBackgroundEngine()" class="AirClickable w-4 h-4 rounded-full bg-red-500/20 border border-red-500/40 text-red-400 hover:text-white flex items-center justify-center text-[8px]" title="Close / Stop Hand Tracking">
                     ✕
@@ -745,9 +748,9 @@
                     <span>Hold Menu</span>
                 </button>
 
-                <button onclick="cyclePopupHudSize()" class="AirClickable h-8 px-2 rounded-xl bg-slate-900 border border-slate-800 text-cyan-300 text-[11px] font-extrabold flex items-center justify-center gap-1.5 whitespace-nowrap active:scale-95 transition">
+                <button onclick="openHudSizeModal()" class="AirClickable h-8 px-2 rounded-xl bg-slate-900 border border-slate-800 text-cyan-300 text-[11px] font-extrabold flex items-center justify-center gap-1.5 whitespace-nowrap active:scale-95 transition" title="Adjust Gesture Popup Size Slider">
                     <i class="fa-solid fa-expand text-[10px] shrink-0"></i>
-                    <span id="header-hud-size">HUD: SM</span>
+                    <span id="header-hud-size">HUD: 68px</span>
                 </button>
             </div>
         </header>
@@ -1106,6 +1109,25 @@
                             <button onclick="resetIndicatorSettings()" class="AirKeyTarget text-xs font-extrabold text-[#465fff] hover:underline">
                                 Reset
                             </button>
+                        </div>
+
+                        <!-- Hand Gesture Popup Size Slider (50px to 88px max) -->
+                        <div class="space-y-1.5 p-3 rounded-2xl bg-slate-900/90 border border-cyan-500/30">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                                    <i class="fa-solid fa-expand text-cyan-400 text-xs"></i>
+                                    Hand Gesture Popup Size
+                                </span>
+                                <span id="lbl-hud-size" class="text-xs font-extrabold text-cyan-400">68 px</span>
+                            </div>
+                            <div class="aero-slider-wrap">
+                                <input id="sl-hud-popup-size" type="range" min="50" max="88" step="2" value="68"
+                                    oninput="setCustomHudSize(this.value)" class="aero-slider">
+                            </div>
+                            <div class="flex justify-between text-[10px] font-bold text-slate-400">
+                                <span>Mini (50px)</span>
+                                <span>Max Limit (88px)</span>
+                            </div>
                         </div>
 
                         <div class="flex items-center justify-between py-1">
@@ -1540,6 +1562,36 @@
                 </div>
             </div>
             <button onclick="closeGestureGuideModal()" class="w-full py-2.5 rounded-xl bg-cyan-500 text-slate-950 font-black text-xs">Got It</button>
+        </div>
+    </div>
+
+    <!-- HUD SIZE SLIDER MODAL (Min 50px, Max 88px) -->
+    <div id="hud-size-modal" class="fixed inset-0 z-[9600] bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bento-card rounded-3xl max-w-xs w-full p-4 space-y-3 border border-cyan-500/40">
+            <div class="flex items-center justify-between">
+                <h3 class="text-xs font-black text-white flex items-center gap-1.5">
+                    <i class="fa-solid fa-expand text-cyan-400"></i>
+                    Gesture Popup Size
+                </h3>
+                <button onclick="closeHudSizeModal()" class="text-slate-400 hover:text-white text-xs"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-2">
+                <div class="flex justify-between items-center text-xs font-bold text-slate-300">
+                    <span>Popup Width:</span>
+                    <span id="modal-hud-size-val" class="font-extrabold text-cyan-400">68 px</span>
+                </div>
+                <div class="aero-slider-wrap">
+                    <input id="modal-sl-hud-size" type="range" min="50" max="88" step="2" value="68"
+                        oninput="setCustomHudSize(this.value)" class="aero-slider w-full">
+                </div>
+                <div class="flex justify-between text-[10px] font-bold text-slate-400">
+                    <span>Mini (50px)</span>
+                    <span>Max Limit (88px)</span>
+                </div>
+            </div>
+            <button onclick="closeHudSizeModal()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-black text-xs shadow-lg active:scale-95 transition">
+                Done ✓
+            </button>
         </div>
     </div>
 
@@ -2383,6 +2435,11 @@
                 closeGestureGuideModal();
                 handled = true;
             }
+            const hudSizeModal = document.getElementById('hud-size-modal');
+            if (hudSizeModal && !hudSizeModal.classList.contains('hidden')) {
+                closeHudSizeModal();
+                handled = true;
+            }
             const permModal = document.getElementById('startup-permission-modal');
             if (permModal && !permModal.classList.contains('hidden')) {
                 handleStartupPermissionDecision(false);
@@ -2496,18 +2553,71 @@
             }
         }
 
-        function cyclePopupHudSize() {
+        function setCustomHudSize(val) {
+            let w = parseInt(val, 10);
+            if (isNaN(w)) w = 68;
+            w = Math.max(50, Math.min(88, w));
+            const h = Math.round(w * 1.23);
+            const r = Math.round(w * 0.28);
+
             const hud = document.getElementById('spatial-floating-hud');
-            hud.classList.remove(`hud-size-${hudSizes[hudSizeIdx]}`);
-            hudSizeIdx = (hudSizeIdx + 1) % hudSizes.length;
-            const nextKey = hudSizes[hudSizeIdx];
-            hud.classList.add(`hud-size-${nextKey}`);
-            const label = nextKey.toUpperCase();
-            document.getElementById('hud-size-label').textContent = label;
-            document.getElementById('header-hud-size').textContent = `HUD: ${label}`;
-            if (window.AndroidBridge && window.AndroidBridge.resizeFloatingOverlay) {
-                window.AndroidBridge.resizeFloatingOverlay(nextKey);
+            if (hud) {
+                hud.style.width = `${w}px`;
+                hud.style.height = `${h}px`;
+                hud.style.borderRadius = `${r}px`;
             }
+
+            const sl1 = document.getElementById('sl-hud-popup-size');
+            if (sl1 && sl1.value != w) sl1.value = w;
+            const sl2 = document.getElementById('modal-sl-hud-size');
+            if (sl2 && sl2.value != w) sl2.value = w;
+
+            const lbl1 = document.getElementById('lbl-hud-size');
+            if (lbl1) lbl1.textContent = `${w} px`;
+            const lbl2 = document.getElementById('modal-hud-size-val');
+            if (lbl2) lbl2.textContent = `${w} px`;
+            const lblHud = document.getElementById('hud-size-label');
+            if (lblHud) lblHud.textContent = `${w}px`;
+            const lblHeader = document.getElementById('header-hud-size');
+            if (lblHeader) lblHeader.textContent = `HUD: ${w}px`;
+
+            try {
+                localStorage.setItem('aero_hud_custom_size', w);
+            } catch (e) {}
+
+            if (window.AndroidBridge && window.AndroidBridge.setCustomHudDimensions) {
+                window.AndroidBridge.setCustomHudDimensions(w, h);
+            }
+        }
+
+        function openHudSizeModal() {
+            const m = document.getElementById('hud-size-modal');
+            if (m) {
+                m.classList.remove('hidden');
+                m.classList.add('flex');
+            }
+            if (window.AndroidBridge && window.AndroidBridge.setModalState) {
+                window.AndroidBridge.setModalState(true);
+            }
+        }
+
+        function closeHudSizeModal() {
+            const m = document.getElementById('hud-size-modal');
+            if (m) {
+                m.classList.add('hidden');
+                m.classList.remove('flex');
+            }
+            if (window.AndroidBridge && window.AndroidBridge.setModalState) {
+                window.AndroidBridge.setModalState(false);
+            }
+        }
+
+        function cyclePopupHudSize() {
+            const presets = [54, 68, 88];
+            let current = parseInt(localStorage.getItem('aero_hud_custom_size') || '68', 10);
+            let nextIdx = (presets.indexOf(current) + 1) % presets.length;
+            if (nextIdx < 0 || nextIdx >= presets.length) nextIdx = 0;
+            setCustomHudSize(presets[nextIdx]);
         }
 
         function isFingerFolded(lm, tipIdx, pipIdx) {
@@ -2547,6 +2657,11 @@
                 const canvasEl = document.getElementById('skeleton-canvas');
                 const ctx = canvasEl.getContext('2d');
 
+                // Immediately show popup screen upon START
+                hud.classList.add('hud-visible');
+                const initLabel = document.getElementById('mini-hud-gesture');
+                if (initLabel) initLabel.textContent = '🖐️ Ready';
+
                 if (!handsInstance) {
                     handsInstance = new Hands({
                         locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
@@ -2563,8 +2678,10 @@
                         canvasEl.height = 260;
                         ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
 
+                        // Keep popup visible while engine is running
+                        hud.classList.add('hud-visible');
+
                         if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-                            hud.classList.add('hud-visible');
                             if (cursor) cursor.style.display = (!window.AndroidBridge) ? 'flex' : 'none';
                             if (window.AndroidBridge && window.AndroidBridge.setHandVisible) {
                                 window.AndroidBridge.setHandVisible(true);
@@ -2624,12 +2741,14 @@
                             else if (idxFold) currentFoldCount = 1;
 
                             const gestureLabel = document.getElementById('mini-hud-gesture');
-                            if (currentFoldCount === 4) gestureLabel.textContent = '🏠 4-Fold (Home)';
-                            else if (currentFoldCount === 3) gestureLabel.textContent = '⬅️ 3-Fold (Back)';
-                            else if (currentFoldCount === 2) gestureLabel.textContent = '✌️ 2-Fold (Prev)';
-                            else if (currentFoldCount === 1) gestureLabel.textContent = '☝️ 1-Fold (Scroll)';
-                            else if (isPinching) gestureLabel.textContent = '👌 Pinch Tap';
-                            else gestureLabel.textContent = '🖐️ Tracking';
+                            if (gestureLabel) {
+                                if (currentFoldCount === 4) gestureLabel.textContent = '🏠 4-Fold (Home)';
+                                else if (currentFoldCount === 3) gestureLabel.textContent = '⬅️ 3-Fold (Back)';
+                                else if (currentFoldCount === 2) gestureLabel.textContent = '✌️ 2-Fold (Prev)';
+                                else if (currentFoldCount === 1) gestureLabel.textContent = '☝️ 1-Fold (Scroll)';
+                                else if (isPinching) gestureLabel.textContent = '👌 Pinch Tap';
+                                else gestureLabel.textContent = '🖐️ Tracking';
+                            }
 
                             const now = Date.now();
                             if (currentFoldCount > 0 && foldState === 0) {
@@ -2640,13 +2759,15 @@
                                 const elapsed = now - foldStartTime;
                                 const holdMax = (aeroConfig.holdDuration || 1.5) * 450;
                                 const pct = Math.min(100, (elapsed / holdMax) * 100);
-                                document.getElementById('fold-hold-bar').style.width = `${pct}%`;
+                                const hb = document.getElementById('fold-hold-bar');
+                                if (hb) hb.style.width = `${pct}%`;
                                 if (elapsed >= holdMax && !holdTriggered) {
                                     holdTriggered = true;
                                     openFoldHoldMenu();
                                 }
                             } else if (currentFoldCount === 0 && foldState > 0) {
-                                document.getElementById('fold-hold-bar').style.width = '0%';
+                                const hb = document.getElementById('fold-hold-bar');
+                                if (hb) hb.style.width = '0%';
                                 if (!holdTriggered && now - lastGestureTime > 450) {
                                     lastGestureTime = now;
                                     if (foldState === 1) executeAction('NEXT');
@@ -2657,8 +2778,14 @@
                                 foldState = 0;
                             }
                         } else {
-                            hud.classList.remove('hud-visible');
-                            cursor.style.display = 'none';
+                            // Hand away from camera: Keep popup visible and show "Ready"
+                            const gestureLabel = document.getElementById('mini-hud-gesture');
+                            if (gestureLabel) gestureLabel.textContent = '🖐️ Ready';
+                            const hb = document.getElementById('fold-hold-bar');
+                            if (hb) hb.style.width = '0%';
+                            foldState = 0;
+                            wasPinching = false;
+                            if (cursor) cursor.style.display = 'none';
                             if (window.AndroidBridge && window.AndroidBridge.setHandVisible) {
                                 window.AndroidBridge.setHandVisible(false);
                             }
@@ -2679,6 +2806,7 @@
 
                 await cameraInstance.start();
                 engineRunning = true;
+                hud.classList.add('hud-visible');
                 pill.textContent = 'LIVE';
                 pill.className = 'px-2 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-extrabold text-[9px] uppercase tracking-wider whitespace-nowrap';
                 heroLabel.textContent = 'STOP';
@@ -3457,6 +3585,8 @@
             renderVoiceCommandsList();
             renderCustomTriggers();
             initDraggableHud();
+            const savedSize = localStorage.getItem('aero_hud_custom_size');
+            setCustomHudSize(savedSize || 68);
             if (!localStorage.getItem('aero_perm_prompted')) {
                 openStartupPermissionModal();
             }
