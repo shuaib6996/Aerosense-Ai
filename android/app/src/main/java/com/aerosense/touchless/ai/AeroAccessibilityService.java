@@ -154,7 +154,7 @@ public class AeroAccessibilityService extends AccessibilityService {
     public void performAirSwipe(String direction) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) return;
         long now = System.currentTimeMillis();
-        if (now - lastGestureDispatchTime < 420) return;
+        if (now - lastGestureDispatchTime < 200) return;
         lastGestureDispatchTime = now;
 
         updateScreenDimensions();
@@ -172,7 +172,7 @@ public class AeroAccessibilityService extends AccessibilityService {
         }
 
         GestureDescription.Builder builder = new GestureDescription.Builder();
-        builder.addStroke(new GestureDescription.StrokeDescription(swipePath, 0, 240));
+        builder.addStroke(new GestureDescription.StrokeDescription(swipePath, 0, 180));
         dispatchGesture(builder.build(), null, null);
     }
 

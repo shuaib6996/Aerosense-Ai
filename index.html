@@ -123,12 +123,12 @@
             transform: translateX(-50%);
             width: 68px;
             height: 84px;
-            border-radius: 20px;
-            background: rgba(5, 8, 17, 0.45);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border: 1.5px solid rgba(34, 211, 238, 0.35);
-            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.65), inset 0 0 14px rgba(34, 211, 238, 0.15);
+            border-radius: 10px;
+            background: transparent;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: none;
             z-index: 9000;
             display: flex;
             flex-direction: column;
@@ -159,12 +159,15 @@
             bottom: 0 !important;
             transform: none !important;
             margin: 0 !important;
-            border-radius: 18px !important;
+            border-radius: 10px !important;
+            background: transparent !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            box-shadow: none !important;
         }
 
-        .hud-size-sm { width: 88px; height: 108px; border-radius: 24px; }
-        .hud-size-md { width: 118px; height: 146px; border-radius: 28px; }
-        .hud-size-lg { width: 156px; height: 190px; border-radius: 32px; }
+        .hud-size-sm { width: 88px; height: 108px; border-radius: 10px; }
+        .hud-size-md { width: 118px; height: 146px; border-radius: 10px; }
+        .hud-size-lg { width: 156px; height: 190px; border-radius: 10px; }
 
         /* Spatial Touch Style Custom Range Sliders with Tick Marks */
         .aero-slider-wrap {
@@ -337,23 +340,23 @@
             margin: 0 !important;
             transform: none !important;
             opacity: 1 !important;
-            background: rgba(5, 8, 17, 0.40) !important;
-            backdrop-filter: blur(14px) !important;
-            -webkit-backdrop-filter: blur(14px) !important;
-            border: 1.5px solid rgba(34, 211, 238, 0.45) !important;
-            border-radius: 24px !important;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 0 14px rgba(34, 211, 238, 0.15) !important;
+            background: transparent !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            border-radius: 10px !important;
+            box-shadow: none !important;
             pointer-events: auto !important;
             overflow: hidden !important;
         }
         body.native-overlay-mode #spatial-floating-hud.hud-size-sm {
-            border-radius: 24px !important;
+            border-radius: 10px !important;
         }
         body.native-overlay-mode #spatial-floating-hud.hud-size-md {
-            border-radius: 28px !important;
+            border-radius: 10px !important;
         }
         body.native-overlay-mode #spatial-floating-hud.hud-size-lg {
-            border-radius: 32px !important;
+            border-radius: 10px !important;
         }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -675,21 +678,16 @@
     <!-- TRANSPARENT DRAGGABLE HAND POPUP (Clean neon skeleton only, no text, no emojis, no buttons) -->
     <div id="spatial-floating-hud">
         <!-- Top subtle grab indicator -->
-        <div class="w-full flex justify-center pt-1.5 pb-0.5 pointer-events-none shrink-0">
-            <div class="w-6 h-1 rounded-full bg-cyan-400/50"></div>
+        <div class="w-full flex justify-center pt-1 pb-0.5 pointer-events-none shrink-0">
+            <div class="w-5 h-0.5 rounded-full bg-white/30"></div>
         </div>
 
-        <!-- Pure hand skeleton canvas without any text or buttons -->
-        <div class="relative flex-1 w-full h-full flex items-center justify-center overflow-hidden pointer-events-none p-1">
-            <canvas id="skeleton-canvas" class="w-full h-full object-contain mirror-cam pointer-events-none"></canvas>
+        <!-- Pure hand silhouette canvas -->
+        <div class="relative flex-1 w-full h-full flex items-center justify-center overflow-hidden pointer-events-none p-0.5">
+            <canvas id="skeleton-canvas" class="w-full h-full object-contain pointer-events-none"></canvas>
         </div>
 
-        <!-- Subtle hold-progress line -->
-        <div class="w-full px-2 pb-1.5 pointer-events-none shrink-0">
-            <div class="w-full h-0.5 bg-slate-800/60 rounded-full overflow-hidden">
-                <div id="fold-hold-bar" class="h-full bg-cyan-400 w-0 transition-all duration-75"></div>
-            </div>
-        </div>
+        <div id="fold-hold-bar" class="hidden"></div>
 
         <!-- Hidden safety elements for script backwards-compatibility -->
         <span id="hud-size-label" class="hidden"></span>
@@ -1647,6 +1645,15 @@
         let lastGestureTime = 0;
         let wasPinching = false;
 
+        // Instant Spatial Touch State (Zero delay, instant fold reaction)
+        let wasIndexArmed = false;
+        let wasTwoArmed = false;
+        let isContinuousHolding = false;
+        let lastActionWasPrev = false;
+        let lastSpatialActionTime = 0;
+        let lastSpatialRepeatTime = 0;
+        let spatialFlashTime = 0;
+
         // =====================================================================
         // 2. SPATIAL SETTINGS STATE (Matching Screenshots 1, 2, 3, 4)
         // =====================================================================
@@ -2499,14 +2506,18 @@
 
         function executeAction(action) {
             if (action === 'NEXT') {
-                showToast('☝️', '1-Finger Fold', 'Scrolled to Next Reel');
+                showToast('☝️', 'Index Fold', 'Next Reel');
                 if (window.AndroidBridge && window.AndroidBridge.triggerGlobalAirSwipe) {
                     window.AndroidBridge.triggerGlobalAirSwipe('UP');
+                } else {
+                    window.scrollBy({ top: window.innerHeight * 0.75, behavior: 'smooth' });
                 }
             } else if (action === 'PREV') {
-                showToast('✌️', '2-Finger Fold', 'Returned to Previous Reel');
+                showToast('✌️', '2-Finger Fold', 'Previous Reel');
                 if (window.AndroidBridge && window.AndroidBridge.triggerGlobalAirSwipe) {
                     window.AndroidBridge.triggerGlobalAirSwipe('DOWN');
+                } else {
+                    window.scrollBy({ top: -window.innerHeight * 0.75, behavior: 'smooth' });
                 }
             } else if (action === 'BACK') {
                 executeSystemNavigation('BACK');
@@ -2633,6 +2644,188 @@
             setCustomHudSize(presets[nextIdx]);
         }
 
+        // Spatial Touch Vector & Radial Segmented Dial Drawing Functions (Matching gesture reference.mp4)
+        function drawSpatialSegmentedDial(ctx, cx, cy, rOut, rIn, filledSegments, totalSegments, isFlashing, accentColor = '#0080ff') {
+            const anglePerSeg = (Math.PI * 2) / totalSegments;
+            const gap = 0.08;
+            const startAngle = -Math.PI / 2; // 12 o'clock
+
+            for (let i = 0; i < totalSegments; i++) {
+                const a1 = startAngle + i * anglePerSeg + gap / 2;
+                const a2 = startAngle + (i + 1) * anglePerSeg - gap / 2;
+                const isFilled = i < filledSegments || isFlashing;
+
+                ctx.beginPath();
+                ctx.arc(cx, cy, rOut, a1, a2, false);
+                ctx.arc(cx, cy, rIn, a2, a1, true);
+                ctx.closePath();
+
+                if (isFlashing) {
+                    ctx.fillStyle = '#38bdf8';
+                    ctx.shadowColor = '#38bdf8';
+                    ctx.shadowBlur = 10;
+                } else if (isFilled) {
+                    ctx.fillStyle = accentColor;
+                    ctx.shadowColor = accentColor;
+                    ctx.shadowBlur = 7;
+                } else {
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.16)';
+                    ctx.shadowBlur = 0;
+                }
+                ctx.fill();
+            }
+            ctx.shadowBlur = 0;
+        }
+
+        function drawSpatialHandSilhouette(ctx, cx, cy, scale, type, color = '#ffffff') {
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.scale(scale, scale);
+
+            if (type === 'PALM') {
+                // Green Open Palm (as in reference video at 0.5s)
+                ctx.fillStyle = '#22c55e';
+                ctx.strokeStyle = '#16a34a';
+                ctx.lineWidth = 1.6;
+                ctx.beginPath();
+                if (ctx.roundRect) ctx.roundRect(-13, -5, 26, 25, [4, 4, 12, 12]);
+                else ctx.rect(-13, -5, 26, 25);
+                ctx.fill();
+                ctx.stroke();
+
+                const fingers = [
+                    { x: -12, y: -22, w: 5, h: 20 },
+                    { x: -5.5, y: -26, w: 5, h: 24 },
+                    { x: 1,   y: -23, w: 5, h: 21 },
+                    { x: 7.5, y: -18, w: 4.5, h: 16 }
+                ];
+                fingers.forEach(f => {
+                    ctx.beginPath();
+                    if (ctx.roundRect) ctx.roundRect(f.x, f.y, f.w, f.h, 2.5);
+                    else ctx.rect(f.x, f.y, f.w, f.h);
+                    ctx.fill();
+                    ctx.stroke();
+                });
+
+                ctx.beginPath();
+                if (ctx.roundRect) ctx.roundRect(-18, 0, 6.5, 14, 3.2);
+                else ctx.rect(-18, 0, 6.5, 14);
+                ctx.fill();
+                ctx.stroke();
+            } else if (type === 'POINT') {
+                // Single Index Finger Pointing Up (as in reference video at 2.0s - 4.4s)
+                ctx.strokeStyle = color;
+                ctx.fillStyle = color === '#ffffff' ? 'rgba(255, 255, 255, 0.16)' : color;
+                ctx.lineWidth = 2.8;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+
+                ctx.beginPath();
+                if (ctx.roundRect) ctx.roundRect(-4, -26, 8, 27, 4);
+                else ctx.rect(-4, -26, 8, 27);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.beginPath();
+                if (ctx.roundRect) ctx.roundRect(-12, -2, 24, 24, [4, 4, 10, 10]);
+                else ctx.rect(-12, -2, 24, 24);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.arc(-7, 8, 5, 0, Math.PI * 2);
+                ctx.stroke();
+            } else if (type === 'TWO') {
+                // Two fingers pointing up (V / Peace) for Previous Reel
+                ctx.strokeStyle = color;
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.16)';
+                ctx.lineWidth = 2.8;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+
+                ctx.beginPath();
+                if (ctx.roundRect) {
+                    ctx.roundRect(-8, -25, 7, 26, 3.5);
+                    ctx.roundRect(1, -25, 7, 26, 3.5);
+                } else {
+                    ctx.rect(-8, -25, 7, 26);
+                    ctx.rect(1, -25, 7, 26);
+                }
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.beginPath();
+                if (ctx.roundRect) ctx.roundRect(-12, -2, 24, 24, [4, 4, 10, 10]);
+                else ctx.rect(-12, -2, 24, 24);
+                ctx.fill();
+                ctx.stroke();
+            } else if (type === 'FIST') {
+                // Folded Fist (as in reference video at 5.0s on Scroll Action Trigger)
+                ctx.fillStyle = '#0080ff';
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2.6;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+
+                ctx.beginPath();
+                if (ctx.roundRect) ctx.roundRect(-13, -13, 26, 26, 8);
+                else ctx.rect(-13, -13, 26, 26);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+                ctx.beginPath();
+                ctx.moveTo(-9, -3); ctx.lineTo(9, -3);
+                ctx.moveTo(-9, 4); ctx.lineTo(9, 4);
+                ctx.stroke();
+
+                ctx.strokeStyle = '#ffffff';
+                ctx.beginPath();
+                if (ctx.roundRect) ctx.roundRect(-12, 1, 19, 7.5, 3.5);
+                else ctx.rect(-12, 1, 19, 7.5);
+                ctx.stroke();
+            } else if (type === 'PINCH') {
+                // Air Tap Pinch
+                ctx.fillStyle = '#10b981';
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2.4;
+                ctx.beginPath();
+                ctx.arc(0, 0, 11, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+            }
+
+            ctx.restore();
+        }
+
+        // 3D Distance-relative hand finger analyzer (Rotation & Tilt Invariant)
+        function analyzeHandFingers(lm) {
+            const wrist = lm[0];
+            const distWrist = (idx) => Math.hypot(lm[idx].x - wrist.x, lm[idx].y - wrist.y);
+
+            const isIndexExt = (distWrist(8) > distWrist(6) * 1.12 && distWrist(8) > distWrist(5) * 1.20) || (lm[8].y < lm[6].y - 0.035);
+            const isMiddleExt = (distWrist(12) > distWrist(10) * 1.12 && distWrist(12) > distWrist(9) * 1.20) || (lm[12].y < lm[10].y - 0.035);
+            const isRingExt = (distWrist(16) > distWrist(14) * 1.12 && distWrist(16) > distWrist(13) * 1.20) || (lm[16].y < lm[14].y - 0.035);
+            const isPinkyExt = (distWrist(20) > distWrist(18) * 1.12 && distWrist(20) > distWrist(17) * 1.20) || (lm[20].y < lm[18].y - 0.035);
+
+            const isIndexFold = !isIndexExt;
+            const isMiddleFold = !isMiddleExt;
+            const isRingFold = !isRingExt;
+            const isPinkyFold = !isPinkyExt;
+
+            const pinchDist = Math.hypot(lm[8].x - lm[4].x, lm[8].y - lm[4].y);
+            const pinchThresh = 0.045 + ((aeroConfig.sensitivity || 3) * 0.005);
+            const isPinching = pinchDist < pinchThresh;
+
+            return {
+                isIndexExt, isIndexFold,
+                isMiddleExt, isMiddleFold,
+                isRingExt, isRingFold,
+                isPinkyExt, isPinkyFold,
+                isPinching, pinchDist
+            };
+        }
+
         function isFingerFolded(lm, tipIdx, pipIdx) {
             return lm[tipIdx].y > lm[pipIdx].y;
         }
@@ -2682,9 +2875,15 @@
                     });
 
                     handsInstance.onResults((results) => {
-                        canvasEl.width = 220;
-                        canvasEl.height = 260;
+                        const w = canvasEl.clientWidth || 220;
+                        const h = canvasEl.clientHeight || 260;
+                        if (canvasEl.width !== w || canvasEl.height !== h) {
+                            canvasEl.width = w;
+                            canvasEl.height = h;
+                        }
                         ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+
+                        const now = Date.now();
 
                         if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
                             hud.classList.add('hud-visible');
@@ -2694,15 +2893,20 @@
                             }
 
                             const lm = results.multiHandLandmarks[0];
-                            drawConnectors(ctx, lm, HAND_CONNECTIONS, { color: '#22d3ee', lineWidth: 3 });
-                            drawLandmarks(ctx, lm, { color: '#10b981', lineWidth: 1, radius: 2.5 });
 
+                            // Optional Camera Preview / Skeleton if enabled by user in settings
+                            if (aeroConfig.cameraPreview) {
+                                drawConnectors(ctx, lm, HAND_CONNECTIONS, { color: 'rgba(34, 211, 238, 0.4)', lineWidth: 2 });
+                                drawLandmarks(ctx, lm, { color: 'rgba(16, 185, 129, 0.5)', lineWidth: 1, radius: 2 });
+                            }
+
+                            // Pointer & Pinch tracking
                             const rawX = 1 - lm[8].x;
                             const rawY = lm[8].y;
                             const normX = Math.max(0, Math.min(1, (rawX - 0.18) / 0.64));
                             const normY = Math.max(0, Math.min(1, (rawY - 0.18) / 0.60));
 
-                            const lerp = 0.20 + (aeroConfig.pointerSpeed * 0.08);
+                            const lerp = 0.20 + ((aeroConfig.pointerSpeed || 3) * 0.08);
                             smoothX += (normX * window.innerWidth - smoothX) * lerp;
                             smoothY += (normY * window.innerHeight - smoothY) * lerp;
                             if (cursor && !window.AndroidBridge) {
@@ -2710,9 +2914,8 @@
                                 cursor.style.top = `${smoothY}px`;
                             }
 
-                            const pinchDist = Math.hypot(lm[8].x - lm[4].x, lm[8].y - lm[4].y);
-                            const pinchThresh = 0.045 + (aeroConfig.sensitivity * 0.005);
-                            const isPinching = pinchDist < pinchThresh;
+                            const f = analyzeHandFingers(lm);
+                            const isPinching = f.isPinching;
                             if (cursor && !window.AndroidBridge) {
                                 cursor.classList.toggle('pinching', isPinching);
                             }
@@ -2735,60 +2938,111 @@
                                 wasPinching = false;
                             }
 
-                            const idxFold = isFingerFolded(lm, 8, 6);
-                            const midFold = isFingerFolded(lm, 12, 10);
-                            const ringFold = isFingerFolded(lm, 16, 14);
-                            const pinkyFold = isFingerFolded(lm, 20, 18);
+                            // Instant Gesture Classification (Zero delay, no dial charging)
+                            const isOpenPalm = f.isIndexExt && f.isMiddleExt && f.isRingExt && f.isPinkyExt;
+                            const isIndexPointing = f.isIndexExt && f.isMiddleFold && f.isRingFold && f.isPinkyFold;
+                            const isTwoFingerPointing = f.isIndexExt && f.isMiddleExt && f.isRingFold && f.isPinkyFold;
+                            const isAllFolded = f.isIndexFold && f.isMiddleFold && f.isRingFold && f.isPinkyFold;
+                            const isThreeFingerFold = f.isIndexFold && f.isMiddleFold && f.isRingFold && f.isPinkyExt;
 
-                            let currentFoldCount = 0;
-                            if (idxFold && midFold && ringFold && pinkyFold) currentFoldCount = 4;
-                            else if (idxFold && midFold && ringFold) currentFoldCount = 3;
-                            else if (idxFold && midFold) currentFoldCount = 2;
-                            else if (idxFold) currentFoldCount = 1;
+                            let iconToDraw = 'PALM';
+                            let iconColor = '#22c55e';
 
-                            const gestureLabel = document.getElementById('mini-hud-gesture');
-                            if (gestureLabel) {
-                                if (currentFoldCount === 4) gestureLabel.textContent = '4-Fold (Home)';
-                                else if (currentFoldCount === 3) gestureLabel.textContent = '3-Fold (Back)';
-                                else if (currentFoldCount === 2) gestureLabel.textContent = '2-Fold (Prev)';
-                                else if (currentFoldCount === 1) gestureLabel.textContent = '1-Fold (Scroll)';
-                                else if (isPinching) gestureLabel.textContent = 'Pinch Tap';
-                                else gestureLabel.textContent = 'Tracking';
+                            if (isOpenPalm) {
+                                wasIndexArmed = false;
+                                wasTwoArmed = false;
+                                isContinuousHolding = false;
+                                iconToDraw = 'PALM';
+                                iconColor = '#22c55e';
+                            } else if (isIndexPointing) {
+                                // User points index finger -> IMMEDIATELY armed on frame 1
+                                wasIndexArmed = true;
+                                wasTwoArmed = false;
+                                isContinuousHolding = false;
+                                iconToDraw = 'POINT';
+                                iconColor = '#ffffff';
+                            } else if (isTwoFingerPointing) {
+                                // User points 2 fingers -> IMMEDIATELY armed on frame 1
+                                wasTwoArmed = true;
+                                wasIndexArmed = false;
+                                isContinuousHolding = false;
+                                iconToDraw = 'TWO';
+                                iconColor = '#ffffff';
+                            } else if (isAllFolded || f.isIndexFold) {
+                                // INSTANT ACTION TRIGGER: Exactly when finger folds into fist, fire immediately!
+                                if (wasIndexArmed && (now - lastSpatialActionTime > 240)) {
+                                    wasIndexArmed = false;
+                                    isContinuousHolding = true;
+                                    lastActionWasPrev = false;
+                                    lastSpatialActionTime = now;
+                                    lastSpatialRepeatTime = now;
+                                    spatialFlashTime = now;
+                                    executeAction('NEXT');
+                                    playGestureTone(680, 0.04);
+                                } else if (wasTwoArmed && (now - lastSpatialActionTime > 240)) {
+                                    wasTwoArmed = false;
+                                    isContinuousHolding = true;
+                                    lastActionWasPrev = true;
+                                    lastSpatialActionTime = now;
+                                    lastSpatialRepeatTime = now;
+                                    spatialFlashTime = now;
+                                    executeAction('PREV');
+                                    playGestureTone(520, 0.04);
+                                } else if (isContinuousHolding && isAllFolded) {
+                                    // Smooth repeat scroll while held folded
+                                    const repeatSpeed = aeroConfig.dragRepeatSpeed || 3;
+                                    const repeatInterval = Math.max(220, 800 - (repeatSpeed * 120));
+                                    if (now - lastSpatialRepeatTime >= repeatInterval) {
+                                        lastSpatialRepeatTime = now;
+                                        spatialFlashTime = now;
+                                        executeAction(lastActionWasPrev ? 'PREV' : 'NEXT');
+                                        playGestureTone(lastActionWasPrev ? 520 : 680, 0.035);
+                                    }
+                                }
+                                iconToDraw = 'FIST';
+                                iconColor = '#38bdf8';
+                            } else if (isThreeFingerFold) {
+                                // 3-Finger Fold: System Back
+                                if (foldState !== 3) {
+                                    foldState = 3;
+                                    foldStartTime = now;
+                                } else if (now - foldStartTime >= 850 && !holdTriggered) {
+                                    holdTriggered = true;
+                                    executeSystemNavigation('BACK');
+                                    playGestureTone(440, 0.08);
+                                }
+                                iconToDraw = 'POINT';
                             }
 
-                            const now = Date.now();
-                            if (currentFoldCount > 0 && foldState === 0) {
-                                foldState = currentFoldCount;
-                                foldStartTime = now;
-                                holdTriggered = false;
-                            } else if (currentFoldCount === 1 && foldState === 1) {
-                                const elapsed = now - foldStartTime;
-                                const holdMax = (aeroConfig.holdDuration || 1.5) * 450;
-                                const pct = Math.min(100, (elapsed / holdMax) * 100);
-                                const hb = document.getElementById('fold-hold-bar');
-                                if (hb) hb.style.width = `${pct}%`;
-                                if (elapsed >= holdMax && !holdTriggered) {
-                                    holdTriggered = true;
-                                    openFoldHoldMenu();
-                                }
-                            } else if (currentFoldCount === 0 && foldState > 0) {
-                                const hb = document.getElementById('fold-hold-bar');
-                                if (hb) hb.style.width = '0%';
-                                if (!holdTriggered && now - lastGestureTime > 450) {
-                                    lastGestureTime = now;
-                                    if (foldState === 1) executeAction('NEXT');
-                                    else if (foldState === 2) executeAction('PREV');
-                                    else if (foldState === 3) executeSystemNavigation('BACK');
-                                    else if (foldState === 4) executeSystemNavigation('HOME');
-                                }
-                                foldState = 0;
+                            if (isPinching) {
+                                iconToDraw = 'PINCH';
+                                iconColor = '#10b981';
+                            }
+
+                            // Render Instant Minimalist HUD: Hand Icon + Quick Flash Shockwave (No 10-piece dial!)
+                            const cx = canvasEl.width / 2;
+                            const cy = canvasEl.height / 2;
+                            const scale = Math.min(cx, cy) / 28;
+                            const isFlashing = (now - spatialFlashTime) < 180;
+
+                            drawSpatialHandSilhouette(ctx, cx, cy, scale, iconToDraw, iconColor);
+
+                            if (isFlashing) {
+                                const rippleProg = (now - spatialFlashTime) / 180;
+                                ctx.beginPath();
+                                ctx.arc(cx, cy, (Math.min(cx, cy) * 0.55) + rippleProg * 14, 0, Math.PI * 2);
+                                ctx.strokeStyle = `rgba(56, 189, 248, ${1 - rippleProg})`;
+                                ctx.lineWidth = 2.5;
+                                ctx.stroke();
                             }
                         } else {
                             // Hand away from camera: screen cleanly disappears as requested by user
                             hud.classList.remove('hud-visible');
                             const hb = document.getElementById('fold-hold-bar');
                             if (hb) hb.style.width = '0%';
+                            spatialTrackingState = 'IDLE';
                             foldState = 0;
+                            holdTriggered = false;
                             wasPinching = false;
                             if (cursor) cursor.style.display = 'none';
                             if (window.AndroidBridge && window.AndroidBridge.setHandVisible) {

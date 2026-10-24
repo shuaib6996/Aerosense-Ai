@@ -47,12 +47,14 @@ AeroSense AI uses high-performance computer vision powered by MediaPipe to detec
 
 ---
 
-### 6. ☝️ 1-to-4 Finger Fold Controls & Hold Menu
-- **1-Finger Fold (Index Fold)**: Next Reel / Next Video.
-- **2-Finger Fold (Index + Middle Fold)**: Previous Reel / Previous Video.
+### 6. ☝️ Instant Index Point & Fold Reel Scroll
+- **Open Palm (✋)**: Standby posture with green palm silhouette indicator.
+- **Index Point (☝️)**: Point your single index finger up (other fingers folded) — immediately arms the scroll trigger with zero delay.
+- **Fold to Scroll Down / Next Reel (✊)**: Fold your index finger down into a fist. Instantly triggers a fast, smooth scroll to the **Next Reel / Next Video** with 0ms waiting!
+- **Hold Fold for Continuous Repeat Scroll**: Keeping your finger folded auto-scrolls continuously at your customized **Drag Repeat Speed** setting.
+- **2-Finger Fold (✌️)**: Extend two fingers (index + middle) and fold down to instantly scroll back to the **Previous Reel / Previous Video**.
 - **3-Finger Fold**: System Global Back (`⬅️ Back`).
 - **4-Finger Fold**: System Global Home (`🏠 Home`).
-- **Hold Any Fold for 1.2s**: Opens the **1-Finger Hold Radial Menu** for quick volume up/down, air click, keyboard, and app switcher.
 
 ---
 
