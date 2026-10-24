@@ -109,83 +109,84 @@
 56-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:35:9-54
 57        android:supportsRtl="true"
 57-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:36:9-35
-58        android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
-58-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:39:9-71
-59        android:usesCleartextTraffic="true" >
-59-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:38:9-44
-60
-61        <!-- Main Touchless OS Activity + Floating HUD Host -->
-62        <activity
-62-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:42:5-52:16
-63            android:name="com.aerosense.touchless.ai.MainActivity"
-63-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:43:9-37
-64            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|keyboardHidden|keyboard|locale"
-64-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:47:9-118
-65            android:exported="true"
-65-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:44:9-32
-66            android:launchMode="singleTask"
-66-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:46:9-40
-67            android:supportsPictureInPicture="true" >
-67-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:45:9-48
-68            <intent-filter>
-68-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:48:9-51:25
-69                <action android:name="android.intent.action.MAIN" />
-69-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:49:13-65
-69-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:49:21-62
-70
-71                <category android:name="android.intent.category.LAUNCHER" />
-71-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:50:13-73
-71-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:50:23-70
-72            </intent-filter>
-73        </activity>
-74
-75        <!-- System-Wide Accessibility Service for Back (3-Fold), Home (4-Fold), Air Taps & Reel Swipes -->
-76        <service
-76-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:55:5-66:19
-77            android:name="com.aerosense.touchless.ai.AeroAccessibilityService"
-77-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:56:13-53
-78            android:exported="true"
-78-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:57:13-36
-79            android:label="AeroSense AI Hand Control"
-79-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:58:13-54
-80            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE" >
-80-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:59:13-79
-81            <intent-filter>
-81-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:60:13-62:29
-82                <action android:name="android.accessibilityservice.AccessibilityService" />
-82-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:61:17-92
-82-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:61:25-89
-83            </intent-filter>
-84
-85            <meta-data
-85-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:63:13-65:72
-86                android:name="android.accessibilityservice"
-86-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:64:17-60
-87                android:resource="@xml/accessibility_service_config" />
-87-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:65:17-69
-88        </service>
-89
-90        <provider
-90-->[androidx.emoji2:emoji2:1.2.0] C:\Users\shuai\.gradle\caches\8.13\transforms\e6824132ad21a51f5bd68e19997dca65\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:24:9-32:20
-91            android:name="androidx.startup.InitializationProvider"
-91-->[androidx.emoji2:emoji2:1.2.0] C:\Users\shuai\.gradle\caches\8.13\transforms\e6824132ad21a51f5bd68e19997dca65\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:25:13-67
-92            android:authorities="com.aerosense.touchless.ai.androidx-startup"
-92-->[androidx.emoji2:emoji2:1.2.0] C:\Users\shuai\.gradle\caches\8.13\transforms\e6824132ad21a51f5bd68e19997dca65\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:26:13-68
-93            android:exported="false" >
-93-->[androidx.emoji2:emoji2:1.2.0] C:\Users\shuai\.gradle\caches\8.13\transforms\e6824132ad21a51f5bd68e19997dca65\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:27:13-37
-94            <meta-data
-94-->[androidx.emoji2:emoji2:1.2.0] C:\Users\shuai\.gradle\caches\8.13\transforms\e6824132ad21a51f5bd68e19997dca65\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
-95                android:name="androidx.emoji2.text.EmojiCompatInitializer"
-95-->[androidx.emoji2:emoji2:1.2.0] C:\Users\shuai\.gradle\caches\8.13\transforms\e6824132ad21a51f5bd68e19997dca65\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:30:17-75
-96                android:value="androidx.startup" />
-96-->[androidx.emoji2:emoji2:1.2.0] C:\Users\shuai\.gradle\caches\8.13\transforms\e6824132ad21a51f5bd68e19997dca65\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:31:17-49
-97            <meta-data
-97-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\shuai\.gradle\caches\8.13\transforms\279af7dcfba2409b9faa8b0c83df5340\transformed\jetified-lifecycle-process-2.4.1\AndroidManifest.xml:31:13-33:52
-98                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
-98-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\shuai\.gradle\caches\8.13\transforms\279af7dcfba2409b9faa8b0c83df5340\transformed\jetified-lifecycle-process-2.4.1\AndroidManifest.xml:32:17-78
-99                android:value="androidx.startup" />
-99-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\shuai\.gradle\caches\8.13\transforms\279af7dcfba2409b9faa8b0c83df5340\transformed\jetified-lifecycle-process-2.4.1\AndroidManifest.xml:33:17-49
-100        </provider>
-101    </application>
-102
-103</manifest>
+58        android:testOnly="true"
+59        android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
+59-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:39:9-71
+60        android:usesCleartextTraffic="true" >
+60-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:38:9-44
+61
+62        <!-- Main Touchless OS Activity + Floating HUD Host -->
+63        <activity
+63-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:42:5-52:16
+64            android:name="com.aerosense.touchless.ai.MainActivity"
+64-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:43:9-37
+65            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|keyboardHidden|keyboard|locale"
+65-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:47:9-118
+66            android:exported="true"
+66-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:44:9-32
+67            android:launchMode="singleTask"
+67-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:46:9-40
+68            android:supportsPictureInPicture="true" >
+68-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:45:9-48
+69            <intent-filter>
+69-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:48:9-51:25
+70                <action android:name="android.intent.action.MAIN" />
+70-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:49:13-65
+70-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:49:21-62
+71
+72                <category android:name="android.intent.category.LAUNCHER" />
+72-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:50:13-73
+72-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:50:23-70
+73            </intent-filter>
+74        </activity>
+75
+76        <!-- System-Wide Accessibility Service for Back (3-Fold), Home (4-Fold), Air Taps & Reel Swipes -->
+77        <service
+77-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:55:5-66:19
+78            android:name="com.aerosense.touchless.ai.AeroAccessibilityService"
+78-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:56:13-53
+79            android:exported="true"
+79-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:57:13-36
+80            android:label="AeroSense AI Hand Control"
+80-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:58:13-54
+81            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE" >
+81-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:59:13-79
+82            <intent-filter>
+82-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:60:13-62:29
+83                <action android:name="android.accessibilityservice.AccessibilityService" />
+83-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:61:17-92
+83-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:61:25-89
+84            </intent-filter>
+85
+86            <meta-data
+86-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:63:13-65:72
+87                android:name="android.accessibilityservice"
+87-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:64:17-60
+88                android:resource="@xml/accessibility_service_config" />
+88-->C:\Aero sense ai\android\app\src\main\AndroidManifest.xml:65:17-69
+89        </service>
+90
+91        <provider
+91-->[androidx.emoji2:emoji2:1.2.0] C:\Users\shuai\.gradle\caches\8.13\transforms\e6824132ad21a51f5bd68e19997dca65\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:24:9-32:20
+92            android:name="androidx.startup.InitializationProvider"
+92-->[androidx.emoji2:emoji2:1.2.0] C:\Users\shuai\.gradle\caches\8.13\transforms\e6824132ad21a51f5bd68e19997dca65\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:25:13-67
+93            android:authorities="com.aerosense.touchless.ai.androidx-startup"
+93-->[androidx.emoji2:emoji2:1.2.0] C:\Users\shuai\.gradle\caches\8.13\transforms\e6824132ad21a51f5bd68e19997dca65\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:26:13-68
+94            android:exported="false" >
+94-->[androidx.emoji2:emoji2:1.2.0] C:\Users\shuai\.gradle\caches\8.13\transforms\e6824132ad21a51f5bd68e19997dca65\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:27:13-37
+95            <meta-data
+95-->[androidx.emoji2:emoji2:1.2.0] C:\Users\shuai\.gradle\caches\8.13\transforms\e6824132ad21a51f5bd68e19997dca65\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
+96                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+96-->[androidx.emoji2:emoji2:1.2.0] C:\Users\shuai\.gradle\caches\8.13\transforms\e6824132ad21a51f5bd68e19997dca65\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:30:17-75
+97                android:value="androidx.startup" />
+97-->[androidx.emoji2:emoji2:1.2.0] C:\Users\shuai\.gradle\caches\8.13\transforms\e6824132ad21a51f5bd68e19997dca65\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:31:17-49
+98            <meta-data
+98-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\shuai\.gradle\caches\8.13\transforms\279af7dcfba2409b9faa8b0c83df5340\transformed\jetified-lifecycle-process-2.4.1\AndroidManifest.xml:31:13-33:52
+99                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+99-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\shuai\.gradle\caches\8.13\transforms\279af7dcfba2409b9faa8b0c83df5340\transformed\jetified-lifecycle-process-2.4.1\AndroidManifest.xml:32:17-78
+100                android:value="androidx.startup" />
+100-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\shuai\.gradle\caches\8.13\transforms\279af7dcfba2409b9faa8b0c83df5340\transformed\jetified-lifecycle-process-2.4.1\AndroidManifest.xml:33:17-49
+101        </provider>
+102    </application>
+103
+104</manifest>
