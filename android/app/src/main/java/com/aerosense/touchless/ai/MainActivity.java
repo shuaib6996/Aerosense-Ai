@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Rational;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -231,6 +232,47 @@ public class MainActivity extends Activity {
             floatingOverlayParams.x = 0;
             floatingOverlayParams.y = (int) (64 * density);
 
+            webView.setOnTouchListener(new View.OnTouchListener() {
+                private int initialX;
+                private int initialY;
+                private float initialTouchX;
+                private float initialTouchY;
+                private boolean isMoving = false;
+
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (!isFloatingOverlayAttached || floatingOverlayParams == null || systemWindowManager == null) {
+                        return false;
+                    }
+                    switch (event.getAction()) {
+                        case MotionEvent.ACTION_DOWN:
+                            initialX = floatingOverlayParams.x;
+                            initialY = floatingOverlayParams.y;
+                            initialTouchX = event.getRawX();
+                            initialTouchY = event.getRawY();
+                            isMoving = false;
+                            return false;
+                        case MotionEvent.ACTION_MOVE:
+                            float dx = event.getRawX() - initialTouchX;
+                            float dy = event.getRawY() - initialTouchY;
+                            if (Math.abs(dx) > 10 || Math.abs(dy) > 10 || isMoving) {
+                                isMoving = true;
+                                floatingOverlayParams.gravity = Gravity.TOP | Gravity.START;
+                                floatingOverlayParams.x = (int) (initialX + dx);
+                                floatingOverlayParams.y = (int) (initialY + dy);
+                                try {
+                                    systemWindowManager.updateViewLayout(webView, floatingOverlayParams);
+                                } catch (Exception ignoredUpdate) {}
+                                return true;
+                            }
+                            return false;
+                        case MotionEvent.ACTION_UP:
+                            return isMoving;
+                    }
+                    return false;
+                }
+            });
+
             systemWindowManager.addView(webView, floatingOverlayParams);
             webView.onResume();
             webView.resumeTimers();
@@ -254,6 +296,7 @@ public class MainActivity extends Activity {
 
         if (webView != null) {
             try {
+                webView.setOnTouchListener(null);
                 if (webView.getParent() instanceof ViewGroup) {
                     ((ViewGroup) webView.getParent()).removeView(webView);
                 }

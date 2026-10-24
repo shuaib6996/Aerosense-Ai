@@ -37,29 +37,9 @@
             -webkit-user-select: none;
         }
 
-        /* Smooth Full-Reach Air Pointer Cursor */
+        /* Fake web cursor removed inside app: Native Android Accessibility overlay cursor is used */
         #aero-cursor {
-            position: fixed;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            border: 2.5px solid #22d3ee;
-            background: radial-gradient(circle, rgba(34,211,238,0.45) 0%, rgba(16,185,129,0.15) 100%);
-            box-shadow: 0 0 18px rgba(34, 211, 238, 0.9);
-            pointer-events: none;
-            z-index: 9999;
-            transform: translate(-50%, -50%);
-            transition: width 0.08s ease, height 0.08s ease, border-color 0.08s ease;
-            display: none;
-            align-items: center;
-            justify-content: center;
-        }
-        #aero-cursor.pinching {
-            width: 18px;
-            height: 18px;
-            border-color: #10b981;
-            background: rgba(16, 185, 129, 0.9);
-            box-shadow: 0 0 24px rgba(16, 185, 129, 0.95);
+            display: none !important;
         }
 
         /* Dual Hand Air Cursors (Left Hand = Cyan, Right Hand = Purple) */
@@ -135,7 +115,7 @@
             box-shadow: 0 0 20px rgba(56, 189, 248, 0.8);
         }
 
-        /* Transparent Bottom-Center Floating Hand HUD */
+        /* Transparent Draggable Floating Hand HUD (User can freely position anywhere on screen) */
         #spatial-floating-hud {
             position: fixed;
             bottom: 14px;
@@ -154,6 +134,13 @@
             pointer-events: auto;
             opacity: 0;
             transition: opacity 0.2s ease, width 0.2s ease, height 0.2s ease;
+            cursor: grab;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+        }
+        #spatial-floating-hud:active {
+            cursor: grabbing;
         }
         #spatial-floating-hud.hud-visible {
             opacity: 1;
@@ -547,26 +534,7 @@
     </div>
 
 
-    <!-- Floating Mini Voice Pill (Positioned above bottom nav & test bars with dismiss option) -->
-    <div id="floating-voice-hud" class="fixed bottom-[104px] left-1/2 -translate-x-1/2 z-[8900] bg-slate-950/95 backdrop-blur-xl border border-cyan-500/40 px-3.5 py-1.5 rounded-full shadow-2xl flex items-center gap-2.5 max-w-[92vw] transition-all duration-200">
-        <button id="hud-mic-btn" onclick="toggleVoiceRecognition()" class="w-7 h-7 rounded-full bg-slate-800 border border-slate-700 text-slate-300 flex items-center justify-center shrink-0 transition active:scale-95" title="Toggle Voice Recognition">
-            <i id="hud-mic-icon" class="fa-solid fa-microphone-slash text-[11px]"></i>
-        </button>
-        <div id="voice-wave-box" class="flex items-center gap-1 h-5">
-            <span class="voice-wave-bar"></span>
-            <span class="voice-wave-bar"></span>
-            <span class="voice-wave-bar"></span>
-            <span class="voice-wave-bar"></span>
-            <span class="voice-wave-bar"></span>
-        </div>
-        <div class="min-w-0 pr-1">
-            <p id="hud-voice-status" class="text-[9px] font-extrabold text-cyan-400 uppercase tracking-wider leading-none">Voice Standby</p>
-            <p id="hud-voice-transcript" class="text-[10px] font-bold text-white truncate max-w-[140px] mt-0.5">Say "Next", "Back", "Home"...</p>
-        </div>
-        <button onclick="toggleFloatingVoiceHud(false)" class="w-5 h-5 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-[10px] shrink-0 transition" title="Dismiss Voice Pill">
-            <i class="fa-solid fa-xmark"></i>
-        </button>
-    </div>
+
 
     <!-- FIRST-LAUNCH STARTUP PERMISSION GATE MODAL -->
     <div id="startup-permission-modal" class="fixed inset-0 z-[9600] bg-slate-950/90 backdrop-blur-md hidden items-center justify-center p-4">
@@ -688,9 +656,12 @@
         </div>
     </div>
 
-    <!-- TRANSPARENT BOTTOM-CENTER HAND POPUP (Default: SM with rounded corners) -->
+    <!-- TRANSPARENT DRAGGABLE HAND POPUP (Default: SM with rounded corners, freely positionable) -->
     <div id="spatial-floating-hud" class="hud-size-sm">
-        <div class="px-2 pt-1.5 pb-0.5 flex items-center justify-between z-10">
+        <div class="w-full flex justify-center pt-1 pb-0 pointer-events-none">
+            <div class="w-7 h-1 rounded-full bg-cyan-400/50"></div>
+        </div>
+        <div class="px-2 pt-0.5 pb-0.5 flex items-center justify-between z-10">
             <span class="flex items-center gap-1 text-[8px] font-extrabold text-emerald-400 uppercase tracking-wider truncate">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping shrink-0"></span>
                 <span id="mini-hud-app" class="truncate">Hand</span>
@@ -1359,15 +1330,37 @@
 
                 <!-- TAB 2: VOICE CONTROL ENGINE -->
                 <div id="gpanel-voice" class="space-y-3 hidden">
+                    <!-- Live Voice Mic & Speech Controller Card (Integrated Voice UI) -->
+                    <div class="p-3.5 rounded-2xl bg-gradient-to-r from-cyan-950/70 via-slate-900 to-indigo-950/70 border border-cyan-500/40 flex items-center justify-between gap-3 shadow-xl">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <button id="hud-mic-btn" onclick="toggleVoiceRecognition()" class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 text-slate-950 flex items-center justify-center shrink-0 shadow-lg shadow-cyan-500/30 active:scale-95 transition" title="Toggle Voice Recognition">
+                                <i id="hud-mic-icon" class="fa-solid fa-microphone-slash text-base"></i>
+                            </button>
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <p id="hud-voice-status" class="text-[10px] font-black text-cyan-300 uppercase tracking-wider">Voice Standby</p>
+                                    <div id="voice-wave-box" class="flex items-center gap-1 h-3.5">
+                                        <span class="voice-wave-bar"></span>
+                                        <span class="voice-wave-bar"></span>
+                                        <span class="voice-wave-bar"></span>
+                                        <span class="voice-wave-bar"></span>
+                                        <span class="voice-wave-bar"></span>
+                                    </div>
+                                </div>
+                                <p id="hud-voice-transcript" class="text-xs font-bold text-white truncate max-w-[210px] mt-0.5">Say "Next", "Back", "Home"...</p>
+                            </div>
+                        </div>
+                        <span id="voice-live-badge" class="px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 font-extrabold text-[9px] uppercase tracking-wider shrink-0 border border-slate-700">
+                            OFFLINE
+                        </span>
+                    </div>
+
                     <div class="module-card space-y-3">
                         <div class="flex items-center justify-between">
                             <div>
                                 <h3 class="text-sm font-extrabold text-white">Voice AI Autopilot</h3>
                                 <p class="text-[10px] text-slate-400">Control Reels, Back, Home & Typing by voice</p>
                             </div>
-                            <span id="voice-live-badge" class="px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-extrabold text-[9px] uppercase">
-                                OFFLINE
-                            </span>
                         </div>
 
                         <div class="flex items-center justify-between py-1 border-t border-white/5 pt-2">
@@ -1482,30 +1475,7 @@
             </section>
         </main>
 
-        <!-- 4. QUICK GESTURE TEST BAR -->
-        <div class="shrink-0 px-2.5 py-1.5 bg-slate-950/95 border-t border-slate-800/80 flex items-center gap-1.5 overflow-x-auto no-scrollbar z-10">
-            <span class="text-[9px] font-extrabold text-slate-400 uppercase shrink-0">TEST:</span>
-            <button onclick="simulateFingerGesture('FOLD_1')" class="AirClickable px-2.5 py-1 rounded-lg bg-slate-900 border border-cyan-500/30 text-cyan-300 text-[10px] font-extrabold whitespace-nowrap shrink-0">
-                ☝️ 1-Fold (Scroll)
-            </button>
-            <button onclick="simulateFingerGesture('FOLD_2')" class="AirClickable px-2.5 py-1 rounded-lg bg-slate-900 border border-purple-500/30 text-purple-300 text-[10px] font-extrabold whitespace-nowrap shrink-0">
-                ✌️ 2-Fold (Prev)
-            </button>
-            <button onclick="simulateFingerGesture('FOLD_3_BACK')" class="AirClickable px-2.5 py-1 rounded-lg bg-slate-900 border border-amber-500/40 text-amber-300 text-[10px] font-extrabold whitespace-nowrap shrink-0">
-                ⬅️ 3-Fold (Back)
-            </button>
-            <button onclick="simulateFingerGesture('FOLD_4_HOME')" class="AirClickable px-2.5 py-1 rounded-lg bg-slate-900 border border-emerald-500/40 text-emerald-300 text-[10px] font-extrabold whitespace-nowrap shrink-0">
-                🏠 4-Fold (Home)
-            </button>
-            <button onclick="openFoldHoldMenu()" class="AirClickable px-2.5 py-1 rounded-lg bg-slate-900 border border-indigo-500/40 text-indigo-300 text-[10px] font-extrabold whitespace-nowrap shrink-0">
-                ⏱️ Hold Menu
-            </button>
-            <button onclick="toggleAirKeyboard(true)" class="AirClickable px-2.5 py-1 rounded-lg bg-slate-900 border border-cyan-500/40 text-cyan-300 text-[10px] font-extrabold whitespace-nowrap shrink-0">
-                ⌨️ Air Keyboard
-            </button>
-        </div>
-
-        <!-- 5. BOTTOM NAVIGATION (Apps | Stream | Settings | Gestures | Admin) -->
+        <!-- 4. BOTTOM NAVIGATION (Apps | Stream | Settings | Gestures | Admin) -->
         <nav class="shrink-0 bg-[#04070f] border-t border-slate-800 px-2 py-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] z-20">
             <div class="grid grid-cols-5 gap-1">
                 <button onclick="switchTab('launcher')" id="nav-launcher" class="AirClickable py-1.5 rounded-xl bg-cyan-500/15 text-cyan-400 font-extrabold text-[9px] flex flex-col items-center gap-0.5">
@@ -2595,7 +2565,7 @@
 
                         if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
                             hud.classList.add('hud-visible');
-                            cursor.style.display = 'flex';
+                            if (cursor) cursor.style.display = (!window.AndroidBridge) ? 'flex' : 'none';
                             if (window.AndroidBridge && window.AndroidBridge.setHandVisible) {
                                 window.AndroidBridge.setHandVisible(true);
                             }
@@ -2612,13 +2582,17 @@
                             const lerp = 0.20 + (aeroConfig.pointerSpeed * 0.08);
                             smoothX += (normX * window.innerWidth - smoothX) * lerp;
                             smoothY += (normY * window.innerHeight - smoothY) * lerp;
-                            cursor.style.left = `${smoothX}px`;
-                            cursor.style.top = `${smoothY}px`;
+                            if (cursor && !window.AndroidBridge) {
+                                cursor.style.left = `${smoothX}px`;
+                                cursor.style.top = `${smoothY}px`;
+                            }
 
                             const pinchDist = Math.hypot(lm[8].x - lm[4].x, lm[8].y - lm[4].y);
                             const pinchThresh = 0.045 + (aeroConfig.sensitivity * 0.005);
                             const isPinching = pinchDist < pinchThresh;
-                            cursor.classList.toggle('pinching', isPinching);
+                            if (cursor && !window.AndroidBridge) {
+                                cursor.classList.toggle('pinching', isPinching);
+                            }
 
                             if (window.AndroidBridge && window.AndroidBridge.updateGlobalAirCursor) {
                                 window.AndroidBridge.updateGlobalAirCursor(normX, normY, isPinching);
@@ -3210,15 +3184,7 @@
         };
 
         function toggleFloatingVoiceHud(show) {
-            const hud = document.getElementById('floating-voice-hud');
-            if (!hud) return;
-            if (show === undefined) {
-                hud.classList.toggle('hidden');
-            } else if (show) {
-                hud.classList.remove('hidden');
-            } else {
-                hud.classList.add('hidden');
-            }
+            // Floating voice pill removed from footer; Voice Controller is integrated inside Gestures -> Voice Control panel
         }
 
         function toggleVoiceRecognition() {
@@ -3232,7 +3198,6 @@
                 showToast('⏹️', 'Voice Paused', 'Microphone stopped');
                 return;
             }
-            toggleFloatingVoiceHud(true);
             if (!voiceState.recognition) voiceState.recognition = initSpeechRecognition();
             if (voiceState.recognition) {
                 try {
@@ -3393,6 +3358,96 @@
             document.body.style.backgroundColor = '#050811';
         });
 
+        function initDraggableHud() {
+            const hud = document.getElementById('spatial-floating-hud');
+            if (!hud) return;
+
+            let isDragging = false;
+            let startX = 0, startY = 0;
+            let initialLeft = 0, initialTop = 0;
+
+            try {
+                const savedX = localStorage.getItem('aero_hud_pos_x');
+                const savedY = localStorage.getItem('aero_hud_pos_y');
+                if (savedX !== null && savedY !== null) {
+                    const x = Math.max(4, Math.min(window.innerWidth - 70, parseInt(savedX, 10)));
+                    const y = Math.max(4, Math.min(window.innerHeight - 80, parseInt(savedY, 10)));
+                    hud.style.left = `${x}px`;
+                    hud.style.top = `${y}px`;
+                    hud.style.bottom = 'auto';
+                    hud.style.transform = 'none';
+                }
+            } catch (e) {}
+
+            function onStart(e) {
+                if (e.target.closest('button, .AirClickable, a, input, select')) return;
+
+                isDragging = true;
+                const point = e.touches ? e.touches[0] : e;
+                startX = point.clientX;
+                startY = point.clientY;
+
+                const rect = hud.getBoundingClientRect();
+                initialLeft = rect.left;
+                initialTop = rect.top;
+
+                hud.style.transition = 'none';
+                hud.style.bottom = 'auto';
+                hud.style.transform = 'none';
+                hud.style.left = `${initialLeft}px`;
+                hud.style.top = `${initialTop}px`;
+
+                if (e.type === 'touchstart') {
+                    window.addEventListener('touchmove', onMove, { passive: false });
+                    window.addEventListener('touchend', onEnd);
+                    window.addEventListener('touchcancel', onEnd);
+                } else {
+                    window.addEventListener('mousemove', onMove);
+                    window.addEventListener('mouseup', onEnd);
+                }
+            }
+
+            function onMove(e) {
+                if (!isDragging) return;
+                if (e.cancelable) e.preventDefault();
+
+                const point = e.touches ? e.touches[0] : e;
+                const dx = point.clientX - startX;
+                const dy = point.clientY - startY;
+
+                const rect = hud.getBoundingClientRect();
+                const maxX = window.innerWidth - rect.width;
+                const maxY = window.innerHeight - rect.height;
+
+                const newX = Math.max(4, Math.min(maxX - 4, initialLeft + dx));
+                const newY = Math.max(4, Math.min(maxY - 4, initialTop + dy));
+
+                hud.style.left = `${newX}px`;
+                hud.style.top = `${newY}px`;
+            }
+
+            function onEnd() {
+                if (!isDragging) return;
+                isDragging = false;
+                hud.style.transition = 'opacity 0.2s ease, width 0.2s ease, height 0.2s ease';
+
+                try {
+                    const rect = hud.getBoundingClientRect();
+                    localStorage.setItem('aero_hud_pos_x', Math.round(rect.left));
+                    localStorage.setItem('aero_hud_pos_y', Math.round(rect.top));
+                } catch (e) {}
+
+                window.removeEventListener('touchmove', onMove);
+                window.removeEventListener('touchend', onEnd);
+                window.removeEventListener('touchcancel', onEnd);
+                window.removeEventListener('mousemove', onMove);
+                window.removeEventListener('mouseup', onEnd);
+            }
+
+            hud.addEventListener('touchstart', onStart, { passive: true });
+            hud.addEventListener('mousedown', onStart);
+        }
+
         window.onload = () => {
             renderUserApps();
             refreshNativePermissionStatus();
@@ -3401,6 +3456,7 @@
             renderGestureCards('ALL');
             renderVoiceCommandsList();
             renderCustomTriggers();
+            initDraggableHud();
             if (!localStorage.getItem('aero_perm_prompted')) {
                 openStartupPermissionModal();
             }
