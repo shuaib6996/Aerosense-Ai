@@ -136,7 +136,7 @@
             overflow: hidden;
             pointer-events: auto;
             opacity: 0;
-            transition: opacity 0.2s ease, width 0.15s ease, height 0.15s ease;
+            transition: opacity 0.2s ease;
             cursor: grab;
             user-select: none;
             -webkit-user-select: none;
@@ -147,6 +147,19 @@
         }
         #spatial-floating-hud.hud-visible {
             opacity: 1;
+        }
+
+        .native-overlay-mode #spatial-floating-hud {
+            position: absolute !important;
+            inset: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            left: 0 !important;
+            top: 0 !important;
+            bottom: 0 !important;
+            transform: none !important;
+            margin: 0 !important;
+            border-radius: 18px !important;
         }
 
         .hud-size-sm { width: 88px; height: 108px; border-radius: 24px; }
@@ -659,36 +672,29 @@
         </div>
     </div>
 
-    <!-- TRANSPARENT DRAGGABLE HAND POPUP (Default: 68px with rounded corners, freely positionable, max 88px) -->
+    <!-- TRANSPARENT DRAGGABLE HAND POPUP (Clean neon skeleton only, no text, no emojis, no buttons) -->
     <div id="spatial-floating-hud">
-        <div class="w-full flex justify-center pt-1 pb-0 pointer-events-none">
-            <div class="w-7 h-1 rounded-full bg-cyan-400/50"></div>
+        <!-- Top subtle grab indicator -->
+        <div class="w-full flex justify-center pt-1.5 pb-0.5 pointer-events-none shrink-0">
+            <div class="w-6 h-1 rounded-full bg-cyan-400/50"></div>
         </div>
-        <div class="px-2 pt-0.5 pb-0.5 flex items-center justify-between z-10">
-            <span class="flex items-center gap-1 text-[8px] font-extrabold text-emerald-400 uppercase tracking-wider truncate">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping shrink-0"></span>
-                <span id="mini-hud-app" class="truncate">Hand</span>
-            </span>
-            <div class="flex items-center gap-1 shrink-0">
-                <button onclick="openHudSizeModal()" class="AirClickable px-1.5 py-0.5 rounded-lg bg-slate-900/80 border border-cyan-500/40 text-[8px] font-extrabold text-cyan-300 hover:text-white whitespace-nowrap" title="Popup Size Slider (50px - 88px)">
-                    <i class="fa-solid fa-expand text-[7px] mr-0.5"></i><span id="hud-size-label">68px</span>
-                </button>
-                <button onclick="toggleBackgroundEngine()" class="AirClickable w-4 h-4 rounded-full bg-red-500/20 border border-red-500/40 text-red-400 hover:text-white flex items-center justify-center text-[8px]" title="Close / Stop Hand Tracking">
-                    ✕
-                </button>
+
+        <!-- Pure hand skeleton canvas without any text or buttons -->
+        <div class="relative flex-1 w-full h-full flex items-center justify-center overflow-hidden pointer-events-none p-1">
+            <canvas id="skeleton-canvas" class="w-full h-full object-contain mirror-cam pointer-events-none"></canvas>
+        </div>
+
+        <!-- Subtle hold-progress line -->
+        <div class="w-full px-2 pb-1.5 pointer-events-none shrink-0">
+            <div class="w-full h-0.5 bg-slate-800/60 rounded-full overflow-hidden">
+                <div id="fold-hold-bar" class="h-full bg-cyan-400 w-0 transition-all duration-75"></div>
             </div>
         </div>
 
-        <div class="relative flex-1 w-full h-full flex items-center justify-center overflow-hidden">
-            <canvas id="skeleton-canvas" class="w-full h-full object-contain mirror-cam"></canvas>
-        </div>
-
-        <div class="w-full px-2 pb-1.5 text-center z-10">
-            <div class="w-full h-1 bg-slate-800/60 rounded-full overflow-hidden mb-0.5">
-                <div id="fold-hold-bar" class="h-full bg-emerald-400 w-0 transition-all duration-75"></div>
-            </div>
-            <p id="mini-hud-gesture" class="text-[9px] font-extrabold text-emerald-300 truncate drop-shadow">🖐️ Active</p>
-        </div>
+        <!-- Hidden safety elements for script backwards-compatibility -->
+        <span id="hud-size-label" class="hidden"></span>
+        <span id="mini-hud-gesture" class="hidden"></span>
+        <span id="mini-hud-app" class="hidden"></span>
     </div>
 
     <!-- Top Toast Feedback -->
@@ -2553,6 +2559,9 @@
             }
         }
 
+        let hudBridgeResizeTimer = null;
+        let hudRafId = null;
+
         function setCustomHudSize(val) {
             let w = parseInt(val, 10);
             if (isNaN(w)) w = 68;
@@ -2560,34 +2569,38 @@
             const h = Math.round(w * 1.23);
             const r = Math.round(w * 0.28);
 
-            const hud = document.getElementById('spatial-floating-hud');
-            if (hud) {
-                hud.style.width = `${w}px`;
-                hud.style.height = `${h}px`;
-                hud.style.borderRadius = `${r}px`;
-            }
+            if (hudRafId) cancelAnimationFrame(hudRafId);
+            hudRafId = requestAnimationFrame(() => {
+                const hud = document.getElementById('spatial-floating-hud');
+                if (hud) {
+                    hud.style.width = `${w}px`;
+                    hud.style.height = `${h}px`;
+                    hud.style.borderRadius = `${r}px`;
+                }
 
-            const sl1 = document.getElementById('sl-hud-popup-size');
-            if (sl1 && sl1.value != w) sl1.value = w;
-            const sl2 = document.getElementById('modal-sl-hud-size');
-            if (sl2 && sl2.value != w) sl2.value = w;
+                const sl1 = document.getElementById('sl-hud-popup-size');
+                if (sl1 && sl1.value != w) sl1.value = w;
+                const sl2 = document.getElementById('modal-sl-hud-size');
+                if (sl2 && sl2.value != w) sl2.value = w;
 
-            const lbl1 = document.getElementById('lbl-hud-size');
-            if (lbl1) lbl1.textContent = `${w} px`;
-            const lbl2 = document.getElementById('modal-hud-size-val');
-            if (lbl2) lbl2.textContent = `${w} px`;
-            const lblHud = document.getElementById('hud-size-label');
-            if (lblHud) lblHud.textContent = `${w}px`;
-            const lblHeader = document.getElementById('header-hud-size');
-            if (lblHeader) lblHeader.textContent = `HUD: ${w}px`;
+                const lbl1 = document.getElementById('lbl-hud-size');
+                if (lbl1) lbl1.textContent = `${w} px`;
+                const lbl2 = document.getElementById('modal-hud-size-val');
+                if (lbl2) lbl2.textContent = `${w} px`;
+                const lblHeader = document.getElementById('header-hud-size');
+                if (lblHeader) lblHeader.textContent = `HUD: ${w}px`;
+            });
 
-            try {
-                localStorage.setItem('aero_hud_custom_size', w);
-            } catch (e) {}
+            if (hudBridgeResizeTimer) clearTimeout(hudBridgeResizeTimer);
+            hudBridgeResizeTimer = setTimeout(() => {
+                try {
+                    localStorage.setItem('aero_hud_custom_size', w);
+                } catch (e) {}
 
-            if (window.AndroidBridge && window.AndroidBridge.setCustomHudDimensions) {
-                window.AndroidBridge.setCustomHudDimensions(w, h);
-            }
+                if (window.AndroidBridge && window.AndroidBridge.setCustomHudDimensions) {
+                    window.AndroidBridge.setCustomHudDimensions(w, h);
+                }
+            }, 40);
         }
 
         function openHudSizeModal() {
@@ -2657,11 +2670,6 @@
                 const canvasEl = document.getElementById('skeleton-canvas');
                 const ctx = canvasEl.getContext('2d');
 
-                // Immediately show popup screen upon START
-                hud.classList.add('hud-visible');
-                const initLabel = document.getElementById('mini-hud-gesture');
-                if (initLabel) initLabel.textContent = '🖐️ Ready';
-
                 if (!handsInstance) {
                     handsInstance = new Hands({
                         locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
@@ -2678,10 +2686,8 @@
                         canvasEl.height = 260;
                         ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
 
-                        // Keep popup visible while engine is running
-                        hud.classList.add('hud-visible');
-
                         if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                            hud.classList.add('hud-visible');
                             if (cursor) cursor.style.display = (!window.AndroidBridge) ? 'flex' : 'none';
                             if (window.AndroidBridge && window.AndroidBridge.setHandVisible) {
                                 window.AndroidBridge.setHandVisible(true);
@@ -2742,12 +2748,12 @@
 
                             const gestureLabel = document.getElementById('mini-hud-gesture');
                             if (gestureLabel) {
-                                if (currentFoldCount === 4) gestureLabel.textContent = '🏠 4-Fold (Home)';
-                                else if (currentFoldCount === 3) gestureLabel.textContent = '⬅️ 3-Fold (Back)';
-                                else if (currentFoldCount === 2) gestureLabel.textContent = '✌️ 2-Fold (Prev)';
-                                else if (currentFoldCount === 1) gestureLabel.textContent = '☝️ 1-Fold (Scroll)';
-                                else if (isPinching) gestureLabel.textContent = '👌 Pinch Tap';
-                                else gestureLabel.textContent = '🖐️ Tracking';
+                                if (currentFoldCount === 4) gestureLabel.textContent = '4-Fold (Home)';
+                                else if (currentFoldCount === 3) gestureLabel.textContent = '3-Fold (Back)';
+                                else if (currentFoldCount === 2) gestureLabel.textContent = '2-Fold (Prev)';
+                                else if (currentFoldCount === 1) gestureLabel.textContent = '1-Fold (Scroll)';
+                                else if (isPinching) gestureLabel.textContent = 'Pinch Tap';
+                                else gestureLabel.textContent = 'Tracking';
                             }
 
                             const now = Date.now();
@@ -2778,9 +2784,8 @@
                                 foldState = 0;
                             }
                         } else {
-                            // Hand away from camera: Keep popup visible and show "Ready"
-                            const gestureLabel = document.getElementById('mini-hud-gesture');
-                            if (gestureLabel) gestureLabel.textContent = '🖐️ Ready';
+                            // Hand away from camera: screen cleanly disappears as requested by user
+                            hud.classList.remove('hud-visible');
                             const hb = document.getElementById('fold-hold-bar');
                             if (hb) hb.style.width = '0%';
                             foldState = 0;
@@ -2806,7 +2811,6 @@
 
                 await cameraInstance.start();
                 engineRunning = true;
-                hud.classList.add('hud-visible');
                 pill.textContent = 'LIVE';
                 pill.className = 'px-2 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-extrabold text-[9px] uppercase tracking-wider whitespace-nowrap';
                 heroLabel.textContent = 'STOP';
@@ -3456,8 +3460,7 @@
                 if (appShell) appShell.style.display = 'none';
                 if (voiceHud) voiceHud.style.display = 'none';
                 if (floatingHud) {
-                    floatingHud.classList.add('hud-visible');
-                    floatingHud.style.opacity = '1';
+                    floatingHud.style.opacity = '';
                 }
             } else {
                 document.documentElement.style.background = '#050811';
@@ -3508,6 +3511,7 @@
             } catch (e) {}
 
             function onStart(e) {
+                if (document.body.classList.contains('native-overlay-mode') || window.AndroidBridge) return;
                 if (e.target.closest('button, .AirClickable, a, input, select')) return;
 
                 isDragging = true;

@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.DisplayMetrics;
 import android.util.Rational;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -233,9 +234,14 @@ public class MainActivity extends Activity {
                             | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
                     PixelFormat.TRANSLUCENT
             );
-            floatingOverlayParams.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
-            floatingOverlayParams.x = 0;
-            floatingOverlayParams.y = (int) (64 * density);
+            DisplayMetrics dm = getResources().getDisplayMetrics();
+            final int screenWidth = dm.widthPixels;
+            final int screenHeight = dm.heightPixels;
+
+            floatingOverlayParams.gravity = Gravity.TOP | Gravity.START;
+            floatingOverlayParams.x = (screenWidth - widthPx) / 2;
+            floatingOverlayParams.y = screenHeight - heightPx - (int) (64 * density);
+            floatingOverlayParams.alpha = 0.0f; // Hidden until hand gesture is active
 
             webView.setOnTouchListener(new View.OnTouchListener() {
                 private int initialX;
@@ -243,6 +249,7 @@ public class MainActivity extends Activity {
                 private float initialTouchX;
                 private float initialTouchY;
                 private boolean isMoving = false;
+                private long lastUpdateTime = 0;
 
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
@@ -256,23 +263,42 @@ public class MainActivity extends Activity {
                             initialTouchX = event.getRawX();
                             initialTouchY = event.getRawY();
                             isMoving = false;
-                            return false;
+                            lastUpdateTime = System.currentTimeMillis();
+                            return true;
+
                         case MotionEvent.ACTION_MOVE:
                             float dx = event.getRawX() - initialTouchX;
                             float dy = event.getRawY() - initialTouchY;
-                            if (Math.abs(dx) > 10 || Math.abs(dy) > 10 || isMoving) {
+                            if (!isMoving && (Math.abs(dx) > 3 || Math.abs(dy) > 3)) {
                                 isMoving = true;
-                                floatingOverlayParams.gravity = Gravity.TOP | Gravity.START;
-                                floatingOverlayParams.x = (int) (initialX + dx);
-                                floatingOverlayParams.y = (int) (initialY + dy);
+                            }
+                            if (isMoving) {
+                                int curW = floatingOverlayParams.width;
+                                int curH = floatingOverlayParams.height;
+                                int newX = (int) (initialX + dx);
+                                int newY = (int) (initialY + dy);
+                                floatingOverlayParams.x = Math.max(0, Math.min(screenWidth - curW, newX));
+                                floatingOverlayParams.y = Math.max(0, Math.min(screenHeight - curH, newY));
+
+                                long now = System.currentTimeMillis();
+                                if (now - lastUpdateTime >= 16) {
+                                    lastUpdateTime = now;
+                                    try {
+                                        systemWindowManager.updateViewLayout(webView, floatingOverlayParams);
+                                    } catch (Exception ignored) {}
+                                }
+                            }
+                            return true;
+
+                        case MotionEvent.ACTION_UP:
+                        case MotionEvent.ACTION_CANCEL:
+                            if (isMoving) {
                                 try {
                                     systemWindowManager.updateViewLayout(webView, floatingOverlayParams);
-                                } catch (Exception ignoredUpdate) {}
-                                return true;
+                                } catch (Exception ignored) {}
                             }
-                            return false;
-                        case MotionEvent.ACTION_UP:
-                            return isMoving;
+                            isMoving = false;
+                            return true;
                     }
                     return false;
                 }
@@ -396,10 +422,9 @@ public class MainActivity extends Activity {
                 if (AeroAccessibilityService.instance != null) {
                     AeroAccessibilityService.instance.setCursorVisibility(visible && isBackgroundEngineRunning);
                 }
-                if (isFloatingOverlayAttached && webView != null && floatingOverlayParams != null) {
+                if (isFloatingOverlayAttached && webView != null && floatingOverlayParams != null && systemWindowManager != null) {
                     try {
-                        // Keep popup overlay smoothly visible at 1.0f while engine is running
-                        floatingOverlayParams.alpha = 1.0f;
+                        floatingOverlayParams.alpha = visible ? 1.0f : 0.0f;
                         systemWindowManager.updateViewLayout(webView, floatingOverlayParams);
                     } catch (Exception ignored) {}
                 }
