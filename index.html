@@ -2939,23 +2939,23 @@
 
                             const lm = results.multiHandLandmarks[0];
 
-                            // Pointer & Pinch tracking
-                            const rawX = 1 - lm[8].x;
-                            const rawY = lm[8].y;
-                            const normX = Math.max(0, Math.min(1, (rawX - 0.18) / 0.64));
-                            const normY = Math.max(0, Math.min(1, (rawY - 0.18) / 0.60));
+                            // Center Pivot Tracking (Index Tip [8] and Thumb Tip [4] Midpoint - Zero Pinch Drift)
+                            const targetRawX = 1 - ((lm[8].x + lm[4].x) * 0.5);
+                            const targetRawY = (lm[8].y + lm[4].y) * 0.5;
+
+                            const normX = Math.max(0, Math.min(1, (targetRawX - 0.18) / 0.64));
+                            const normY = Math.max(0, Math.min(1, (targetRawY - 0.18) / 0.60));
 
                             const lerp = 0.20 + ((aeroConfig.pointerSpeed || 3) * 0.08);
                             smoothX += (normX * window.innerWidth - smoothX) * lerp;
                             smoothY += (normY * window.innerHeight - smoothY) * lerp;
-                            if (cursor && !window.AndroidBridge) {
-                                cursor.style.left = `${smoothX}px`;
-                                cursor.style.top = `${smoothY}px`;
-                            }
 
                             const f = analyzeHandFingers(lm);
                             const isPinching = f.isPinching;
+
                             if (cursor && !window.AndroidBridge) {
+                                cursor.style.left = `${smoothX}px`;
+                                cursor.style.top = `${smoothY}px`;
                                 cursor.classList.toggle('pinching', isPinching);
                             }
 
