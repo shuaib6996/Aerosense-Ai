@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Rational;
+import android.os.PowerManager;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -24,6 +25,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.PermissionRequest;
+import android.webkit.RenderProcessGoneDetail;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -68,7 +70,17 @@ public class MainActivity extends Activity {
         settings.setDatabaseEnabled(true);
 
         webView.addJavascriptInterface(new AeroNativeBridge(), "AndroidBridge");
-        webView.setWebViewClient(new WebViewClient());
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
+                if (webView != null) {
+                    try {
+                        webView.loadUrl("file:///android_asset/index.html");
+                    } catch (Exception ignored) {}
+                }
+                return true;
+            }
+        });
 
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
@@ -107,6 +119,15 @@ public class MainActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
+        if (isBackgroundEngineRunning && webView != null) {
+            webView.onResume();
+            webView.resumeTimers();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
         if (isBackgroundEngineRunning && webView != null) {
             webView.onResume();
             webView.resumeTimers();
@@ -241,7 +262,7 @@ public class MainActivity extends Activity {
             floatingOverlayParams.gravity = Gravity.TOP | Gravity.START;
             floatingOverlayParams.x = (screenWidth - widthPx) / 2;
             floatingOverlayParams.y = screenHeight - heightPx - (int) (64 * density);
-            floatingOverlayParams.alpha = 0.0f; // Hidden until hand gesture is active
+            floatingOverlayParams.alpha = 1.0f; // Kept at 1.0f so Chromium hardware-rendering pipeline never throttles camera
 
             webView.setOnTouchListener(new View.OnTouchListener() {
                 private int initialX;
@@ -380,6 +401,7 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void startBackgroundService() {
             isBackgroundEngineRunning = true;
+            AeroForegroundService.start(MainActivity.this);
             if (AeroAccessibilityService.instance != null) {
                 AeroAccessibilityService.instance.setCursorVisibility(true);
             }
@@ -388,6 +410,7 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void stopBackgroundService() {
             isBackgroundEngineRunning = false;
+            AeroForegroundService.stop(MainActivity.this);
             runOnUiThread(() -> exitSystemFloatingOverlay());
             if (AeroAccessibilityService.instance != null) {
                 AeroAccessibilityService.instance.setCursorVisibility(false);
@@ -397,6 +420,7 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void exitFloatingOverlay() {
             isBackgroundEngineRunning = false;
+            AeroForegroundService.stop(MainActivity.this);
             runOnUiThread(() -> exitSystemFloatingOverlay());
             if (AeroAccessibilityService.instance != null) {
                 AeroAccessibilityService.instance.setCursorVisibility(false);
@@ -421,12 +445,6 @@ public class MainActivity extends Activity {
             runOnUiThread(() -> {
                 if (AeroAccessibilityService.instance != null) {
                     AeroAccessibilityService.instance.setCursorVisibility(visible && isBackgroundEngineRunning);
-                }
-                if (isFloatingOverlayAttached && webView != null && floatingOverlayParams != null && systemWindowManager != null) {
-                    try {
-                        floatingOverlayParams.alpha = visible ? 1.0f : 0.0f;
-                        systemWindowManager.updateViewLayout(webView, floatingOverlayParams);
-                    } catch (Exception ignored) {}
                 }
             });
         }
@@ -577,12 +595,43 @@ public class MainActivity extends Activity {
                         checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
                 boolean micEnabled = Build.VERSION.SDK_INT < Build.VERSION_CODES.M ||
                         checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
+                boolean batteryIgnored = Build.VERSION.SDK_INT < Build.VERSION_CODES.M;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+                    if (pm != null) batteryIgnored = pm.isIgnoringBatteryOptimizations(getPackageName());
+                }
                 obj.put("accessibility", accEnabled);
                 obj.put("overlay", overlayEnabled);
                 obj.put("camera", camEnabled);
                 obj.put("microphone", micEnabled);
+                obj.put("battery", batteryIgnored);
             } catch (Exception ignored) {}
             return obj.toString();
+        }
+
+        @JavascriptInterface
+        public void requestBatteryExemption() {
+            runOnUiThread(() -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    try {
+                        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+                        if (pm != null && !pm.isIgnoringBatteryOptimizations(getPackageName())) {
+                            Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                            intent.setData(Uri.parse("package:" + getPackageName()));
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                        } else {
+                            Toast.makeText(MainActivity.this, "Battery optimization already disabled!", Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (Exception e) {
+                        try {
+                            Intent intent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                        } catch (Exception ignored) {}
+                    }
+                }
+            });
         }
 
         @JavascriptInterface
@@ -762,6 +811,7 @@ public class MainActivity extends Activity {
             } catch (Exception ignored) {}
             isFloatingOverlayAttached = false;
         }
+        AeroForegroundService.stop(this);
         super.onDestroy();
         if (voiceControlPatch != null) {
             voiceControlPatch.stopListening();
