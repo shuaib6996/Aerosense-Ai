@@ -2860,12 +2860,18 @@
             const pinchThresh = 0.045 + ((aeroConfig.sensitivity || 3) * 0.005);
             const isPinching = pinchDist < pinchThresh;
 
+            // Clean Pinch: Index+Thumb touch WHILE middle, ring, pinky are OPEN
+            // This is the user's described gesture: open hand 🖐 → index+thumb pinch → 3 fingers stay open
+            // Fist motion during scroll will NOT match because all fingers are folded
+            const otherFingersOpen = (isMiddleExt && isRingExt) || (isMiddleExt && isPinkyExt) || (isRingExt && isPinkyExt);
+            const isCleanPinch = isPinching && otherFingersOpen;
+
             return {
                 isIndexExt, isIndexFold,
                 isMiddleExt, isMiddleFold,
                 isRingExt, isRingFold,
                 isPinkyExt, isPinkyFold,
-                isPinching, pinchDist
+                isPinching, isCleanPinch, pinchDist
             };
         }
 
@@ -2956,18 +2962,21 @@
 
                             const f = analyzeHandFingers(lm);
                             const isPinching = f.isPinching;
+                            const isCleanPinch = f.isCleanPinch;
 
                             if (cursor && !window.AndroidBridge) {
                                 cursor.style.left = `${smoothX}px`;
                                 cursor.style.top = `${smoothY}px`;
-                                cursor.classList.toggle('pinching', isPinching);
+                                cursor.classList.toggle('pinching', isCleanPinch);
                             }
 
                             if (window.AndroidBridge && window.AndroidBridge.updateGlobalAirCursor) {
-                                window.AndroidBridge.updateGlobalAirCursor(normX, normY, isPinching);
+                                window.AndroidBridge.updateGlobalAirCursor(normX, normY, isCleanPinch);
                             }
 
-                            if (isPinching && !wasPinching) {
+                            // Air Tap: ONLY on Clean Pinch (index+thumb touch, 3 fingers open)
+                            // This prevents fist-during-scroll from triggering false taps
+                            if (isCleanPinch && !wasPinching) {
                                 wasPinching = true;
                                 const targetEl = document.elementFromPoint(smoothX, smoothY);
                                 if (targetEl) {
@@ -2977,7 +2986,7 @@
                                 if (window.AndroidBridge && window.AndroidBridge.triggerGlobalAirTap) {
                                     window.AndroidBridge.triggerGlobalAirTap(normX, normY);
                                 }
-                            } else if (!isPinching) {
+                            } else if (!isCleanPinch) {
                                 wasPinching = false;
                             }
 
@@ -3084,7 +3093,7 @@
                             }
 
                             let gestureState = 'OPEN_PALM';
-                            if (isPinching) {
+                            if (isCleanPinch) {
                                 gestureState = 'PINCH';
                             } else if (isAllFolded || f.isIndexFold) {
                                 gestureState = 'FIST';
