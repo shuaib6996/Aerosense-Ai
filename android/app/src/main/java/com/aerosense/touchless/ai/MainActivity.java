@@ -693,6 +693,20 @@ public class MainActivity extends Activity {
         }
 
         @JavascriptInterface
+        public void updateGlobalAirCursor2(float normX, float normY, boolean isPinching) {
+            if (isBackgroundEngineRunning && AeroAccessibilityService.instance != null) {
+                AeroAccessibilityService.instance.updateCursorPosition2(normX, normY, isPinching);
+            }
+        }
+
+        @JavascriptInterface
+        public void setTwoHandMode(boolean enabled) {
+            if (AeroAccessibilityService.instance != null) {
+                AeroAccessibilityService.instance.setTwoHandMode(enabled);
+            }
+        }
+
+        @JavascriptInterface
         public void triggerGlobalAirTap(float normX, float normY) {
             if (AeroAccessibilityService.instance != null) {
                 AeroAccessibilityService.instance.performAirTap(normX, normY);

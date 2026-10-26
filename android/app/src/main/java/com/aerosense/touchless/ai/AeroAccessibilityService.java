@@ -24,13 +24,19 @@ public class AeroAccessibilityService extends AccessibilityService {
     private FrameLayout cursorContainer;
     private View cursorInnerDot;
     private WindowManager.LayoutParams cursorParams;
+    private FrameLayout cursorContainer2;
+    private View cursorInnerDot2;
+    private WindowManager.LayoutParams cursorParams2;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private int screenWidth = 1080;
     private int screenHeight = 2400;
     private float smoothX = 540f;
     private float smoothY = 1200f;
+    private float smoothX2 = 540f;
+    private float smoothY2 = 1200f;
     private long lastGestureDispatchTime = 0;
     private volatile boolean isCursorEnabled = false;
+    private volatile boolean isTwoHandModeEnabled = false;
 
     @Override
     protected void onServiceConnected() {
@@ -90,6 +96,38 @@ public class AeroAccessibilityService extends AccessibilityService {
                 cursorParams.y = screenHeight / 2;
                 cursorContainer.setVisibility(View.GONE);
                 windowManager.addView(cursorContainer, cursorParams);
+
+                // Cursor 2: Secondary Hand (Amber / Gold Accent for Two-Hand Typing)
+                cursorContainer2 = new FrameLayout(this);
+                GradientDrawable ring2 = new GradientDrawable();
+                ring2.setShape(GradientDrawable.OVAL);
+                ring2.setColor(Color.parseColor("#38F59E0B"));
+                ring2.setStroke(5, Color.parseColor("#FBBF24"));
+                cursorContainer2.setBackground(ring2);
+
+                cursorInnerDot2 = new View(this);
+                GradientDrawable dot2 = new GradientDrawable();
+                dot2.setShape(GradientDrawable.OVAL);
+                dot2.setColor(Color.parseColor("#F59E0B"));
+                cursorInnerDot2.setBackground(dot2);
+
+                FrameLayout.LayoutParams dotParams2 = new FrameLayout.LayoutParams(18, 18, Gravity.CENTER);
+                cursorContainer2.addView(cursorInnerDot2, dotParams2);
+
+                cursorParams2 = new WindowManager.LayoutParams(
+                        70,
+                        70,
+                        overlayType,
+                        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                                | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                                | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+                        PixelFormat.TRANSLUCENT
+                );
+                cursorParams2.gravity = Gravity.TOP | Gravity.START;
+                cursorParams2.x = screenWidth / 2;
+                cursorParams2.y = screenHeight / 2;
+                cursorContainer2.setVisibility(View.GONE);
+                windowManager.addView(cursorContainer2, cursorParams2);
             } catch (Exception ignored) {}
         });
     }
@@ -99,6 +137,18 @@ public class AeroAccessibilityService extends AccessibilityService {
         mainHandler.post(() -> {
             if (cursorContainer != null) {
                 cursorContainer.setVisibility(visible ? View.VISIBLE : View.GONE);
+            }
+            if (cursorContainer2 != null) {
+                cursorContainer2.setVisibility(visible && isTwoHandModeEnabled ? View.VISIBLE : View.GONE);
+            }
+        });
+    }
+
+    public void setTwoHandMode(boolean enabled) {
+        this.isTwoHandModeEnabled = enabled;
+        mainHandler.post(() -> {
+            if (cursorContainer2 != null) {
+                cursorContainer2.setVisibility(enabled && isCursorEnabled ? View.VISIBLE : View.GONE);
             }
         });
     }
@@ -130,6 +180,37 @@ public class AeroAccessibilityService extends AccessibilityService {
                     ring.setStroke(5, Color.parseColor("#22D3EE"));
                 }
                 windowManager.updateViewLayout(cursorContainer, cursorParams);
+            } catch (Exception ignored) {}
+        });
+    }
+
+    public void updateCursorPosition2(float normX, float normY, boolean isPinching) {
+        if (!isCursorEnabled || !isTwoHandModeEnabled) return;
+        mainHandler.post(() -> {
+            if (cursorContainer2 == null || cursorParams2 == null || windowManager == null) return;
+            try {
+                if (cursorContainer2.getVisibility() != View.VISIBLE) {
+                    cursorContainer2.setVisibility(View.VISIBLE);
+                }
+                updateScreenDimensions();
+                float targetX = normX * screenWidth;
+                float targetY = normY * screenHeight;
+
+                smoothX2 += (targetX - smoothX2) * 0.45f;
+                smoothY2 += (targetY - smoothY2) * 0.45f;
+
+                cursorParams2.x = Math.max(0, Math.min(screenWidth - 70, (int) smoothX2 - 35));
+                cursorParams2.y = Math.max(0, Math.min(screenHeight - 70, (int) smoothY2 - 35));
+
+                GradientDrawable ring = (GradientDrawable) cursorContainer2.getBackground();
+                if (isPinching) {
+                    ring.setColor(Color.parseColor("#AAF59E0B"));
+                    ring.setStroke(7, Color.parseColor("#F59E0B"));
+                } else {
+                    ring.setColor(Color.parseColor("#38F59E0B"));
+                    ring.setStroke(5, Color.parseColor("#FBBF24"));
+                }
+                windowManager.updateViewLayout(cursorContainer2, cursorParams2);
             } catch (Exception ignored) {}
         });
     }
@@ -343,8 +424,13 @@ public class AeroAccessibilityService extends AccessibilityService {
     public void onDestroy() {
         super.onDestroy();
         instance = null;
-        if (windowManager != null && cursorContainer != null) {
-            try { windowManager.removeView(cursorContainer); } catch (Exception ignored) {}
+        if (windowManager != null) {
+            if (cursorContainer != null) {
+                try { windowManager.removeView(cursorContainer); } catch (Exception ignored) {}
+            }
+            if (cursorContainer2 != null) {
+                try { windowManager.removeView(cursorContainer2); } catch (Exception ignored) {}
+            }
         }
     }
 }

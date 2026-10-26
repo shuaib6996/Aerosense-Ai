@@ -633,45 +633,50 @@
         </div>
     </div>
 
-    <!-- 1-FINGER FOLD & HOLD FLOATING MENU (Includes Back & Home) -->
+    <!-- LONG PINCH POPUP MENU (Center: Close, Top: Vol Up, Bottom: Vol Down, Left: Recents, Right: Two-Hand, Diagonals: Sleep & Notifs) -->
     <div id="fold-hold-menu" onclick="if(event.target === this) closeFoldHoldMenu()">
-        <div class="flex flex-col items-center gap-2.5 p-3 max-w-xs w-full">
-            <div class="mb-0.5 px-3 py-1 rounded-full bg-slate-900/95 border border-cyan-500/40 text-[10px] font-extrabold text-cyan-300 uppercase tracking-wider text-center">
-                ☝️ 1-Finger Hold Menu • Tap or Pinch Option
-            </div>
+        <div class="relative w-[300px] h-[320px] flex items-center justify-center select-none">
+            <!-- Center: Close Menu -->
+            <button onclick="closeFoldHoldMenu()" class="AirClickable absolute z-20 w-16 h-16 rounded-full bg-slate-900/95 border-2 border-slate-600 text-slate-300 font-black text-xs flex flex-col items-center justify-center hover:bg-rose-500 hover:border-rose-400 hover:text-white transition shadow-2xl active:scale-95">
+                <i class="fa-solid fa-xmark text-lg text-rose-400"></i>
+                <span class="text-[9px] mt-0.5 font-bold uppercase tracking-wider">Close</span>
+            </button>
 
-            <div class="grid grid-cols-3 gap-2 w-full">
-                <button data-hold-action="BACK" onclick="triggerHoldMenuOption('BACK')" class="AirClickable hold-option-box border-amber-500/40 text-amber-300">
-                    <i class="fa-solid fa-chevron-left mr-1"></i>Back
-                </button>
-                <button data-hold-action="VOL_UP" onclick="triggerHoldMenuOption('VOL_UP')" class="AirClickable hold-option-box">
-                    Volume<br>Up
-                </button>
-                <button data-hold-action="HOME" onclick="triggerHoldMenuOption('HOME')" class="AirClickable hold-option-box border-emerald-500/40 text-emerald-300">
-                    <i class="fa-solid fa-house mr-1"></i>Home
-                </button>
-            </div>
+            <!-- Top: Volume Up -->
+            <button data-hold-action="VOL_UP" onclick="triggerHoldMenuOption('VOL_UP')" class="AirClickable absolute top-2 w-28 py-2.5 rounded-2xl bg-slate-900/90 border border-cyan-500/40 text-cyan-300 font-extrabold text-xs flex flex-col items-center justify-center hover:bg-cyan-500 hover:text-slate-950 transition shadow-lg active:scale-95">
+                <i class="fa-solid fa-volume-high text-base mb-0.5"></i>
+                <span>Volume Up</span>
+            </button>
 
-            <div class="grid grid-cols-3 gap-2 w-full">
-                <button data-hold-action="LIKE" onclick="triggerHoldMenuOption('LIKE')" class="AirClickable hold-option-box">
-                    Like ❤️
-                </button>
-                <button data-hold-action="NEXT" onclick="triggerHoldMenuOption('NEXT')" class="AirClickable hold-option-box">
-                    Swipe Up
-                </button>
-                <button data-hold-action="PLAY_PAUSE" onclick="triggerHoldMenuOption('PLAY_PAUSE')" class="AirClickable hold-option-box hovered">
-                    Play /<br>Pause
-                </button>
-            </div>
+            <!-- Bottom: Volume Down -->
+            <button data-hold-action="VOL_DOWN" onclick="triggerHoldMenuOption('VOL_DOWN')" class="AirClickable absolute bottom-2 w-28 py-2.5 rounded-2xl bg-slate-900/90 border border-cyan-500/40 text-cyan-300 font-extrabold text-xs flex flex-col items-center justify-center hover:bg-cyan-500 hover:text-slate-950 transition shadow-lg active:scale-95">
+                <i class="fa-solid fa-volume-low text-base mb-0.5"></i>
+                <span>Volume Down</span>
+            </button>
 
-            <div class="grid grid-cols-2 gap-2 w-2/3">
-                <button data-hold-action="VOL_DOWN" onclick="triggerHoldMenuOption('VOL_DOWN')" class="AirClickable hold-option-box">
-                    Volume<br>Down
-                </button>
-                <button onclick="closeFoldHoldMenu()" class="AirClickable hold-option-box text-slate-400">
-                    Close ✕
-                </button>
-            </div>
+            <!-- Left: Recent Apps -->
+            <button data-hold-action="RECENTS" onclick="triggerHoldMenuOption('RECENTS')" class="AirClickable absolute left-2 w-24 py-3 rounded-2xl bg-slate-900/90 border border-amber-500/40 text-amber-300 font-extrabold text-xs flex flex-col items-center justify-center hover:bg-amber-500 hover:text-slate-950 transition shadow-lg active:scale-95">
+                <i class="fa-solid fa-table-cells-large text-base mb-1"></i>
+                <span>Recents</span>
+            </button>
+
+            <!-- Right: Two Hand Mobile Keyboard Mode -->
+            <button id="btn-two-hand-mode" data-hold-action="TWO_HAND" onclick="triggerHoldMenuOption('TWO_HAND')" class="AirClickable absolute right-2 w-24 py-3 rounded-2xl bg-slate-900/90 border border-emerald-500/40 text-emerald-300 font-extrabold text-xs flex flex-col items-center justify-center hover:bg-emerald-500 hover:text-slate-950 transition shadow-lg active:scale-95">
+                <i class="fa-solid fa-hands text-base mb-1"></i>
+                <span id="lbl-two-hand-state">2-Hand</span>
+            </button>
+
+            <!-- Top-Left: Gesture Sleep / Wake -->
+            <button id="btn-gesture-sleep" data-hold-action="SLEEP_TOGGLE" onclick="triggerHoldMenuOption('SLEEP_TOGGLE')" class="AirClickable absolute top-9 left-6 w-14 h-14 rounded-2xl bg-slate-900/90 border border-purple-500/40 text-purple-300 font-extrabold text-[10px] flex flex-col items-center justify-center hover:bg-purple-500 hover:text-white transition shadow-lg active:scale-95">
+                <i id="icon-gesture-sleep" class="fa-solid fa-moon text-sm mb-0.5 text-purple-400"></i>
+                <span id="lbl-gesture-sleep">Sleep</span>
+            </button>
+
+            <!-- Top-Right: Notifications -->
+            <button data-hold-action="NOTIFICATIONS" onclick="triggerHoldMenuOption('NOTIFICATIONS')" class="AirClickable absolute top-9 right-6 w-14 h-14 rounded-2xl bg-slate-900/90 border border-blue-500/40 text-blue-300 font-extrabold text-[10px] flex flex-col items-center justify-center hover:bg-blue-500 hover:text-white transition shadow-lg active:scale-95">
+                <i class="fa-solid fa-bell text-sm mb-0.5 text-blue-400"></i>
+                <span>Notifs</span>
+            </button>
         </div>
     </div>
 
@@ -998,9 +1003,13 @@
 
                     <div class="settings-group-card space-y-5">
                         <div class="flex items-center justify-between">
-                            <h3 class="text-base font-extrabold text-white">Gesture Tuning</h3>
-                            <button onclick="resetGestureTuning()" class="AirKeyTarget text-xs font-extrabold text-[#465fff] hover:underline">
-                                Reset
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-base font-extrabold text-white">Gesture Tuning</h3>
+                                <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 font-bold">10 Sliders</span>
+                            </div>
+                            <button onclick="resetGestureTuning()" class="AirClickable flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 hover:border-cyan-400 text-xs font-extrabold text-cyan-300 active:scale-95 transition shadow-sm" title="Reset all sliders to default">
+                                <i class="fa-solid fa-arrow-rotate-left text-xs"></i>
+                                <span>Reset Defaults</span>
                             </button>
                         </div>
 
@@ -1059,7 +1068,12 @@
                         <div class="space-y-1">
                             <div class="flex justify-between items-center">
                                 <span class="text-xs font-bold text-white">Popup Hand Size</span>
-                                <span id="lbl-hand-scale" class="text-xs font-extrabold text-cyan-400">1.0x</span>
+                                <div class="flex items-center gap-1.5">
+                                    <span id="lbl-hand-scale" class="text-xs font-extrabold text-cyan-400">1.0x</span>
+                                    <button onclick="resetSingleSlider('handScale', 1.0)" class="AirClickable p-1 text-[11px] text-slate-400 hover:text-cyan-300 active:scale-90 transition" title="Reset to 1.0x">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="aero-slider-wrap">
                                 <input id="sl-hand-scale" type="range" min="0.6" max="1.6" step="0.1" value="1.0"
@@ -1080,7 +1094,12 @@
                                     <span>👍 Like Gesture Timing</span>
                                     <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-pink-500/25 text-pink-300 font-semibold">Insta/FB/YT</span>
                                 </span>
-                                <span id="lbl-like-hold-duration" class="text-xs font-extrabold text-pink-400">2.0s</span>
+                                <div class="flex items-center gap-1.5">
+                                    <span id="lbl-like-hold-duration" class="text-xs font-extrabold text-pink-400">2.0s</span>
+                                    <button onclick="resetSingleSlider('likeHoldDuration', 2.0)" class="AirClickable p-1 text-[11px] text-slate-400 hover:text-pink-300 active:scale-90 transition" title="Reset to 2.0s">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="aero-slider-wrap">
                                 <input id="sl-like-hold-duration" type="range" min="0.0" max="5.0" step="0.5" value="2.0"
@@ -1090,6 +1109,32 @@
                             <div class="flex justify-between text-[10px] font-bold text-slate-400">
                                 <span>0.0s (Instant)</span>
                                 <span class="text-pink-400">2.0s (Default)</span>
+                                <span>5.0s</span>
+                            </div>
+                        </div>
+
+                        <!-- Long Pinch Menu Timing Slider -->
+                        <div class="space-y-1 p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                                    <span>🤏 Long Pinch Menu Timing</span>
+                                    <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-cyan-500/25 text-cyan-300 font-semibold">Hold</span>
+                                </span>
+                                <div class="flex items-center gap-1.5">
+                                    <span id="lbl-long-pinch-duration" class="text-xs font-extrabold text-cyan-400">2.5s</span>
+                                    <button onclick="resetSingleSlider('longPinchDuration', 2.5)" class="AirClickable p-1 text-[11px] text-slate-400 hover:text-cyan-300 active:scale-90 transition" title="Reset to 2.5s">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="aero-slider-wrap">
+                                <input id="sl-long-pinch-duration" type="range" min="0.0" max="5.0" step="0.5" value="2.5"
+                                    oninput="updateSetting('longPinchDuration', this.value)" class="aero-slider">
+                                <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] font-bold text-slate-400">
+                                <span>0.0s (Instant)</span>
+                                <span class="text-cyan-400">2.5s (Default)</span>
                                 <span>5.0s</span>
                             </div>
                         </div>
@@ -1140,6 +1185,12 @@
                                 <span>Sensitive</span>
                             </div>
                         </div>
+
+                        <!-- Full-width Bottom Reset Action -->
+                        <button onclick="resetGestureTuning()" class="AirClickable w-full py-2.5 px-3 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-cyan-500/40 text-xs font-extrabold text-slate-300 hover:text-cyan-300 flex items-center justify-center gap-2 transition active:scale-95 shadow-sm">
+                            <i class="fa-solid fa-arrow-rotate-left text-xs text-cyan-400"></i>
+                            <span>Reset All Sliders to Recommended Defaults</span>
+                        </button>
                     </div>
                 </div>
 
@@ -1587,8 +1638,8 @@
                     <span class="text-slate-200 font-bold">System Back</span>
                 </div>
                 <div class="p-2.5 rounded-xl bg-slate-900/90 border border-emerald-500/30 flex justify-between">
-                    <span class="font-bold text-emerald-300">🏠 4-Finger Fold & Open</span>
-                    <span class="text-slate-200 font-bold">System Home Screen</span>
+                    <span class="font-bold text-emerald-300">🏠 ✋ ➔ ✊ ➔ ✋ (3 Steps)</span>
+                    <span class="text-slate-200 font-bold">System Home</span>
                 </div>
                 <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex justify-between">
                     <span class="font-bold text-indigo-300">⏱️ 1-Finger Fold & Hold</span>
@@ -1694,6 +1745,21 @@
         let thumbsUpStartTime = 0;
         let thumbsUpTriggered = false;
         let thumbsUpProgress = 0;
+        let pinchStartTime = 0;
+        let pinchMenuTriggered = false;
+        let pinchHoldProgress = 0;
+        let lastPinchX = 0.5;
+        let lastPinchY = 0.5;
+        let isTwoHandMode = false;
+        let isGestureSleeping = false;
+        let wasPinching2 = false;
+        let lastActionName = '';
+
+        // 3-Step Home Gesture State (Open Palm ✋ ➔ Fist ✊ ➔ Open Palm ✋)
+        let homeGestureStep = 0; // 0 = Idle, 1 = Step 1 (Open Palm), 2 = Step 2 (Fist Folded)
+        let homeStepTime = 0;
+        let homeStep1HoldStart = 0;
+        let lastHomeActionTime = 0;
 
         // Dynamic Hand Normalization Smoothing (Distance-Invariant & Anti-Jitter)
         let smoothPalmSpan = null;
@@ -1712,6 +1778,7 @@
             pointerSpeed: 3,
             handScale: 1.0,
             likeHoldDuration: 2.0,
+            longPinchDuration: 2.5,
             holdDuration: 1.5,
             activationDelay: 1.0,
             signSensitivity: 3,
@@ -1830,17 +1897,30 @@
             } else if (key === 'likeHoldDuration') {
                 const lbl = document.getElementById('lbl-like-hold-duration');
                 if (lbl) lbl.textContent = `${aeroConfig.likeHoldDuration.toFixed(1)}s`;
+            } else if (key === 'longPinchDuration') {
+                const lbl = document.getElementById('lbl-long-pinch-duration');
+                if (lbl) lbl.textContent = `${aeroConfig.longPinchDuration.toFixed(1)}s`;
             }
             saveAeroConfig();
         }
 
+        function resetSingleSlider(key, defaultVal) {
+            const val = (defaultVal !== undefined) ? defaultVal : defaultAeroSettings[key];
+            aeroConfig[key] = val;
+            renderSettingsUI();
+            saveAeroConfig();
+            playGestureTone(600, 0.05);
+            showToast('🔄', 'Reset', `${key} restored to ${val}`);
+        }
+
         function resetGestureTuning() {
-            ['performance', 'sensitivity', 'dragRepeatSpeed', 'pointerSpeed', 'handScale', 'likeHoldDuration', 'holdDuration', 'activationDelay', 'signSensitivity'].forEach(k => {
+            ['performance', 'sensitivity', 'dragRepeatSpeed', 'pointerSpeed', 'handScale', 'likeHoldDuration', 'longPinchDuration', 'holdDuration', 'activationDelay', 'signSensitivity'].forEach(k => {
                 aeroConfig[k] = defaultAeroSettings[k];
             });
             renderSettingsUI();
             saveAeroConfig();
             playGestureTone(440, 0.08);
+            showToast('🔄', 'Sliders Reset', 'All sliders restored to recommended defaults');
         }
 
         function toggleCameraPreview() {
@@ -2037,6 +2117,10 @@
             if (slLike) slLike.value = aeroConfig.likeHoldDuration !== undefined ? aeroConfig.likeHoldDuration : 2.0;
             const lblLike = document.getElementById('lbl-like-hold-duration');
             if (lblLike) lblLike.textContent = `${(aeroConfig.likeHoldDuration !== undefined ? aeroConfig.likeHoldDuration : 2.0).toFixed(1)}s`;
+            const slLongPinch = document.getElementById('sl-long-pinch-duration');
+            if (slLongPinch) slLongPinch.value = aeroConfig.longPinchDuration !== undefined ? aeroConfig.longPinchDuration : 2.5;
+            const lblLongPinch = document.getElementById('lbl-long-pinch-duration');
+            if (lblLongPinch) lblLongPinch.textContent = `${(aeroConfig.longPinchDuration !== undefined ? aeroConfig.longPinchDuration : 2.5).toFixed(1)}s`;
             const slHold = document.getElementById('sl-hold-duration');
             if (slHold) slHold.value = aeroConfig.holdDuration;
             const lblHold = document.getElementById('lbl-hold-duration');
@@ -2554,7 +2638,7 @@
                     window.AndroidBridge.triggerBackGesture();
                 }
             } else if (action === 'HOME') {
-                showToast('🏠', 'System Home', '4-Finger Fold Home Executed');
+                showToast('🏠', 'System Home', 'Open ✋ ➔ Fist ✊ ➔ Open ✋ Executed');
                 if (window.AndroidBridge && window.AndroidBridge.triggerHomeGesture) {
                     window.AndroidBridge.triggerHomeGesture();
                 }
@@ -2621,17 +2705,58 @@
         }
 
         function triggerHoldMenuOption(opt) {
-            closeFoldHoldMenu();
-            if (opt === 'BACK') executeSystemNavigation('BACK');
-            else if (opt === 'HOME') executeSystemNavigation('HOME');
-            else if (opt === 'VOL_UP') {
-                showToast('🔊', 'Volume Up', 'System Volume Increased');
-                if (window.AndroidBridge && window.AndroidBridge.adjustSystemVolume) window.AndroidBridge.adjustSystemVolume('UP');
+            if (opt === 'VOL_UP') {
+                showToast('🔊', 'Volume Up', 'Raised Media Volume');
+                if (window.AndroidBridge && window.AndroidBridge.adjustSystemVolume) {
+                    window.AndroidBridge.adjustSystemVolume('UP');
+                }
             } else if (opt === 'VOL_DOWN') {
-                showToast('🔉', 'Volume Down', 'System Volume Decreased');
-                if (window.AndroidBridge && window.AndroidBridge.adjustSystemVolume) window.AndroidBridge.adjustSystemVolume('DOWN');
+                showToast('🔉', 'Volume Down', 'Lowered Media Volume');
+                if (window.AndroidBridge && window.AndroidBridge.adjustSystemVolume) {
+                    window.AndroidBridge.adjustSystemVolume('DOWN');
+                }
+            } else if (opt === 'RECENTS') {
+                closeFoldHoldMenu();
+                showToast('📑', 'Recent Apps', 'Opened Multitasking');
+                if (window.AndroidBridge && window.AndroidBridge.performSystemAction) {
+                    window.AndroidBridge.performSystemAction('RECENTS');
+                }
+            } else if (opt === 'NOTIFICATIONS') {
+                closeFoldHoldMenu();
+                showToast('🔔', 'Notifications', 'Opened Panel');
+                if (window.AndroidBridge && window.AndroidBridge.performSystemAction) {
+                    window.AndroidBridge.performSystemAction('NOTIFICATIONS');
+                }
+            } else if (opt === 'TWO_HAND') {
+                isTwoHandMode = !isTwoHandMode;
+                if (handsInstance) {
+                    try { handsInstance.setOptions({ maxNumHands: isTwoHandMode ? 2 : 1 }); } catch (ignored) {}
+                }
+                if (window.AndroidBridge && window.AndroidBridge.setTwoHandMode) {
+                    window.AndroidBridge.setTwoHandMode(isTwoHandMode);
+                }
+                const lbl = document.getElementById('lbl-two-hand-state');
+                if (lbl) lbl.textContent = isTwoHandMode ? '2-Hand ON' : '2-Hand';
+                const btn = document.getElementById('btn-two-hand-mode');
+                if (btn) {
+                    if (isTwoHandMode) {
+                        btn.classList.add('bg-emerald-500/30', 'border-emerald-400');
+                    } else {
+                        btn.classList.remove('bg-emerald-500/30', 'border-emerald-400');
+                    }
+                }
+                showToast('👐', 'Two-Hand Mode', isTwoHandMode ? 'Active: Type with both hands on mobile keyboard' : 'Disabled (Single Hand)');
+            } else if (opt === 'SLEEP_TOGGLE') {
+                isGestureSleeping = !isGestureSleeping;
+                const icon = document.getElementById('icon-gesture-sleep');
+                const lblSleep = document.getElementById('lbl-gesture-sleep');
+                if (icon && lblSleep) {
+                    icon.className = isGestureSleeping ? 'fa-solid fa-sun text-sm mb-0.5 text-amber-400' : 'fa-solid fa-moon text-sm mb-0.5 text-purple-400';
+                    lblSleep.textContent = isGestureSleeping ? 'Wake' : 'Sleep';
+                }
+                showToast(isGestureSleeping ? '💤' : '⚡', 'Gesture Engine', isGestureSleeping ? 'Gestures Sleeping (Paused)' : 'Gestures Awake & Active');
             } else {
-                executeAction(opt);
+                closeFoldHoldMenu();
             }
         }
 
@@ -2743,7 +2868,7 @@
         }
 
         // Dynamic Realistic Hand Renderer (Moving Real-time Landmarks, Cyber Neon Skeleton, State-Reactive)
-        function drawDynamicRealisticHand(ctx, normLm, gestureState, isFlashing, flashTimeProg, thumbsUpProgress = 0) {
+        function drawDynamicRealisticHand(ctx, normLm, gestureState, isFlashing, flashTimeProg, thumbsUpProgress = 0, pinchHoldProgress = 0, homeGestureStep = 0) {
             if (!normLm || normLm.length < 21) return;
 
             ctx.save();
@@ -2755,7 +2880,17 @@
             let tipColor = '#38bdf8';
             let palmFill = 'rgba(6, 182, 212, 0.10)';
 
-            if (gestureState === 'ARMED_POINT') {
+            if (gestureState === 'SLEEP') {
+                coreColor = '#c084fc';
+                glowColor = 'rgba(192, 132, 252, 0.45)';
+                tipColor = '#e9d5ff';
+                palmFill = 'rgba(192, 132, 252, 0.12)';
+            } else if (gestureState === 'HOME') {
+                coreColor = '#10b981';
+                glowColor = 'rgba(16, 185, 129, 0.70)';
+                tipColor = '#6ee7b7';
+                palmFill = 'rgba(16, 185, 129, 0.25)';
+            } else if (gestureState === 'ARMED_POINT') {
                 coreColor = '#38bdf8';
                 glowColor = 'rgba(56, 189, 248, 0.55)';
                 tipColor = '#67e8f9';
@@ -2785,8 +2920,8 @@
             if (isFlashing) {
                 coreColor = '#ffffff';
                 glowColor = 'rgba(255, 255, 255, 0.90)';
-                tipColor = gestureState === 'THUMBS_UP' ? '#f43f5e' : '#38bdf8';
-                palmFill = gestureState === 'THUMBS_UP' ? 'rgba(244, 63, 94, 0.35)' : 'rgba(56, 189, 248, 0.30)';
+                tipColor = gestureState === 'THUMBS_UP' ? '#f43f5e' : (gestureState === 'HOME' ? '#10b981' : '#38bdf8');
+                palmFill = gestureState === 'THUMBS_UP' ? 'rgba(244, 63, 94, 0.35)' : (gestureState === 'HOME' ? 'rgba(16, 185, 129, 0.35)' : 'rgba(56, 189, 248, 0.30)');
             }
 
             // 2. Realistic subtle palm volume (Connecting palm knuckles & wrist)
@@ -2891,6 +3026,102 @@
                 ctx.fillText(isFlashing ? '💖' : '❤️', thumbPt.x, thumbPt.y - 18);
             }
 
+            // Long Pinch Circular Progress Ring for Menu
+            if (gestureState === 'PINCH' && normLm[8] && pinchHoldProgress > 0) {
+                const pinchPt = normLm[8];
+                ctx.beginPath();
+                ctx.arc(pinchPt.x, pinchPt.y, 14, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(16, 185, 129, 0.28)';
+                ctx.lineWidth = 3.2;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.arc(pinchPt.x, pinchPt.y, 14, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * pinchHoldProgress));
+                ctx.strokeStyle = '#10b981';
+                ctx.lineWidth = 3.4;
+                ctx.stroke();
+            }
+
+            // Sleep Mode Indicator
+            if (gestureState === 'SLEEP' && normLm[9]) {
+                ctx.font = '16px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('💤', normLm[9].x, normLm[9].y - 20);
+            }
+
+            // Step 1: Open Palm Armed indicator (Waiting for Fist)
+            if (homeGestureStep === 1 && normLm[0]) {
+                const pt = normLm[0];
+                ctx.save();
+                ctx.font = 'bold 9px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                const text = '✋ 1/3: Make Fist ✊';
+                const textWidth = ctx.measureText(text).width;
+                const px = pt.x;
+                const py = pt.y + 16;
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+                ctx.strokeStyle = 'rgba(56, 189, 248, 0.7)';
+                ctx.lineWidth = 1.2;
+                ctx.beginPath();
+                if (ctx.roundRect) ctx.roundRect(px - (textWidth / 2) - 7, py - 9, textWidth + 14, 18, 9);
+                else ctx.rect(px - (textWidth / 2) - 7, py - 9, textWidth + 14, 18);
+                ctx.fill();
+                ctx.stroke();
+                ctx.fillStyle = '#38bdf8';
+                ctx.fillText(text, px, py);
+                ctx.restore();
+            }
+
+            // Step 2: Fist Formed indicator (Waiting for Open Palm to Trigger Home)
+            if (homeGestureStep === 2 && normLm[0]) {
+                const pt = normLm[0];
+                ctx.save();
+                ctx.font = 'bold 9px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                const text = '✊ 2/3: Open Palm ✋ ➔ 🏠';
+                const textWidth = ctx.measureText(text).width;
+                const px = pt.x;
+                const py = pt.y + 16;
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+                ctx.strokeStyle = 'rgba(16, 185, 129, 0.85)';
+                ctx.lineWidth = 1.4;
+                ctx.beginPath();
+                if (ctx.roundRect) ctx.roundRect(px - (textWidth / 2) - 7, py - 9, textWidth + 14, 18, 9);
+                else ctx.rect(px - (textWidth / 2) - 7, py - 9, textWidth + 14, 18);
+                ctx.fill();
+                ctx.stroke();
+                ctx.fillStyle = '#34d399';
+                ctx.fillText(text, px, py);
+                ctx.restore();
+            }
+
+            // Home Triggered Flash Badge
+            if (gestureState === 'HOME' && normLm[0]) {
+                const pt = normLm[0];
+                ctx.save();
+                ctx.font = 'bold 11px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                const text = '🏠 HOME SCREEN';
+                const textWidth = ctx.measureText(text).width;
+                const px = pt.x;
+                const py = pt.y + 16;
+                ctx.fillStyle = 'rgba(6, 78, 59, 0.92)';
+                ctx.strokeStyle = '#10b981';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                if (ctx.roundRect) ctx.roundRect(px - (textWidth / 2) - 9, py - 11, textWidth + 18, 22, 11);
+                else ctx.rect(px - (textWidth / 2) - 9, py - 11, textWidth + 18, 22);
+                ctx.fill();
+                ctx.stroke();
+                ctx.fillStyle = '#a7f3d0';
+                ctx.fillText(text, px, py);
+                ctx.restore();
+            }
+
             // 5. Action Shockwave Ripple if trigger fired
             if (isFlashing && flashTimeProg >= 0 && flashTimeProg <= 1) {
                 const centerPt = normLm[9] || normLm[0];
@@ -2898,7 +3129,9 @@
                 ctx.arc(centerPt.x, centerPt.y, 10 + (flashTimeProg * 28), 0, Math.PI * 2);
                 ctx.strokeStyle = gestureState === 'THUMBS_UP'
                     ? `rgba(244, 63, 94, ${Math.max(0, 1 - flashTimeProg)})`
-                    : `rgba(56, 189, 248, ${Math.max(0, 1 - flashTimeProg)})`;
+                    : (gestureState === 'HOME'
+                        ? `rgba(16, 185, 129, ${Math.max(0, 1 - flashTimeProg)})`
+                        : `rgba(56, 189, 248, ${Math.max(0, 1 - flashTimeProg)})`);
                 ctx.lineWidth = 2.4;
                 ctx.stroke();
             }
@@ -3044,20 +3277,50 @@
                                 window.AndroidBridge.updateGlobalAirCursor(normX, normY, isCleanPinch);
                             }
 
-                            // Air Tap: ONLY on Clean Pinch (index+thumb touch, 3 fingers open)
-                            // This prevents fist-during-scroll from triggering false taps
-                            if (isCleanPinch && !wasPinching) {
-                                wasPinching = true;
-                                const targetEl = document.elementFromPoint(smoothX, smoothY);
-                                if (targetEl) {
-                                    const clickable = targetEl.closest('.AirClickable, .AirKeyTarget, .air-key, button');
-                                    if (clickable) clickable.click();
+                            // Long Pinch Menu & Air Tap Handling
+                            const longPinchTargetSec = (typeof aeroConfig.longPinchDuration === 'number') ? aeroConfig.longPinchDuration : 2.5;
+                            const longPinchTargetMs = longPinchTargetSec * 1000;
+
+                            if (isCleanPinch) {
+                                homeGestureStep = 0;
+                                homeStep1HoldStart = 0;
+                                if (!wasPinching) {
+                                    wasPinching = true;
+                                    pinchStartTime = now;
+                                    pinchMenuTriggered = false;
+                                    lastPinchX = normX;
+                                    lastPinchY = normY;
                                 }
-                                if (window.AndroidBridge && window.AndroidBridge.triggerGlobalAirTap) {
-                                    window.AndroidBridge.triggerGlobalAirTap(normX, normY);
+                                const pinchElapsed = now - pinchStartTime;
+                                pinchHoldProgress = longPinchTargetMs > 0 ? Math.min(1.0, pinchElapsed / longPinchTargetMs) : 1.0;
+
+                                // Long Pinch Menu Open (default 2.5s)
+                                if (pinchElapsed >= longPinchTargetMs && !pinchMenuTriggered) {
+                                    pinchMenuTriggered = true;
+                                    if (isGestureSleeping) {
+                                        isGestureSleeping = false;
+                                        showToast('⚡', 'Awake', 'Gestures Resumed');
+                                    }
+                                    openFoldHoldMenu();
+                                    playGestureTone(750, 0.08);
+                                    setTimeout(() => playGestureTone(950, 0.10), 90);
                                 }
-                            } else if (!isCleanPinch) {
+                            } else if (wasPinching) {
                                 wasPinching = false;
+                                // Clean Air Tap on short pinch release (only if not sleeping and not triggered as menu)
+                                if (!pinchMenuTriggered && !isGestureSleeping) {
+                                    const targetEl = document.elementFromPoint(smoothX, smoothY);
+                                    if (targetEl) {
+                                        const clickable = targetEl.closest('.AirClickable, .AirKeyTarget, .air-key, button');
+                                        if (clickable) clickable.click();
+                                    }
+                                    if (window.AndroidBridge && window.AndroidBridge.triggerGlobalAirTap) {
+                                        window.AndroidBridge.triggerGlobalAirTap(lastPinchX, lastPinchY);
+                                    }
+                                }
+                                pinchStartTime = 0;
+                                pinchMenuTriggered = false;
+                                pinchHoldProgress = 0;
                             }
 
                             // Instant Gesture Classification (Zero delay, no dial charging)
@@ -3072,10 +3335,12 @@
                             const likeHoldSec = (typeof aeroConfig.likeHoldDuration === 'number') ? aeroConfig.likeHoldDuration : 2.0;
                             const likeHoldMs = likeHoldSec * 1000;
 
-                            if (isThumbsUp) {
+                            if (isThumbsUp && !isGestureSleeping) {
                                 wasIndexArmed = false;
                                 wasTwoArmed = false;
                                 isContinuousHolding = false;
+                                homeGestureStep = 0;
+                                homeStep1HoldStart = 0;
 
                                 if (!thumbsUpStartTime) {
                                     thumbsUpStartTime = now;
@@ -3097,61 +3362,161 @@
                                 thumbsUpProgress = 0;
                             }
 
-                            if (!isThumbsUp) {
+                            if (!isThumbsUp && !isCleanPinch && !isGestureSleeping) {
+                                // Timeout watchdog for 3-Step Home Gesture sequence (1600ms per step)
+                                if (homeGestureStep > 0 && (now - homeStepTime > 1600)) {
+                                    homeGestureStep = 0;
+                                    homeStep1HoldStart = 0;
+                                }
+
                                 if (isOpenPalm) {
                                     wasIndexArmed = false;
                                     wasTwoArmed = false;
                                     isContinuousHolding = false;
-                                } else if (isIndexPointing) {
-                                    // User points index finger -> IMMEDIATELY armed on frame 1
-                                    wasIndexArmed = true;
-                                    wasTwoArmed = false;
-                                    isContinuousHolding = false;
-                                } else if (isTwoFingerPointing) {
-                                    // User points 2 fingers -> IMMEDIATELY armed on frame 1
-                                    wasTwoArmed = true;
-                                    wasIndexArmed = false;
-                                    isContinuousHolding = false;
-                                } else if (isAllFolded || f.isIndexFold) {
-                                    // INSTANT ACTION TRIGGER: Exactly when finger folds into fist, fire immediately!
-                                    if (wasIndexArmed && (now - lastSpatialActionTime > 240)) {
-                                        wasIndexArmed = false;
-                                        isContinuousHolding = true;
-                                        lastActionWasPrev = false;
-                                        lastSpatialActionTime = now;
-                                        lastSpatialRepeatTime = now;
-                                        spatialFlashTime = now;
-                                        executeAction('NEXT');
-                                        playGestureTone(680, 0.04);
-                                    } else if (wasTwoArmed && (now - lastSpatialActionTime > 240)) {
-                                        wasTwoArmed = false;
-                                        isContinuousHolding = true;
-                                        lastActionWasPrev = true;
-                                        lastSpatialActionTime = now;
-                                        lastSpatialRepeatTime = now;
-                                        spatialFlashTime = now;
-                                        executeAction('PREV');
-                                        playGestureTone(520, 0.04);
-                                    } else if (isContinuousHolding && isAllFolded) {
-                                        // Smooth repeat scroll while held folded
-                                        const repeatSpeed = aeroConfig.dragRepeatSpeed || 3;
-                                        const repeatInterval = Math.max(220, 800 - (repeatSpeed * 120));
-                                        if (now - lastSpatialRepeatTime >= repeatInterval) {
-                                            lastSpatialRepeatTime = now;
+
+                                    if (homeGestureStep === 2) {
+                                        // STEP 3: Return to Open Palm ✋ after Fist ✊!
+                                        // Complete 3-Step Home Sequence: Open Palm ✋ ➔ Fist ✊ ➔ Open Palm ✋
+                                        if (now - lastHomeActionTime > 1200) {
+                                            lastHomeActionTime = now;
+                                            lastActionName = 'HOME';
                                             spatialFlashTime = now;
-                                            executeAction(lastActionWasPrev ? 'PREV' : 'NEXT');
-                                            playGestureTone(lastActionWasPrev ? 520 : 680, 0.035);
+                                            homeGestureStep = 0;
+                                            homeStep1HoldStart = 0;
+                                            executeSystemNavigation('HOME');
+                                            playGestureTone(520, 0.08);
+                                            setTimeout(() => playGestureTone(780, 0.10), 90);
+                                        } else {
+                                            homeGestureStep = 0;
+                                            homeStep1HoldStart = 0;
+                                        }
+                                    } else if (homeGestureStep === 1) {
+                                        // Still holding Open Palm, keep timer fresh
+                                        homeStepTime = now;
+                                    } else {
+                                        // In Step 0: Check if Open Palm is held stably for 120ms to arm Step 1
+                                        if (!homeStep1HoldStart) {
+                                            homeStep1HoldStart = now;
+                                        } else if (now - homeStep1HoldStart >= 120) {
+                                            homeGestureStep = 1;
+                                            homeStepTime = now;
                                         }
                                     }
-                                } else if (isThreeFingerFold) {
-                                    // 3-Finger Fold: System Back
-                                    if (foldState !== 3) {
-                                        foldState = 3;
-                                        foldStartTime = now;
-                                    } else if (now - foldStartTime >= 850 && !holdTriggered) {
-                                        holdTriggered = true;
-                                        executeSystemNavigation('BACK');
-                                        playGestureTone(440, 0.08);
+                                } else {
+                                    // Not open palm
+                                    homeStep1HoldStart = 0;
+
+                                    if (isAllFolded) {
+                                        // Hand is in a complete Fist ✊
+                                        if (homeGestureStep === 1) {
+                                            // STEP 2: Transition from Open Palm (Step 1) into Fist (Step 2)
+                                            // CRITICAL: DO NOT TRIGGER ANY ACTION HERE! Only advance to Step 2!
+                                            homeGestureStep = 2;
+                                            homeStepTime = now;
+                                            wasIndexArmed = false;
+                                            wasTwoArmed = false;
+                                            isContinuousHolding = false;
+                                            playGestureTone(420, 0.03); // Subtle tick for fist step
+                                        } else if (homeGestureStep === 2) {
+                                            // Hand is still in Fist in Step 2: keep waiting for Open Palm (Step 3)!
+                                            // DO NOT trigger NEXT, PREV, or HOME here!
+                                            wasIndexArmed = false;
+                                            wasTwoArmed = false;
+                                            isContinuousHolding = false;
+                                        } else {
+                                            // Normal scrolling when Step 0 (not a Home sequence)
+                                            if (wasIndexArmed && (now - lastSpatialActionTime > 240)) {
+                                                wasIndexArmed = false;
+                                                isContinuousHolding = true;
+                                                lastActionWasPrev = false;
+                                                lastActionName = 'NEXT';
+                                                lastSpatialActionTime = now;
+                                                lastSpatialRepeatTime = now;
+                                                spatialFlashTime = now;
+                                                executeAction('NEXT');
+                                                playGestureTone(680, 0.04);
+                                            } else if (wasTwoArmed && (now - lastSpatialActionTime > 240)) {
+                                                wasTwoArmed = false;
+                                                isContinuousHolding = true;
+                                                lastActionWasPrev = true;
+                                                lastActionName = 'PREV';
+                                                lastSpatialActionTime = now;
+                                                lastSpatialRepeatTime = now;
+                                                spatialFlashTime = now;
+                                                executeAction('PREV');
+                                                playGestureTone(520, 0.04);
+                                            } else if (isContinuousHolding && isAllFolded) {
+                                                // Smooth repeat scroll while held folded
+                                                const repeatSpeed = aeroConfig.dragRepeatSpeed || 3;
+                                                const repeatInterval = Math.max(220, 800 - (repeatSpeed * 120));
+                                                if (now - lastSpatialRepeatTime >= repeatInterval) {
+                                                    lastSpatialRepeatTime = now;
+                                                    spatialFlashTime = now;
+                                                    lastActionName = lastActionWasPrev ? 'PREV' : 'NEXT';
+                                                    executeAction(lastActionWasPrev ? 'PREV' : 'NEXT');
+                                                    playGestureTone(lastActionWasPrev ? 520 : 680, 0.035);
+                                                }
+                                            }
+                                        }
+                                    } else if (isIndexPointing) {
+                                        if (homeGestureStep === 1) {
+                                            homeGestureStep = 0;
+                                        } else if (homeGestureStep === 2) {
+                                            // Allow natural hand unfurling; only cancel step 2 if user holds index pointing for > 280ms
+                                            if (now - homeStepTime > 280) {
+                                                homeGestureStep = 0;
+                                                wasIndexArmed = true;
+                                                wasTwoArmed = false;
+                                                isContinuousHolding = false;
+                                            }
+                                        } else {
+                                            // User points index finger -> IMMEDIATELY armed on frame 1
+                                            wasIndexArmed = true;
+                                            wasTwoArmed = false;
+                                            isContinuousHolding = false;
+                                        }
+                                    } else if (isTwoFingerPointing) {
+                                        if (homeGestureStep === 1) {
+                                            homeGestureStep = 0;
+                                        } else if (homeGestureStep === 2) {
+                                            if (now - homeStepTime > 280) {
+                                                homeGestureStep = 0;
+                                                wasTwoArmed = true;
+                                                wasIndexArmed = false;
+                                                isContinuousHolding = false;
+                                            }
+                                        } else {
+                                            // User points 2 fingers -> IMMEDIATELY armed on frame 1
+                                            wasTwoArmed = true;
+                                            wasIndexArmed = false;
+                                            isContinuousHolding = false;
+                                        }
+                                    } else if (isThreeFingerFold) {
+                                        // 3-Finger Fold: System Back
+                                        homeGestureStep = 0;
+                                        if (foldState !== 3) {
+                                            foldState = 3;
+                                            foldStartTime = now;
+                                        } else if (now - foldStartTime >= 850 && !holdTriggered) {
+                                            holdTriggered = true;
+                                            lastActionName = 'BACK';
+                                            spatialFlashTime = now;
+                                            executeSystemNavigation('BACK');
+                                            playGestureTone(440, 0.08);
+                                        }
+                                    } else if (f.isIndexFold && !isAllFolded && homeGestureStep === 0) {
+                                        // Single index fold without whole fist
+                                        if (wasIndexArmed && (now - lastSpatialActionTime > 240)) {
+                                            wasIndexArmed = false;
+                                            isContinuousHolding = true;
+                                            lastActionWasPrev = false;
+                                            lastActionName = 'NEXT';
+                                            lastSpatialActionTime = now;
+                                            lastSpatialRepeatTime = now;
+                                            spatialFlashTime = now;
+                                            executeAction('NEXT');
+                                            playGestureTone(680, 0.04);
+                                        }
                                     }
                                 }
                             }
@@ -3195,10 +3560,14 @@
                             }
 
                             let gestureState = 'OPEN_PALM';
-                            if (isCleanPinch) {
+                            if (isGestureSleeping) {
+                                gestureState = 'SLEEP';
+                            } else if (isCleanPinch) {
                                 gestureState = 'PINCH';
                             } else if (isThumbsUp) {
                                 gestureState = 'THUMBS_UP';
+                            } else if (lastActionName === 'HOME' && (now - spatialFlashTime) < 320) {
+                                gestureState = 'HOME';
                             } else if (isAllFolded || f.isIndexFold) {
                                 gestureState = 'FIST';
                             } else if (wasIndexArmed || isIndexPointing) {
@@ -3210,7 +3579,30 @@
                             const isFlashing = (now - spatialFlashTime) < 220;
                             const flashProg = isFlashing ? ((now - spatialFlashTime) / 220) : 0;
 
-                            drawDynamicRealisticHand(ctx, normLm, gestureState, isFlashing, flashProg, thumbsUpProgress);
+                            drawDynamicRealisticHand(ctx, normLm, gestureState, isFlashing, flashProg, thumbsUpProgress, pinchHoldProgress, homeGestureStep);
+
+                            // Two-Hand Mode Secondary Cursor & Tap (For native mobile keyboard typing)
+                            if (isTwoHandMode && results.multiHandLandmarks.length > 1) {
+                                const lm2 = results.multiHandLandmarks[1];
+                                const targetRawX2 = 1 - ((lm2[8].x + lm2[4].x) * 0.5);
+                                const targetRawY2 = (lm2[8].y + lm2[4].y) * 0.5;
+                                const normX2 = Math.max(0, Math.min(1, (targetRawX2 - 0.18) / 0.64));
+                                const normY2 = Math.max(0, Math.min(1, (targetRawY2 - 0.18) / 0.60));
+                                const f2 = analyzeHandFingers(lm2);
+                                const isCleanPinch2 = f2.isCleanPinch;
+
+                                if (window.AndroidBridge && window.AndroidBridge.updateGlobalAirCursor2) {
+                                    window.AndroidBridge.updateGlobalAirCursor2(normX2, normY2, isCleanPinch2);
+                                }
+                                if (isCleanPinch2 && !wasPinching2 && !isGestureSleeping) {
+                                    wasPinching2 = true;
+                                    if (window.AndroidBridge && window.AndroidBridge.triggerGlobalAirTap) {
+                                        window.AndroidBridge.triggerGlobalAirTap(normX2, normY2);
+                                    }
+                                } else if (!isCleanPinch2) {
+                                    wasPinching2 = false;
+                                }
+                            }
                         } else {
                             // Hand away from camera: screen cleanly disappears as requested by user
                             hud.classList.remove('hud-visible');
@@ -3223,6 +3615,8 @@
                             foldState = 0;
                             holdTriggered = false;
                             wasPinching = false;
+                            homeGestureStep = 0;
+                            homeStep1HoldStart = 0;
                             if (cursor) cursor.style.display = 'none';
                             if (window.AndroidBridge && window.AndroidBridge.setHandVisible) {
                                 window.AndroidBridge.setHandVisible(false);
@@ -3635,7 +4029,7 @@
             { id: 'FOLD_1', category: 'FOLD', badge: 'Most Used', badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40', title: '☝️ 1-Finger Fold & Open', actionLabel: 'Scroll Next Reel (Swipe Up)', howTo: 'Keep palm facing camera, bend ONLY Index finger down and open back up.', voiceEquivalent: '"Next" or "Agla"', actionCode: 'NEXT', stageHtml: buildMinimalGestureStage('FOLD_1') },
             { id: 'FOLD_2', category: 'FOLD', badge: 'Reels / Shorts', badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/40', title: '✌️ 2-Finger Fold & Open', actionLabel: 'Previous Reel (Swipe Down)', howTo: 'Bend Index and Middle fingers down together and open back up.', voiceEquivalent: '"Previous" or "Pichla"', actionCode: 'PREV', stageHtml: buildMinimalGestureStage('FOLD_2') },
             { id: 'FOLD_3_BACK', category: 'SYSTEM', badge: 'System OS', badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40', title: '⬅️ 3-Finger Fold & Open', actionLabel: 'System Back Navigation', howTo: 'Bend Index, Middle, and Ring fingers down together to trigger Back.', voiceEquivalent: '"Back" or "Wapas"', actionCode: 'BACK', stageHtml: buildMinimalGestureStage('FOLD_3') },
-            { id: 'FOLD_4_HOME', category: 'SYSTEM', badge: 'System OS', badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40', title: '🏠 4-Finger Fold (Fist & Open)', actionLabel: 'Go to Phone Home Screen', howTo: 'Curl all 4 fingers into a gentle fist and open palm to jump to Home.', voiceEquivalent: '"Home" or "Home Screen"', actionCode: 'HOME', stageHtml: buildMinimalGestureStage('FOLD_4') },
+            { id: 'FOLD_4_HOME', category: 'SYSTEM', badge: 'System OS', badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40', title: '🏠 3-Step Home (✋➔✊➔✋)', actionLabel: 'Go to Phone Home Screen', howTo: 'Show Open Palm ✋, curl into Fist ✊, then open back to Palm ✋ to trigger Home.', voiceEquivalent: '"Home" or "Home Screen"', actionCode: 'HOME', stageHtml: buildMinimalGestureStage('FOLD_4') },
             { id: 'FOLD_HOLD', category: 'FOLD', badge: 'Island Menu', badgeColor: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40', title: '⏱️ 1-Finger Fold & Hold (1.5s)', actionLabel: 'Open Floating Action Menu', howTo: 'Bend Index finger and hold 1.5s until ring fills to pop open controls.', voiceEquivalent: '"Open Menu" or "Controls"', actionCode: 'HOLD_MENU', stageHtml: buildMinimalGestureStage('HOLD') },
             { id: 'PINCH_TAP', category: 'FOLD', badge: 'Air Pointer', badgeColor: 'bg-blue-500/20 text-blue-300 border-blue-500/40', title: '👌 Index + Thumb Pinch', actionLabel: 'Air Tap / Play & Pause', howTo: 'Aim cursor with Index finger, touch Thumb and Index tips together.', voiceEquivalent: '"Play", "Pause" or "Click"', actionCode: 'PLAY_PAUSE', stageHtml: buildMinimalGestureStage('PINCH') },
             { id: 'TWO_HAND_KB', category: 'TYPING', badge: '2-Hand Sign', badgeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/40', title: '🙌 Dual-Hand L-Sign / Pinch', actionLabel: 'Open Air Keyboard for Comments', howTo: 'Hold both hands up or Pinch for 0.5s to open split QWERTY Air Keyboard.', voiceEquivalent: '"Open Keyboard" or "Comment..."', actionCode: 'OPEN_KEYBOARD', stageHtml: buildMinimalGestureStage('TWO_HAND') }
