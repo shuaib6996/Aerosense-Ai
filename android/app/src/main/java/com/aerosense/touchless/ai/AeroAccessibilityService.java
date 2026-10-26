@@ -14,6 +14,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.FrameLayout;
 
 public class AeroAccessibilityService extends AccessibilityService {
@@ -174,6 +175,113 @@ public class AeroAccessibilityService extends AccessibilityService {
         GestureDescription.Builder builder = new GestureDescription.Builder();
         builder.addStroke(new GestureDescription.StrokeDescription(swipePath, 0, 180));
         dispatchGesture(builder.build(), null, null);
+    }
+
+    public void performLikeGesture() {
+        mainHandler.post(() -> {
+            try {
+                long now = System.currentTimeMillis();
+                if (now - lastGestureDispatchTime < 350) return;
+                lastGestureDispatchTime = now;
+
+                boolean clicked = false;
+                AccessibilityNodeInfo root = null;
+                try {
+                    root = getRootInActiveWindow();
+                } catch (Exception ignored) {}
+
+                String pkg = "";
+                if (root != null && root.getPackageName() != null) {
+                    pkg = root.getPackageName().toString().toLowerCase();
+                }
+
+                // If not Instagram, check accessibility tree for Like button (YouTube, FB, etc.)
+                if (root != null && !pkg.contains("instagram")) {
+                    clicked = findAndClickLikeButton(root);
+                }
+
+                if (root != null) {
+                    try { root.recycle(); } catch (Exception ignored) {}
+                }
+
+                // If not clicked via accessibility node (or if in Instagram Reels/Posts), perform universal double-tap at center
+                if (!clicked) {
+                    performDoubleTapCenter();
+                }
+            } catch (Exception ignored) {}
+        });
+    }
+
+    private boolean findAndClickLikeButton(AccessibilityNodeInfo node) {
+        if (node == null) return false;
+        try {
+            CharSequence descSeq = node.getContentDescription();
+            CharSequence textSeq = node.getText();
+            String desc = descSeq != null ? descSeq.toString().toLowerCase() : "";
+            String text = textSeq != null ? textSeq.toString().toLowerCase() : "";
+            String id = node.getViewIdResourceName() != null ? node.getViewIdResourceName().toLowerCase() : "";
+
+            boolean hasLike = desc.contains("like") || text.contains("like") || id.contains("like") ||
+                              desc.contains("thumbs up") || text.contains("thumbs up") || id.contains("thumb_up");
+            boolean isNegative = desc.contains("unlike") || text.contains("unlike") ||
+                                 desc.contains("dislike") || text.contains("dislike") ||
+                                 desc.contains("liked") || text.contains("liked") ||
+                                 desc.contains("remove like") || text.contains("remove like");
+
+            if (hasLike && !isNegative) {
+                AccessibilityNodeInfo clickableTarget = node;
+                while (clickableTarget != null && !clickableTarget.isClickable()) {
+                    clickableTarget = clickableTarget.getParent();
+                }
+                if (clickableTarget != null && clickableTarget.isClickable()) {
+                    return clickableTarget.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                }
+            }
+
+            int count = node.getChildCount();
+            for (int i = 0; i < count; i++) {
+                AccessibilityNodeInfo child = node.getChild(i);
+                if (child != null) {
+                    boolean found = findAndClickLikeButton(child);
+                    child.recycle();
+                    if (found) return true;
+                }
+            }
+        } catch (Exception ignored) {}
+        return false;
+    }
+
+    public void performDoubleTapCenter() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) return;
+        updateScreenDimensions();
+        float centerX = screenWidth * 0.5f;
+        float centerY = screenHeight * 0.5f;
+
+        performTapAt(centerX, centerY, () -> {
+            mainHandler.postDelayed(() -> {
+                performTapAt(centerX, centerY, null);
+            }, 90);
+        });
+    }
+
+    private void performTapAt(float x, float y, Runnable onComplete) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) return;
+        Path clickPath = new Path();
+        clickPath.moveTo(x, y);
+        GestureDescription.Builder builder = new GestureDescription.Builder();
+        builder.addStroke(new GestureDescription.StrokeDescription(clickPath, 0, 50));
+        dispatchGesture(builder.build(), new GestureResultCallback() {
+            @Override
+            public void onCompleted(GestureDescription gestureDescription) {
+                super.onCompleted(gestureDescription);
+                if (onComplete != null) onComplete.run();
+            }
+            @Override
+            public void onCancelled(GestureDescription gestureDescription) {
+                super.onCancelled(gestureDescription);
+                if (onComplete != null) onComplete.run();
+            }
+        }, null);
     }
 
     public void performBackGesture() {

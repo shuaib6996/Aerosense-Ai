@@ -707,6 +707,13 @@ public class MainActivity extends Activity {
         }
 
         @JavascriptInterface
+        public void triggerGlobalLikeGesture() {
+            if (AeroAccessibilityService.instance != null) {
+                AeroAccessibilityService.instance.performLikeGesture();
+            }
+        }
+
+        @JavascriptInterface
         public void updateSelectedApps(String jsonPackages) {}
 
         @JavascriptInterface

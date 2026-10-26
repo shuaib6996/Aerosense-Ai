@@ -1073,6 +1073,27 @@
                             </div>
                         </div>
 
+                        <!-- Social Media Like Gesture Timing Slider (Insta, Facebook, YouTube) -->
+                        <div class="space-y-1 p-2.5 rounded-xl bg-pink-500/10 border border-pink-500/20">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                                    <span>👍 Like Gesture Timing</span>
+                                    <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-pink-500/25 text-pink-300 font-semibold">Insta/FB/YT</span>
+                                </span>
+                                <span id="lbl-like-hold-duration" class="text-xs font-extrabold text-pink-400">2.0s</span>
+                            </div>
+                            <div class="aero-slider-wrap">
+                                <input id="sl-like-hold-duration" type="range" min="0.0" max="5.0" step="0.5" value="2.0"
+                                    oninput="updateSetting('likeHoldDuration', this.value)" class="aero-slider">
+                                <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] font-bold text-slate-400">
+                                <span>0.0s (Instant)</span>
+                                <span class="text-pink-400">2.0s (Default)</span>
+                                <span>5.0s</span>
+                            </div>
+                        </div>
+
                         <div class="space-y-1">
                             <div class="flex justify-between items-center">
                                 <span class="text-xs font-bold text-white">Hand Sign Hold Duration</span>
@@ -1670,6 +1691,9 @@
         let lastSpatialActionTime = 0;
         let lastSpatialRepeatTime = 0;
         let spatialFlashTime = 0;
+        let thumbsUpStartTime = 0;
+        let thumbsUpTriggered = false;
+        let thumbsUpProgress = 0;
 
         // Dynamic Hand Normalization Smoothing (Distance-Invariant & Anti-Jitter)
         let smoothPalmSpan = null;
@@ -1687,6 +1711,7 @@
             dragRepeatSpeed: 3,
             pointerSpeed: 3,
             handScale: 1.0,
+            likeHoldDuration: 2.0,
             holdDuration: 1.5,
             activationDelay: 1.0,
             signSensitivity: 3,
@@ -1802,12 +1827,15 @@
             } else if (key === 'handScale') {
                 const lbl = document.getElementById('lbl-hand-scale');
                 if (lbl) lbl.textContent = `${aeroConfig.handScale.toFixed(1)}x`;
+            } else if (key === 'likeHoldDuration') {
+                const lbl = document.getElementById('lbl-like-hold-duration');
+                if (lbl) lbl.textContent = `${aeroConfig.likeHoldDuration.toFixed(1)}s`;
             }
             saveAeroConfig();
         }
 
         function resetGestureTuning() {
-            ['performance', 'sensitivity', 'dragRepeatSpeed', 'pointerSpeed', 'handScale', 'holdDuration', 'activationDelay', 'signSensitivity'].forEach(k => {
+            ['performance', 'sensitivity', 'dragRepeatSpeed', 'pointerSpeed', 'handScale', 'likeHoldDuration', 'holdDuration', 'activationDelay', 'signSensitivity'].forEach(k => {
                 aeroConfig[k] = defaultAeroSettings[k];
             });
             renderSettingsUI();
@@ -2005,6 +2033,10 @@
             if (slHand) slHand.value = aeroConfig.handScale !== undefined ? aeroConfig.handScale : 1.0;
             const lblHand = document.getElementById('lbl-hand-scale');
             if (lblHand) lblHand.textContent = `${(aeroConfig.handScale !== undefined ? aeroConfig.handScale : 1.0).toFixed(1)}x`;
+            const slLike = document.getElementById('sl-like-hold-duration');
+            if (slLike) slLike.value = aeroConfig.likeHoldDuration !== undefined ? aeroConfig.likeHoldDuration : 2.0;
+            const lblLike = document.getElementById('lbl-like-hold-duration');
+            if (lblLike) lblLike.textContent = `${(aeroConfig.likeHoldDuration !== undefined ? aeroConfig.likeHoldDuration : 2.0).toFixed(1)}s`;
             const slHold = document.getElementById('sl-hold-duration');
             if (slHold) slHold.value = aeroConfig.holdDuration;
             const lblHold = document.getElementById('lbl-hold-duration');
@@ -2561,6 +2593,9 @@
                 showToast('👌', 'Air Tap', 'Play / Pause Toggled');
             } else if (action === 'LIKE') {
                 showToast('❤️', 'Liked', 'Sent Heart Reaction');
+                if (window.AndroidBridge && window.AndroidBridge.triggerGlobalLikeGesture) {
+                    window.AndroidBridge.triggerGlobalLikeGesture();
+                }
             }
         }
 
@@ -2708,7 +2743,7 @@
         }
 
         // Dynamic Realistic Hand Renderer (Moving Real-time Landmarks, Cyber Neon Skeleton, State-Reactive)
-        function drawDynamicRealisticHand(ctx, normLm, gestureState, isFlashing, flashTimeProg) {
+        function drawDynamicRealisticHand(ctx, normLm, gestureState, isFlashing, flashTimeProg, thumbsUpProgress = 0) {
             if (!normLm || normLm.length < 21) return;
 
             ctx.save();
@@ -2735,6 +2770,11 @@
                 glowColor = 'rgba(16, 185, 129, 0.55)';
                 tipColor = '#34d399';
                 palmFill = 'rgba(16, 185, 129, 0.16)';
+            } else if (gestureState === 'THUMBS_UP') {
+                coreColor = '#f43f5e';
+                glowColor = 'rgba(244, 63, 94, 0.65)';
+                tipColor = '#fda4af';
+                palmFill = 'rgba(244, 63, 94, 0.20)';
             } else if (gestureState === 'FIST') {
                 coreColor = '#00f0ff';
                 glowColor = 'rgba(0, 240, 255, 0.65)';
@@ -2745,8 +2785,8 @@
             if (isFlashing) {
                 coreColor = '#ffffff';
                 glowColor = 'rgba(255, 255, 255, 0.90)';
-                tipColor = '#38bdf8';
-                palmFill = 'rgba(56, 189, 248, 0.30)';
+                tipColor = gestureState === 'THUMBS_UP' ? '#f43f5e' : '#38bdf8';
+                palmFill = gestureState === 'THUMBS_UP' ? 'rgba(244, 63, 94, 0.35)' : 'rgba(56, 189, 248, 0.30)';
             }
 
             // 2. Realistic subtle palm volume (Connecting palm knuckles & wrist)
@@ -2828,12 +2868,37 @@
                 }
             }
 
+            // Thumbs Up Circular Progress Indicator & Heart reaction
+            if (gestureState === 'THUMBS_UP' && normLm[4]) {
+                const thumbPt = normLm[4];
+                ctx.beginPath();
+                ctx.arc(thumbPt.x, thumbPt.y, 14, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(244, 63, 94, 0.28)';
+                ctx.lineWidth = 3.2;
+                ctx.stroke();
+
+                if (thumbsUpProgress > 0) {
+                    ctx.beginPath();
+                    ctx.arc(thumbPt.x, thumbPt.y, 14, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * thumbsUpProgress));
+                    ctx.strokeStyle = '#f43f5e';
+                    ctx.lineWidth = 3.4;
+                    ctx.stroke();
+                }
+
+                ctx.font = isFlashing ? '18px sans-serif' : '13px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(isFlashing ? '💖' : '❤️', thumbPt.x, thumbPt.y - 18);
+            }
+
             // 5. Action Shockwave Ripple if trigger fired
             if (isFlashing && flashTimeProg >= 0 && flashTimeProg <= 1) {
                 const centerPt = normLm[9] || normLm[0];
                 ctx.beginPath();
                 ctx.arc(centerPt.x, centerPt.y, 10 + (flashTimeProg * 28), 0, Math.PI * 2);
-                ctx.strokeStyle = `rgba(56, 189, 248, ${Math.max(0, 1 - flashTimeProg)})`;
+                ctx.strokeStyle = gestureState === 'THUMBS_UP'
+                    ? `rgba(244, 63, 94, ${Math.max(0, 1 - flashTimeProg)})`
+                    : `rgba(56, 189, 248, ${Math.max(0, 1 - flashTimeProg)})`;
                 ctx.lineWidth = 2.4;
                 ctx.stroke();
             }
@@ -2866,12 +2931,17 @@
             const otherFingersOpen = (isMiddleExt && isRingExt) || (isMiddleExt && isPinkyExt) || (isRingExt && isPinkyExt);
             const isCleanPinch = isPinching && otherFingersOpen;
 
+            // Thumbs Up 👍: 4 fingers curled/folded, thumb extended UPWARDS
+            const isThumbUp = (lm[4].y < lm[3].y) && (lm[3].y < lm[2].y) && (lm[4].y < lm[5].y - 0.025) && (distWrist(4) > distWrist(2) * 1.12);
+            const isThumbsUp = isIndexFold && isMiddleFold && isRingFold && isPinkyFold && isThumbUp;
+
             return {
                 isIndexExt, isIndexFold,
                 isMiddleExt, isMiddleFold,
                 isRingExt, isRingFold,
                 isPinkyExt, isPinkyFold,
-                isPinching, isCleanPinch, pinchDist
+                isPinching, isCleanPinch, pinchDist,
+                isThumbsUp
             };
         }
 
@@ -2996,61 +3066,93 @@
                             const isTwoFingerPointing = f.isIndexExt && f.isMiddleExt && f.isRingFold && f.isPinkyFold;
                             const isAllFolded = f.isIndexFold && f.isMiddleFold && f.isRingFold && f.isPinkyFold;
                             const isThreeFingerFold = f.isIndexFold && f.isMiddleFold && f.isRingFold && f.isPinkyExt;
+                            const isThumbsUp = f.isThumbsUp;
 
-                            if (isOpenPalm) {
+                            // 👍 Social Media Like Gesture Hold Logic (0 - 5 sec slider, default 2.0s)
+                            const likeHoldSec = (typeof aeroConfig.likeHoldDuration === 'number') ? aeroConfig.likeHoldDuration : 2.0;
+                            const likeHoldMs = likeHoldSec * 1000;
+
+                            if (isThumbsUp) {
                                 wasIndexArmed = false;
                                 wasTwoArmed = false;
                                 isContinuousHolding = false;
-                            } else if (isIndexPointing) {
-                                // User points index finger -> IMMEDIATELY armed on frame 1
-                                wasIndexArmed = true;
-                                wasTwoArmed = false;
-                                isContinuousHolding = false;
-                            } else if (isTwoFingerPointing) {
-                                // User points 2 fingers -> IMMEDIATELY armed on frame 1
-                                wasTwoArmed = true;
-                                wasIndexArmed = false;
-                                isContinuousHolding = false;
-                            } else if (isAllFolded || f.isIndexFold) {
-                                // INSTANT ACTION TRIGGER: Exactly when finger folds into fist, fire immediately!
-                                if (wasIndexArmed && (now - lastSpatialActionTime > 240)) {
+
+                                if (!thumbsUpStartTime) {
+                                    thumbsUpStartTime = now;
+                                    thumbsUpTriggered = false;
+                                }
+                                const elapsed = now - thumbsUpStartTime;
+                                thumbsUpProgress = likeHoldMs > 0 ? Math.min(1.0, elapsed / likeHoldMs) : 1.0;
+
+                                if (elapsed >= likeHoldMs && !thumbsUpTriggered) {
+                                    thumbsUpTriggered = true;
+                                    spatialFlashTime = now;
+                                    executeAction('LIKE');
+                                    playGestureTone(880, 0.08);
+                                    setTimeout(() => playGestureTone(1100, 0.10), 90);
+                                }
+                            } else {
+                                thumbsUpStartTime = 0;
+                                thumbsUpTriggered = false;
+                                thumbsUpProgress = 0;
+                            }
+
+                            if (!isThumbsUp) {
+                                if (isOpenPalm) {
                                     wasIndexArmed = false;
-                                    isContinuousHolding = true;
-                                    lastActionWasPrev = false;
-                                    lastSpatialActionTime = now;
-                                    lastSpatialRepeatTime = now;
-                                    spatialFlashTime = now;
-                                    executeAction('NEXT');
-                                    playGestureTone(680, 0.04);
-                                } else if (wasTwoArmed && (now - lastSpatialActionTime > 240)) {
                                     wasTwoArmed = false;
-                                    isContinuousHolding = true;
-                                    lastActionWasPrev = true;
-                                    lastSpatialActionTime = now;
-                                    lastSpatialRepeatTime = now;
-                                    spatialFlashTime = now;
-                                    executeAction('PREV');
-                                    playGestureTone(520, 0.04);
-                                } else if (isContinuousHolding && isAllFolded) {
-                                    // Smooth repeat scroll while held folded
-                                    const repeatSpeed = aeroConfig.dragRepeatSpeed || 3;
-                                    const repeatInterval = Math.max(220, 800 - (repeatSpeed * 120));
-                                    if (now - lastSpatialRepeatTime >= repeatInterval) {
+                                    isContinuousHolding = false;
+                                } else if (isIndexPointing) {
+                                    // User points index finger -> IMMEDIATELY armed on frame 1
+                                    wasIndexArmed = true;
+                                    wasTwoArmed = false;
+                                    isContinuousHolding = false;
+                                } else if (isTwoFingerPointing) {
+                                    // User points 2 fingers -> IMMEDIATELY armed on frame 1
+                                    wasTwoArmed = true;
+                                    wasIndexArmed = false;
+                                    isContinuousHolding = false;
+                                } else if (isAllFolded || f.isIndexFold) {
+                                    // INSTANT ACTION TRIGGER: Exactly when finger folds into fist, fire immediately!
+                                    if (wasIndexArmed && (now - lastSpatialActionTime > 240)) {
+                                        wasIndexArmed = false;
+                                        isContinuousHolding = true;
+                                        lastActionWasPrev = false;
+                                        lastSpatialActionTime = now;
                                         lastSpatialRepeatTime = now;
                                         spatialFlashTime = now;
-                                        executeAction(lastActionWasPrev ? 'PREV' : 'NEXT');
-                                        playGestureTone(lastActionWasPrev ? 520 : 680, 0.035);
+                                        executeAction('NEXT');
+                                        playGestureTone(680, 0.04);
+                                    } else if (wasTwoArmed && (now - lastSpatialActionTime > 240)) {
+                                        wasTwoArmed = false;
+                                        isContinuousHolding = true;
+                                        lastActionWasPrev = true;
+                                        lastSpatialActionTime = now;
+                                        lastSpatialRepeatTime = now;
+                                        spatialFlashTime = now;
+                                        executeAction('PREV');
+                                        playGestureTone(520, 0.04);
+                                    } else if (isContinuousHolding && isAllFolded) {
+                                        // Smooth repeat scroll while held folded
+                                        const repeatSpeed = aeroConfig.dragRepeatSpeed || 3;
+                                        const repeatInterval = Math.max(220, 800 - (repeatSpeed * 120));
+                                        if (now - lastSpatialRepeatTime >= repeatInterval) {
+                                            lastSpatialRepeatTime = now;
+                                            spatialFlashTime = now;
+                                            executeAction(lastActionWasPrev ? 'PREV' : 'NEXT');
+                                            playGestureTone(lastActionWasPrev ? 520 : 680, 0.035);
+                                        }
                                     }
-                                }
-                            } else if (isThreeFingerFold) {
-                                // 3-Finger Fold: System Back
-                                if (foldState !== 3) {
-                                    foldState = 3;
-                                    foldStartTime = now;
-                                } else if (now - foldStartTime >= 850 && !holdTriggered) {
-                                    holdTriggered = true;
-                                    executeSystemNavigation('BACK');
-                                    playGestureTone(440, 0.08);
+                                } else if (isThreeFingerFold) {
+                                    // 3-Finger Fold: System Back
+                                    if (foldState !== 3) {
+                                        foldState = 3;
+                                        foldStartTime = now;
+                                    } else if (now - foldStartTime >= 850 && !holdTriggered) {
+                                        holdTriggered = true;
+                                        executeSystemNavigation('BACK');
+                                        playGestureTone(440, 0.08);
+                                    }
                                 }
                             }
 
@@ -3095,6 +3197,8 @@
                             let gestureState = 'OPEN_PALM';
                             if (isCleanPinch) {
                                 gestureState = 'PINCH';
+                            } else if (isThumbsUp) {
+                                gestureState = 'THUMBS_UP';
                             } else if (isAllFolded || f.isIndexFold) {
                                 gestureState = 'FIST';
                             } else if (wasIndexArmed || isIndexPointing) {
@@ -3106,7 +3210,7 @@
                             const isFlashing = (now - spatialFlashTime) < 220;
                             const flashProg = isFlashing ? ((now - spatialFlashTime) / 220) : 0;
 
-                            drawDynamicRealisticHand(ctx, normLm, gestureState, isFlashing, flashProg);
+                            drawDynamicRealisticHand(ctx, normLm, gestureState, isFlashing, flashProg, thumbsUpProgress);
                         } else {
                             // Hand away from camera: screen cleanly disappears as requested by user
                             hud.classList.remove('hud-visible');
