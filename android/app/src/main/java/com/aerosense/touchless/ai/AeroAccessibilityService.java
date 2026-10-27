@@ -16,6 +16,8 @@ import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.FrameLayout;
+import android.content.Context;
+import android.media.AudioManager;
 
 public class AeroAccessibilityService extends AccessibilityService {
 
@@ -390,6 +392,19 @@ public class AeroAccessibilityService extends AccessibilityService {
         });
     }
 
+    public void adjustSystemVolume(String direction) {
+        mainHandler.post(() -> {
+            try {
+                AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                if (am != null) {
+                    int flag = "UP".equalsIgnoreCase(direction) ? AudioManager.ADJUST_RAISE : AudioManager.ADJUST_LOWER;
+                    am.adjustSuggestedStreamVolume(flag, AudioManager.USE_DEFAULT_STREAM_TYPE, AudioManager.FLAG_SHOW_UI | AudioManager.FLAG_PLAY_SOUND);
+                    am.adjustStreamVolume(AudioManager.STREAM_MUSIC, flag, AudioManager.FLAG_SHOW_UI | AudioManager.FLAG_PLAY_SOUND);
+                }
+            } catch (Exception ignored) {}
+        });
+    }
+
     public void performGlobalPhoneAction(String action) {
         mainHandler.post(() -> {
             try {
@@ -401,6 +416,10 @@ public class AeroAccessibilityService extends AccessibilityService {
                     performGlobalAction(GLOBAL_ACTION_RECENTS);
                 } else if ("NOTIFICATIONS".equalsIgnoreCase(action)) {
                     performGlobalAction(GLOBAL_ACTION_NOTIFICATIONS);
+                } else if ("VOL_UP".equalsIgnoreCase(action)) {
+                    adjustSystemVolume("UP");
+                } else if ("VOL_DOWN".equalsIgnoreCase(action)) {
+                    adjustSystemVolume("DOWN");
                 }
             } catch (Exception ignored) {}
         });

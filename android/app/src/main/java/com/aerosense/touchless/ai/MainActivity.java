@@ -285,12 +285,12 @@ public class MainActivity extends Activity {
                             initialTouchY = event.getRawY();
                             isMoving = false;
                             lastUpdateTime = System.currentTimeMillis();
-                            return true;
+                            return false;
 
                         case MotionEvent.ACTION_MOVE:
                             float dx = event.getRawX() - initialTouchX;
                             float dy = event.getRawY() - initialTouchY;
-                            if (!isMoving && (Math.abs(dx) > 3 || Math.abs(dy) > 3)) {
+                            if (!isMoving && (Math.abs(dx) > 10 || Math.abs(dy) > 10)) {
                                 isMoving = true;
                             }
                             if (isMoving) {
@@ -308,8 +308,9 @@ public class MainActivity extends Activity {
                                         systemWindowManager.updateViewLayout(webView, floatingOverlayParams);
                                     } catch (Exception ignored) {}
                                 }
+                                return true;
                             }
-                            return true;
+                            return false;
 
                         case MotionEvent.ACTION_UP:
                         case MotionEvent.ACTION_CANCEL:
@@ -317,9 +318,11 @@ public class MainActivity extends Activity {
                                 try {
                                     systemWindowManager.updateViewLayout(webView, floatingOverlayParams);
                                 } catch (Exception ignored) {}
+                                isMoving = false;
+                                return true;
                             }
                             isMoving = false;
-                            return true;
+                            return false;
                     }
                     return false;
                 }
@@ -485,13 +488,23 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public void adjustSystemVolume(String direction) {
-            try {
-                AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-                if (audioManager != null) {
+            runOnUiThread(() -> {
+                try {
                     int flag = "UP".equalsIgnoreCase(direction) ? AudioManager.ADJUST_RAISE : AudioManager.ADJUST_LOWER;
-                    audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, flag, AudioManager.FLAG_SHOW_UI);
-                }
-            } catch (Exception ignored) {}
+
+                    // 1. Accessibility Service has elevated system permissions
+                    if (AeroAccessibilityService.instance != null) {
+                        AeroAccessibilityService.instance.adjustSystemVolume(direction);
+                    }
+
+                    // 2. Application Context AudioManager (shows system volume panel & plays feedback)
+                    AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                    if (audioManager != null) {
+                        audioManager.adjustSuggestedStreamVolume(flag, AudioManager.USE_DEFAULT_STREAM_TYPE, AudioManager.FLAG_SHOW_UI | AudioManager.FLAG_PLAY_SOUND);
+                        audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, flag, AudioManager.FLAG_SHOW_UI | AudioManager.FLAG_PLAY_SOUND);
+                    }
+                } catch (Exception ignored) {}
+            });
         }
 
         @JavascriptInterface
@@ -532,6 +545,10 @@ public class MainActivity extends Activity {
         public void performSystemAction(String action) {
             runOnUiThread(() -> {
                 try {
+                    if ("VOL_UP".equalsIgnoreCase(action) || "VOL_DOWN".equalsIgnoreCase(action)) {
+                        adjustSystemVolume("VOL_UP".equalsIgnoreCase(action) ? "UP" : "DOWN");
+                        return;
+                    }
                     if ("HOME".equalsIgnoreCase(action)) {
                         if (isBackgroundEngineRunning) {
                             enterMiniHandFloatingWindow();
