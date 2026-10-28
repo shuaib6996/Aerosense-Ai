@@ -724,7 +724,7 @@
     <!-- Top Toast Feedback -->
     <div id="aero-toast" class="fixed top-3 left-1/2 -translate-x-1/2 z-[8900] pointer-events-none opacity-0 -translate-y-4 transition-all duration-300 max-w-[90vw]">
         <div class="bg-slate-900/95 backdrop-blur-xl border border-cyan-500/40 px-3.5 py-2 rounded-2xl shadow-2xl flex items-center gap-2.5">
-            <span id="toast-emoji" class="text-base shrink-0">⚡</span>
+            <span id="toast-emoji" class="text-base shrink-0" style="display:none;"></span>
             <div class="min-w-0">
                 <p id="toast-label" class="text-[9px] font-extrabold uppercase tracking-wider text-cyan-400 truncate">AeroSense AI</p>
                 <p id="toast-message" class="text-xs font-bold text-white truncate">Action Executed</p>
@@ -1865,7 +1865,16 @@
 
         function showToast(emoji, label, message) {
             const toast = document.getElementById('aero-toast');
-            document.getElementById('toast-emoji').textContent = emoji;
+            const em = document.getElementById('toast-emoji');
+            if (em) {
+                if (emoji) {
+                    em.textContent = emoji;
+                    em.style.display = '';
+                } else {
+                    em.textContent = '';
+                    em.style.display = 'none';
+                }
+            }
             document.getElementById('toast-label').textContent = label;
             document.getElementById('toast-message').textContent = message;
             toast.classList.remove('opacity-0', '-translate-y-4');
@@ -2661,17 +2670,17 @@
 
         function executeSystemNavigation(action) {
             if (action === 'BACK') {
-                showToast('⬅️', 'System Back', '3-Finger Fold Back Executed');
+                showToast('', 'System Back', 'Back Executed');
                 if (window.AndroidBridge && window.AndroidBridge.triggerBackGesture) {
                     window.AndroidBridge.triggerBackGesture();
                 }
             } else if (action === 'HOME') {
-                showToast('🏠', 'System Home', 'Open ✋ ➔ Fist ✊ ➔ Open ✋ Executed');
+                showToast('', 'System Home', 'Home Executed');
                 if (window.AndroidBridge && window.AndroidBridge.triggerHomeGesture) {
                     window.AndroidBridge.triggerHomeGesture();
                 }
             } else if (window.AndroidBridge && window.AndroidBridge.performSystemAction) {
-                showToast('📱', 'System Action', action);
+                showToast('', 'System Action', action);
                 window.AndroidBridge.performSystemAction(action);
             } else {
                 showToast('📱', 'System Navigation', `${action} triggered`);
@@ -2680,14 +2689,14 @@
 
         function executeAction(action) {
             if (action === 'NEXT') {
-                showToast('☝️', 'Index Fold', 'Next Reel');
+                showToast('', 'Index Fold', 'Next Reel');
                 if (window.AndroidBridge && window.AndroidBridge.triggerGlobalAirSwipe) {
                     window.AndroidBridge.triggerGlobalAirSwipe('UP');
                 } else {
                     window.scrollBy({ top: window.innerHeight * 0.75, behavior: 'smooth' });
                 }
             } else if (action === 'PREV') {
-                showToast('✌️', '2-Finger Fold', 'Previous Reel');
+                showToast('', '2-Finger Fold', 'Previous Reel');
                 if (window.AndroidBridge && window.AndroidBridge.triggerGlobalAirSwipe) {
                     window.AndroidBridge.triggerGlobalAirSwipe('DOWN');
                 } else {
@@ -2702,7 +2711,7 @@
                 if (badge) {
                     badge.textContent = badge.textContent === 'PLAYING' ? 'PAUSED' : 'PLAYING';
                 }
-                showToast('👌', 'Air Tap', 'Play / Pause Toggled');
+                showToast('', 'Air Tap', 'Play / Pause Toggled');
             } else if (action === 'LIKE') {
                 showToast('❤️', 'Liked', 'Sent Heart Reaction');
                 if (window.AndroidBridge && window.AndroidBridge.triggerGlobalLikeGesture) {
@@ -2749,7 +2758,7 @@
                 setTimeout(() => { _volBusy = false; }, 200);
 
                 if (opt === 'VOL_UP') {
-                    showToast('🔊', 'Volume Up', '+1 Step');
+                    showToast('', 'Volume Up', '+1 Step');
                     playGestureTone(840, 0.04);
                     try {
                         if (window.AndroidBridge && typeof window.AndroidBridge.adjustSystemVolume === 'function') {
@@ -2757,7 +2766,7 @@
                         }
                     } catch(e) { console.warn('VOL_UP bridge error', e); }
                 } else {
-                    showToast('🔉', 'Volume Down', '-1 Step');
+                    showToast('', 'Volume Down', '-1 Step');
                     playGestureTone(540, 0.04);
                     try {
                         if (window.AndroidBridge && typeof window.AndroidBridge.adjustSystemVolume === 'function') {
@@ -2769,18 +2778,18 @@
                 return;
             } else if (opt === 'BACK') {
                 closeFoldHoldMenu();
-                showToast('⬅️', 'System Back', 'Back Executed');
+                showToast('', 'System Back', 'Back Executed');
                 playGestureTone(440, 0.08);
                 executeSystemNavigation('BACK');
             } else if (opt === 'RECENTS') {
                 closeFoldHoldMenu();
-                showToast('📑', 'Recent Apps', 'Opened Multitasking');
+                showToast('', 'Recent Apps', 'Opened Multitasking');
                 if (window.AndroidBridge && window.AndroidBridge.performSystemAction) {
                     window.AndroidBridge.performSystemAction('RECENTS');
                 }
             } else if (opt === 'NOTIFICATIONS') {
                 closeFoldHoldMenu();
-                showToast('🔔', 'Notifications', 'Opened Panel');
+                showToast('', 'Notifications', 'Opened Panel');
                 if (window.AndroidBridge && window.AndroidBridge.performSystemAction) {
                     window.AndroidBridge.performSystemAction('NOTIFICATIONS');
                 }
@@ -2792,7 +2801,7 @@
                     icon.className = isGestureSleeping ? 'fa-solid fa-sun text-sm mb-0.5 text-amber-400' : 'fa-solid fa-moon text-sm mb-0.5 text-purple-400';
                     lblSleep.textContent = isGestureSleeping ? 'Wake' : 'Sleep';
                 }
-                showToast(isGestureSleeping ? '💤' : '⚡', 'Gesture Engine', isGestureSleeping ? 'Gestures Sleeping (Paused)' : 'Gestures Awake & Active');
+                showToast('', 'Gesture Engine', isGestureSleeping ? 'Gestures Sleeping (Paused)' : 'Gestures Awake & Active');
             } else {
                 closeFoldHoldMenu();
             }
@@ -3090,7 +3099,7 @@
                 ctx.font = '16px sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.fillText('💤', normLm[9].x, normLm[9].y - 20);
+                // Sleep emoji removed
             }
 
             // Step 1: Open Palm Armed indicator (Waiting for Fist ✊ or Rock 🤘)
@@ -3100,7 +3109,7 @@
                 ctx.font = 'bold 9px sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                const text = '✋ Ready: ✊ Home | 🤘 Back';
+                const text = 'Ready: Home | Back';
                 const textWidth = ctx.measureText(text).width;
                 const px = pt.x;
                 const py = pt.y + 16;
@@ -3124,7 +3133,7 @@
                 ctx.font = 'bold 9px sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                const text = '✊ 2/3: Open Palm ✋ ➔ 🏠';
+                const text = '2/3: Open Palm -> Home';
                 const textWidth = ctx.measureText(text).width;
                 const px = pt.x;
                 const py = pt.y + 16;
@@ -3148,7 +3157,7 @@
                 ctx.font = 'bold 9px sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                const text = '🤘 2/3: Open Palm ✋ ➔ ⬅️';
+                const text = '2/3: Open Palm -> Back';
                 const textWidth = ctx.measureText(text).width;
                 const px = pt.x;
                 const py = pt.y + 16;
@@ -3172,7 +3181,7 @@
                 ctx.font = 'bold 11px sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                const text = '🏠 HOME SCREEN';
+                const text = 'HOME SCREEN';
                 const textWidth = ctx.measureText(text).width;
                 const px = pt.x;
                 const py = pt.y + 16;
@@ -3196,7 +3205,7 @@
                 ctx.font = 'bold 11px sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                const text = '⬅️ SYSTEM BACK';
+                const text = 'SYSTEM BACK';
                 const textWidth = ctx.measureText(text).width;
                 const px = pt.x;
                 const py = pt.y + 16;
@@ -3394,7 +3403,7 @@
                                     pinchMenuTriggered = true;
                                     if (isGestureSleeping) {
                                         isGestureSleeping = false;
-                                        showToast('⚡', 'Awake', 'Gestures Resumed');
+                                        showToast('', 'Awake', 'Gestures Resumed');
                                     }
                                     openFoldHoldMenu();
                                     playGestureTone(750, 0.08);
@@ -3786,7 +3795,7 @@
                 if (window.AndroidBridge && window.AndroidBridge.startBackgroundService) {
                     window.AndroidBridge.startBackgroundService();
                 }
-                showToast('⚡', 'AeroSense Active', 'Show hand to control apps, Back & Home');
+                showToast('', 'AeroSense Active', 'Show hand to control apps, Back & Home');
             } catch (err) {
                 showToast('⚠️', 'Camera Permission', 'Allow camera access to start hand tracking');
             }
