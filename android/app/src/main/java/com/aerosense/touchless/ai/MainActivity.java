@@ -49,6 +49,9 @@ public class MainActivity extends Activity {
     private int customHudWidthDp = 68;
     private int customHudHeightDp = 84;
     private boolean isModalOpenInWeb = false;
+    private volatile boolean isHoldMenuShowing = false;
+    private int savedOverlayX = -1;
+    private int savedOverlayY = -1;
     private final AeroVoiceControlPatch voiceControlPatch = new AeroVoiceControlPatch();
 
     @Override
@@ -274,7 +277,7 @@ public class MainActivity extends Activity {
 
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
-                    if (!isFloatingOverlayAttached || floatingOverlayParams == null || systemWindowManager == null) {
+                    if (!isFloatingOverlayAttached || floatingOverlayParams == null || systemWindowManager == null || isHoldMenuShowing) {
                         return false;
                     }
                     switch (event.getAction()) {
@@ -490,40 +493,56 @@ public class MainActivity extends Activity {
         public void adjustSystemVolume(String direction) {
             runOnUiThread(() -> {
                 try {
-                    int flag = "UP".equalsIgnoreCase(direction) ? AudioManager.ADJUST_RAISE : AudioManager.ADJUST_LOWER;
-
-                    // 1. Accessibility Service has elevated system permissions
+                    // 1. If Accessibility Service is running, let it execute the single step adjustment
                     if (AeroAccessibilityService.instance != null) {
                         AeroAccessibilityService.instance.adjustSystemVolume(direction);
+                        return;
                     }
 
-                    // 2. Application Context AudioManager (shows system volume panel & plays feedback)
+                    // 2. Fallback to local AudioManager only if Accessibility Service is inactive
+                    int flag = "UP".equalsIgnoreCase(direction) ? AudioManager.ADJUST_RAISE : AudioManager.ADJUST_LOWER;
                     AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
                     if (audioManager != null) {
                         audioManager.adjustSuggestedStreamVolume(flag, AudioManager.USE_DEFAULT_STREAM_TYPE, AudioManager.FLAG_SHOW_UI | AudioManager.FLAG_PLAY_SOUND);
-                        audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, flag, AudioManager.FLAG_SHOW_UI | AudioManager.FLAG_PLAY_SOUND);
                     }
                 } catch (Exception ignored) {}
             });
         }
 
         @JavascriptInterface
+        public boolean isFloatingOverlay() {
+            return isFloatingOverlayAttached;
+        }
+
+        @JavascriptInterface
         public void showSystemHoldMenu(boolean show) {
+            isHoldMenuShowing = show;
             runOnUiThread(() -> {
-                if (isFloatingOverlayAttached && webView != null && floatingOverlayParams != null) {
+                if (isFloatingOverlayAttached && webView != null && floatingOverlayParams != null && systemWindowManager != null) {
                     try {
                         float density = getResources().getDisplayMetrics().density;
                         if (show) {
-                            floatingOverlayParams.width = (int) (320 * density);
-                            floatingOverlayParams.height = (int) (340 * density);
+                            if (savedOverlayX == -1) {
+                                savedOverlayX = floatingOverlayParams.x;
+                                savedOverlayY = floatingOverlayParams.y;
+                            }
+                            floatingOverlayParams.width = (int) (340 * density);
+                            floatingOverlayParams.height = (int) (360 * density);
                             floatingOverlayParams.gravity = Gravity.CENTER;
+                            floatingOverlayParams.x = 0;
                             floatingOverlayParams.y = 0;
                         } else {
                             int[] dims = getHudDimensionsDp(currentHudSize);
                             floatingOverlayParams.width = (int) (dims[0] * density);
                             floatingOverlayParams.height = (int) (dims[1] * density);
-                            floatingOverlayParams.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
-                            floatingOverlayParams.y = (int) (64 * density);
+                            floatingOverlayParams.gravity = Gravity.TOP | Gravity.START;
+                            DisplayMetrics dm = getResources().getDisplayMetrics();
+                            int defX = dm.widthPixels - floatingOverlayParams.width - (int) (16 * density);
+                            int defY = dm.heightPixels - floatingOverlayParams.height - (int) (64 * density);
+                            floatingOverlayParams.x = (savedOverlayX >= 0) ? savedOverlayX : defX;
+                            floatingOverlayParams.y = (savedOverlayY >= 0) ? savedOverlayY : defY;
+                            savedOverlayX = -1;
+                            savedOverlayY = -1;
                         }
                         systemWindowManager.updateViewLayout(webView, floatingOverlayParams);
                     } catch (Exception ignored) {}

@@ -398,8 +398,8 @@ public class AeroAccessibilityService extends AccessibilityService {
                 AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
                 if (am != null) {
                     int flag = "UP".equalsIgnoreCase(direction) ? AudioManager.ADJUST_RAISE : AudioManager.ADJUST_LOWER;
+                    // Adjust by exactly 1 single step and display system volume slider UI
                     am.adjustSuggestedStreamVolume(flag, AudioManager.USE_DEFAULT_STREAM_TYPE, AudioManager.FLAG_SHOW_UI | AudioManager.FLAG_PLAY_SOUND);
-                    am.adjustStreamVolume(AudioManager.STREAM_MUSIC, flag, AudioManager.FLAG_SHOW_UI | AudioManager.FLAG_PLAY_SOUND);
                 }
             } catch (Exception ignored) {}
         });

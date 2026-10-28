@@ -78,12 +78,15 @@
             box-shadow: 0 0 26px #10b981 !important;
         }
 
-        /* 1-Finger Fold & Hold Radial / Grid Menu */
+        /* 1-Finger Fold & Hold Radial / Grid Menu (Completely clean, transparent, no dark backdrop or black shadow) */
         #fold-hold-menu {
             position: fixed;
             inset: 0;
-            background: rgba(2, 6, 23, 0.85);
-            backdrop-filter: blur(14px);
+            background: transparent !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            box-shadow: none !important;
+            -webkit-box-shadow: none !important;
             z-index: 9200;
             display: none;
             align-items: center;
@@ -95,9 +98,17 @@
             display: flex;
             opacity: 1;
         }
+        #fold-hold-menu button {
+            background-color: transparent !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            -webkit-box-shadow: none !important;
+            text-shadow: none !important;
+            filter: none !important;
+        }
         .hold-option-box {
-            background: rgba(15, 23, 42, 0.95);
-            border: 1.5px solid rgba(56, 189, 248, 0.3);
+            background: transparent;
+            border: 1.5px solid rgba(56, 189, 248, 0.4);
             border-radius: 18px;
             padding: 14px 10px;
             text-align: center;
@@ -105,14 +116,14 @@
             font-weight: 800;
             color: #f1f5f9;
             transition: all 0.15s ease;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            box-shadow: none;
         }
         .hold-option-box:active, .hold-option-box.hovered {
-            background: #0284c7;
+            background: rgba(2, 132, 199, 0.3);
             border-color: #38bdf8;
             transform: scale(1.06);
             color: #ffffff;
-            box-shadow: 0 0 20px rgba(56, 189, 248, 0.8);
+            box-shadow: none;
         }
 
         /* Transparent Draggable Floating Hand HUD (User can freely position anywhere on screen) */
@@ -326,6 +337,16 @@
         body.native-overlay-mode #dynamic-hand-indicator,
         body.native-overlay-mode #dynamic-control-interface {
             display: none !important;
+        }
+        body.native-overlay-mode.menu-open #spatial-floating-hud {
+            display: none !important;
+        }
+        body.native-overlay-mode #fold-hold-menu {
+            background: transparent !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            box-shadow: none !important;
+            -webkit-box-shadow: none !important;
         }
         body.native-overlay-mode #spatial-floating-hud {
             display: flex !important;
@@ -633,49 +654,49 @@
         </div>
     </div>
 
-    <!-- LONG PINCH POPUP MENU (Center: Close, Top: Vol Up, Bottom: Vol Down, Left: Recents, Right: Two-Hand, Diagonals: Sleep & Notifs) -->
-    <div id="fold-hold-menu" onclick="if(event.target === this) closeFoldHoldMenu()">
-        <div class="relative w-[300px] h-[320px] flex items-center justify-center select-none">
+    <!-- LONG PINCH POPUP MENU (Center: Close, Top: Vol Up, Bottom: Vol Down, Left: Recents, Right: Back, Diagonals: Sleep & Notifs) -->
+    <div id="fold-hold-menu">
+        <div class="relative w-[320px] h-[340px] flex items-center justify-center select-none" onclick="event.stopPropagation()" ontouchstart="event.stopPropagation()">
             <!-- Center: Close Menu -->
-            <button onclick="closeFoldHoldMenu()" class="AirClickable absolute z-20 w-[72px] h-[72px] rounded-full bg-slate-900/95 border-2 border-slate-600/80 text-slate-200 font-black flex flex-col items-center justify-center hover:bg-rose-500 hover:border-rose-400 hover:text-white transition shadow-2xl active:scale-95 overflow-hidden p-1">
-                <i class="fa-solid fa-xmark text-base text-rose-400 leading-none mb-1"></i>
-                <span class="text-[8.5px] font-extrabold uppercase tracking-widest text-slate-300 leading-none">Close</span>
+            <button onclick="event.stopPropagation(); closeFoldHoldMenu()" ontouchstart="event.stopPropagation()" class="AirClickable absolute z-20 w-[72px] h-[72px] rounded-full bg-transparent border-2 border-rose-500/70 text-slate-200 font-black flex flex-col items-center justify-center hover:bg-rose-500/20 hover:border-rose-400 hover:text-white transition active:scale-95 overflow-hidden p-1">
+                <i class="fa-solid fa-xmark text-base text-rose-400 leading-none mb-1 pointer-events-none"></i>
+                <span class="text-[8.5px] font-extrabold uppercase tracking-widest text-slate-300 leading-none pointer-events-none">Close</span>
             </button>
 
             <!-- Top: Volume Up -->
-            <button data-hold-action="VOL_UP" onclick="triggerHoldMenuOption('VOL_UP')" class="AirClickable absolute top-2 w-28 py-2.5 rounded-2xl bg-slate-900/90 border border-cyan-500/40 text-cyan-300 font-extrabold text-xs flex flex-col items-center justify-center hover:bg-cyan-500 hover:text-slate-950 transition shadow-lg active:scale-95">
-                <i class="fa-solid fa-volume-high text-base mb-0.5"></i>
-                <span>Volume Up</span>
+            <button data-hold-action="VOL_UP" onclick="event.stopPropagation(); triggerHoldMenuOption('VOL_UP')" ontouchstart="event.stopPropagation()" ontouchend="event.stopPropagation()" class="AirClickable absolute top-2 w-32 py-3 rounded-2xl bg-transparent border border-cyan-400/60 text-cyan-300 font-extrabold text-xs flex flex-col items-center justify-center hover:bg-cyan-500/20 hover:text-cyan-200 transition active:scale-95">
+                <i class="fa-solid fa-volume-high text-base mb-0.5 pointer-events-none"></i>
+                <span class="pointer-events-none">Volume Up</span>
             </button>
 
             <!-- Bottom: Volume Down -->
-            <button data-hold-action="VOL_DOWN" onclick="triggerHoldMenuOption('VOL_DOWN')" class="AirClickable absolute bottom-2 w-28 py-2.5 rounded-2xl bg-slate-900/90 border border-cyan-500/40 text-cyan-300 font-extrabold text-xs flex flex-col items-center justify-center hover:bg-cyan-500 hover:text-slate-950 transition shadow-lg active:scale-95">
-                <i class="fa-solid fa-volume-low text-base mb-0.5"></i>
-                <span>Volume Down</span>
+            <button data-hold-action="VOL_DOWN" onclick="event.stopPropagation(); triggerHoldMenuOption('VOL_DOWN')" ontouchstart="event.stopPropagation()" ontouchend="event.stopPropagation()" class="AirClickable absolute bottom-2 w-32 py-3 rounded-2xl bg-transparent border border-cyan-400/60 text-cyan-300 font-extrabold text-xs flex flex-col items-center justify-center hover:bg-cyan-500/20 hover:text-cyan-200 transition active:scale-95">
+                <i class="fa-solid fa-volume-low text-base mb-0.5 pointer-events-none"></i>
+                <span class="pointer-events-none">Volume Down</span>
             </button>
 
             <!-- Left: Recent Apps -->
-            <button data-hold-action="RECENTS" onclick="triggerHoldMenuOption('RECENTS')" class="AirClickable absolute left-2 w-24 py-3 rounded-2xl bg-slate-900/90 border border-amber-500/40 text-amber-300 font-extrabold text-xs flex flex-col items-center justify-center hover:bg-amber-500 hover:text-slate-950 transition shadow-lg active:scale-95">
-                <i class="fa-solid fa-table-cells-large text-base mb-1"></i>
-                <span>Recents</span>
+            <button data-hold-action="RECENTS" onclick="event.stopPropagation(); triggerHoldMenuOption('RECENTS')" ontouchstart="event.stopPropagation()" ontouchend="event.stopPropagation()" class="AirClickable absolute left-2 w-24 py-3 rounded-2xl bg-transparent border border-amber-400/60 text-amber-300 font-extrabold text-xs flex flex-col items-center justify-center hover:bg-amber-500/20 hover:text-amber-200 transition active:scale-95">
+                <i class="fa-solid fa-table-cells-large text-base mb-1 pointer-events-none"></i>
+                <span class="pointer-events-none">Recents</span>
             </button>
 
             <!-- Right: System Back -->
-            <button data-hold-action="BACK" onclick="triggerHoldMenuOption('BACK')" class="AirClickable absolute right-2 w-24 py-3 rounded-2xl bg-slate-900/90 border border-emerald-500/40 text-emerald-300 font-extrabold text-xs flex flex-col items-center justify-center hover:bg-emerald-500 hover:text-slate-950 transition shadow-lg active:scale-95">
-                <i class="fa-solid fa-arrow-left text-base mb-1"></i>
-                <span>Back</span>
+            <button data-hold-action="BACK" onclick="event.stopPropagation(); triggerHoldMenuOption('BACK')" ontouchstart="event.stopPropagation()" ontouchend="event.stopPropagation()" class="AirClickable absolute right-2 w-24 py-3 rounded-2xl bg-transparent border border-emerald-400/60 text-emerald-300 font-extrabold text-xs flex flex-col items-center justify-center hover:bg-emerald-500/20 hover:text-emerald-200 transition active:scale-95">
+                <i class="fa-solid fa-arrow-left text-base mb-1 pointer-events-none"></i>
+                <span class="pointer-events-none">Back</span>
             </button>
 
             <!-- Top-Left: Gesture Sleep / Wake -->
-            <button id="btn-gesture-sleep" data-hold-action="SLEEP_TOGGLE" onclick="triggerHoldMenuOption('SLEEP_TOGGLE')" class="AirClickable absolute top-9 left-6 w-14 h-14 rounded-2xl bg-slate-900/90 border border-purple-500/40 text-purple-300 font-extrabold text-[10px] flex flex-col items-center justify-center hover:bg-purple-500 hover:text-white transition shadow-lg active:scale-95">
-                <i id="icon-gesture-sleep" class="fa-solid fa-moon text-sm mb-0.5 text-purple-400"></i>
-                <span id="lbl-gesture-sleep">Sleep</span>
+            <button id="btn-gesture-sleep" data-hold-action="SLEEP_TOGGLE" onclick="event.stopPropagation(); triggerHoldMenuOption('SLEEP_TOGGLE')" ontouchstart="event.stopPropagation()" ontouchend="event.stopPropagation()" class="AirClickable absolute top-9 left-6 w-14 h-14 rounded-2xl bg-transparent border border-purple-400/60 text-purple-300 font-extrabold text-[10px] flex flex-col items-center justify-center hover:bg-purple-500/20 hover:text-purple-200 transition active:scale-95">
+                <i id="icon-gesture-sleep" class="fa-solid fa-moon text-sm mb-0.5 text-purple-400 pointer-events-none"></i>
+                <span id="lbl-gesture-sleep" class="pointer-events-none">Sleep</span>
             </button>
 
             <!-- Top-Right: Notifications -->
-            <button data-hold-action="NOTIFICATIONS" onclick="triggerHoldMenuOption('NOTIFICATIONS')" class="AirClickable absolute top-9 right-6 w-14 h-14 rounded-2xl bg-slate-900/90 border border-blue-500/40 text-blue-300 font-extrabold text-[10px] flex flex-col items-center justify-center hover:bg-blue-500 hover:text-white transition shadow-lg active:scale-95">
-                <i class="fa-solid fa-bell text-sm mb-0.5 text-blue-400"></i>
-                <span>Notifs</span>
+            <button data-hold-action="NOTIFICATIONS" onclick="event.stopPropagation(); triggerHoldMenuOption('NOTIFICATIONS')" ontouchstart="event.stopPropagation()" ontouchend="event.stopPropagation()" class="AirClickable absolute top-9 right-6 w-14 h-14 rounded-2xl bg-transparent border border-blue-400/60 text-blue-300 font-extrabold text-[10px] flex flex-col items-center justify-center hover:bg-blue-500/20 hover:text-blue-200 transition active:scale-95">
+                <i class="fa-solid fa-bell text-sm mb-0.5 text-blue-400 pointer-events-none"></i>
+                <span class="pointer-events-none">Notifs</span>
             </button>
         </div>
     </div>
@@ -2698,32 +2719,54 @@
         }
 
         function openFoldHoldMenu() {
-            document.getElementById('fold-hold-menu').classList.add('active');
+            document.body.classList.add('menu-open');
+            const menu = document.getElementById('fold-hold-menu');
+            if (menu) menu.classList.add('active');
             if (window.AndroidBridge && window.AndroidBridge.showSystemHoldMenu) {
                 window.AndroidBridge.showSystemHoldMenu(true);
             }
         }
 
         function closeFoldHoldMenu() {
-            document.getElementById('fold-hold-menu').classList.remove('active');
+            document.body.classList.remove('menu-open');
+            const menu = document.getElementById('fold-hold-menu');
+            if (menu) menu.classList.remove('active');
             if (window.AndroidBridge && window.AndroidBridge.showSystemHoldMenu) {
                 window.AndroidBridge.showSystemHoldMenu(false);
             }
         }
 
+        let lastVolumeTriggerTime = 0;
+        let _volBusy = false;
         function triggerHoldMenuOption(opt) {
-            if (opt === 'VOL_UP') {
-                showToast('🔊', 'Volume Up', 'Raised Media Volume');
-                playGestureTone(840, 0.05);
-                if (window.AndroidBridge && window.AndroidBridge.adjustSystemVolume) {
-                    window.AndroidBridge.adjustSystemVolume('UP');
+            if (opt === 'VOL_UP' || opt === 'VOL_DOWN') {
+                const now = Date.now();
+                if (now - lastVolumeTriggerTime < 180 || _volBusy) {
+                    return; // Prevent rapid-fire multi-step jumps
                 }
-            } else if (opt === 'VOL_DOWN') {
-                showToast('🔉', 'Volume Down', 'Lowered Media Volume');
-                playGestureTone(540, 0.05);
-                if (window.AndroidBridge && window.AndroidBridge.adjustSystemVolume) {
-                    window.AndroidBridge.adjustSystemVolume('DOWN');
+                lastVolumeTriggerTime = now;
+                _volBusy = true;
+                setTimeout(() => { _volBusy = false; }, 200);
+
+                if (opt === 'VOL_UP') {
+                    showToast('🔊', 'Volume Up', '+1 Step');
+                    playGestureTone(840, 0.04);
+                    try {
+                        if (window.AndroidBridge && typeof window.AndroidBridge.adjustSystemVolume === 'function') {
+                            window.AndroidBridge.adjustSystemVolume('UP');
+                        }
+                    } catch(e) { console.warn('VOL_UP bridge error', e); }
+                } else {
+                    showToast('🔉', 'Volume Down', '-1 Step');
+                    playGestureTone(540, 0.04);
+                    try {
+                        if (window.AndroidBridge && typeof window.AndroidBridge.adjustSystemVolume === 'function') {
+                            window.AndroidBridge.adjustSystemVolume('DOWN');
+                        }
+                    } catch(e) { console.warn('VOL_DOWN bridge error', e); }
                 }
+                // CRITICAL: NEVER close the hold menu on volume operations!
+                return;
             } else if (opt === 'BACK') {
                 closeFoldHoldMenu();
                 showToast('⬅️', 'System Back', 'Back Executed');
@@ -4384,8 +4427,11 @@
             toggleVoiceRecognition();
         }
 
+        window.isNativeOverlayActive = false;
+
         window.setNativeOverlayMode = function(isOverlay) {
             const isO = !!isOverlay;
+            window.isNativeOverlayActive = isO;
             document.documentElement.classList.toggle('native-overlay-mode', isO);
             document.body.classList.toggle('native-overlay-mode', isO);
             const appShell = document.getElementById('app-shell');
@@ -4394,7 +4440,9 @@
 
             if (isO) {
                 document.documentElement.style.background = 'transparent';
+                document.documentElement.style.backgroundColor = 'transparent';
                 document.body.style.background = 'transparent';
+                document.body.style.backgroundColor = 'transparent';
                 if (appShell) appShell.style.display = 'none';
                 if (voiceHud) voiceHud.style.display = 'none';
                 if (floatingHud) {
@@ -4402,14 +4450,32 @@
                 }
             } else {
                 document.documentElement.style.background = '#050811';
+                document.documentElement.style.backgroundColor = '#050811';
                 document.body.style.background = '#050811';
+                document.body.style.backgroundColor = '#050811';
                 if (appShell) appShell.style.display = '';
                 if (voiceHud) voiceHud.style.display = '';
             }
         };
 
-        // Automatic self-healing: When user reopens or switches back to app, restore full UI immediately
+        function isOverlayModeActive() {
+            if (window.isNativeOverlayActive) return true;
+            if (document.body.classList.contains('native-overlay-mode')) return true;
+            if (window.AndroidBridge && typeof window.AndroidBridge.isFloatingOverlay === 'function') {
+                try {
+                    return window.AndroidBridge.isFloatingOverlay();
+                } catch(e) {}
+            }
+            return false;
+        }
+
+        // Automatic self-healing: When user reopens or switches back to app, restore full UI immediately (ONLY IF NOT IN OVERLAY MODE!)
         document.addEventListener('visibilitychange', () => {
+            if (isOverlayModeActive()) {
+                document.documentElement.style.backgroundColor = 'transparent';
+                document.body.style.backgroundColor = 'transparent';
+                return;
+            }
             if (document.visibilityState === 'visible') {
                 document.body.classList.remove('native-overlay-mode');
                 document.body.style.backgroundColor = '#050811';
@@ -4418,11 +4484,21 @@
         });
 
         window.addEventListener('focus', () => {
+            if (isOverlayModeActive()) {
+                document.documentElement.style.backgroundColor = 'transparent';
+                document.body.style.backgroundColor = 'transparent';
+                return;
+            }
             document.body.classList.remove('native-overlay-mode');
             document.body.style.backgroundColor = '#050811';
         });
 
         window.addEventListener('pageshow', () => {
+            if (isOverlayModeActive()) {
+                document.documentElement.style.backgroundColor = 'transparent';
+                document.body.style.backgroundColor = 'transparent';
+                return;
+            }
             document.body.classList.remove('native-overlay-mode');
             document.body.style.backgroundColor = '#050811';
         });
