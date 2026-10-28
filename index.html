@@ -3241,40 +3241,73 @@
             ctx.restore();
         }
 
-        // 3D Distance-relative hand finger analyzer (Rotation & Tilt Invariant)
+        // 3D Distance-relative hand finger analyzer (Rotation & Tilt Invariant, Distance Scaled)
         function analyzeHandFingers(lm) {
             const wrist = lm[0];
             const distWrist = (idx) => Math.hypot(lm[idx].x - wrist.x, lm[idx].y - wrist.y);
 
-            const isIndexExt = (distWrist(8) > distWrist(6) * 1.12 && distWrist(8) > distWrist(5) * 1.20) || (lm[8].y < lm[6].y - 0.035);
-            const isMiddleExt = (distWrist(12) > distWrist(10) * 1.12 && distWrist(12) > distWrist(9) * 1.20) || (lm[12].y < lm[10].y - 0.035);
-            const isRingExt = (distWrist(16) > distWrist(14) * 1.12 && distWrist(16) > distWrist(13) * 1.20) || (lm[16].y < lm[14].y - 0.035);
-            const isPinkyExt = (distWrist(20) > distWrist(18) * 1.12 && distWrist(20) > distWrist(17) * 1.20) || (lm[20].y < lm[18].y - 0.035);
+            // Palm Size Reference: distance from wrist (0) to middle knuckle MCP (9)
+            // Scales dynamically with camera distance (50cm, 100cm, etc.)
+            const palmSize = Math.max(0.025, Math.hypot(lm[9].x - wrist.x, lm[9].y - wrist.y));
+
+            // Finger extension: distance-relative + vertical position scaled by palmSize
+            const checkExt = (tip, pip, mcp) => {
+                const dTip = distWrist(tip);
+                const dPip = distWrist(pip);
+                const dMcp = distWrist(mcp);
+                return (dTip > dPip * 1.08 && dTip > dMcp * 1.15) || (lm[tip].y < lm[pip].y - (palmSize * 0.16));
+            };
+
+            const isIndexExt = checkExt(8, 6, 5);
+            const isMiddleExt = checkExt(12, 10, 9);
+            const isRingExt = checkExt(16, 14, 13);
+            const isPinkyExt = checkExt(20, 18, 17);
 
             const isIndexFold = !isIndexExt;
             const isMiddleFold = !isMiddleExt;
             const isRingFold = !isRingExt;
             const isPinkyFold = !isPinkyExt;
 
+            const foldedCount = (isIndexFold ? 1 : 0) + (isMiddleFold ? 1 : 0) + (isRingFold ? 1 : 0) + (isPinkyFold ? 1 : 0);
+            const extendedCount = 4 - foldedCount;
+
+            // Open Palm: at least 3 extended fingers including index and middle (robust at 100cm against pinky jitter)
+            const isOpenPalm = (extendedCount >= 3 && isIndexExt && isMiddleExt) || (isIndexExt && isMiddleExt && isRingExt && isPinkyExt);
+
+            // All Folded (Fist): all 4 folded OR at least 3 folded including index and middle
+            const isAllFolded = (isIndexFold && isMiddleFold && isRingFold && isPinkyFold) || (foldedCount >= 3 && isIndexFold && isMiddleFold);
+
             const pinchDist = Math.hypot(lm[8].x - lm[4].x, lm[8].y - lm[4].y);
-            const pinchThresh = 0.045 + ((aeroConfig.sensitivity || 3) * 0.005);
-            const isPinching = pinchDist < pinchThresh;
+            const pinchThresh = (0.045 + ((aeroConfig.sensitivity || 3) * 0.005)) * (palmSize / 0.18);
+            const isPinching = pinchDist < Math.max(0.035, pinchThresh);
 
             // Clean Pinch: Index+Thumb touch WHILE middle, ring, pinky are OPEN
-            // This is the user's described gesture: open hand 🖐 → index+thumb pinch → 3 fingers stay open
-            // Fist motion during scroll will NOT match because all fingers are folded
             const otherFingersOpen = (isMiddleExt && isRingExt) || (isMiddleExt && isPinkyExt) || (isRingExt && isPinkyExt);
             const isCleanPinch = isPinching && otherFingersOpen;
 
-            // Thumbs Up 👍: 4 fingers curled/folded, thumb extended UPWARDS
-            const isThumbUp = (lm[4].y < lm[3].y) && (lm[3].y < lm[2].y) && (lm[4].y < lm[5].y - 0.025) && (distWrist(4) > distWrist(2) * 1.12);
-            const isThumbsUp = isIndexFold && isMiddleFold && isRingFold && isPinkyFold && isThumbUp;
+            // Thumbs Up:
+            // 1. Fingers curled/folded into fist
+            // 2. Thumb tip (4) is vertically above thumb IP (3) and MCP (2)
+            // 3. Thumb tip (4) is well above the knuckles of the fist (index MCP 5): at least 30% of palmSize
+            // 4. Thumb tip is extended away from index PIP (6) - NOT resting on or near index knuckle like in a fist!
+            // 5. Thumb length from MCP (2) is extended
+            const distThumbToIndexPip = Math.hypot(lm[4].x - lm[6].x, lm[4].y - lm[6].y);
+            const thumbExtendedFromMcp = Math.hypot(lm[4].x - lm[2].x, lm[4].y - lm[2].y);
+            const isThumbPointingUp = (lm[4].y < lm[3].y) && (lm[3].y < lm[2].y);
+            const isThumbAboveKnuckles = (lm[5].y - lm[4].y) > (palmSize * 0.30);
+            const isThumbAwayFromFist = distThumbToIndexPip > (palmSize * 0.36);
+            const isThumbExtended = thumbExtendedFromMcp > (palmSize * 0.38) && (distWrist(4) > distWrist(2) * 1.20);
+
+            const isThumbUp = isThumbPointingUp && isThumbAboveKnuckles && isThumbAwayFromFist && isThumbExtended;
+            // Only considered Thumbs Up if the other fingers are folded AND thumb is truly extended upward
+            const isThumbsUp = isAllFolded && isThumbUp;
 
             return {
                 isIndexExt, isIndexFold,
                 isMiddleExt, isMiddleFold,
                 isRingExt, isRingFold,
                 isPinkyExt, isPinkyFold,
+                isOpenPalm, isAllFolded,
                 isPinching, isCleanPinch, pinchDist,
                 isThumbsUp
             };
@@ -3428,10 +3461,10 @@
                             }
 
                             // Instant Gesture Classification (Zero delay, no dial charging)
-                            const isOpenPalm = f.isIndexExt && f.isMiddleExt && f.isRingExt && f.isPinkyExt;
+                            const isOpenPalm = f.isOpenPalm;
                             const isIndexPointing = f.isIndexExt && f.isMiddleFold && f.isRingFold && f.isPinkyFold;
                             const isTwoFingerPointing = f.isIndexExt && f.isMiddleExt && f.isRingFold && f.isPinkyFold;
-                            const isAllFolded = f.isIndexFold && f.isMiddleFold && f.isRingFold && f.isPinkyFold;
+                            const isAllFolded = f.isAllFolded;
                             const isThumbsUp = f.isThumbsUp;
                             // 🤘 Rock / Horns sign: Index and Pinky extended, Middle and Ring folded
                             const isRockSign = f.isIndexExt && f.isPinkyExt && f.isMiddleFold && f.isRingFold;
@@ -3440,14 +3473,13 @@
                             const likeHoldSec = (typeof aeroConfig.likeHoldDuration === 'number') ? aeroConfig.likeHoldDuration : 2.0;
                             const likeHoldMs = likeHoldSec * 1000;
 
-                            if (isThumbsUp && !isGestureSleeping) {
+                            // Protect active Home/Back sequence from any Like / Thumbs Up collision
+                            const inMultiStepSequence = (homeGestureStep > 0 || backGestureStep > 0);
+
+                            if (isThumbsUp && !isGestureSleeping && !inMultiStepSequence) {
                                 wasIndexArmed = false;
                                 wasTwoArmed = false;
                                 isContinuousHolding = false;
-                                homeGestureStep = 0;
-                                homeStep1HoldStart = 0;
-                                backGestureStep = 0;
-                                backStep1HoldStart = 0;
 
                                 if (!thumbsUpStartTime) {
                                     thumbsUpStartTime = now;
@@ -3469,7 +3501,7 @@
                                 thumbsUpProgress = 0;
                             }
 
-                            if (!isThumbsUp && !isCleanPinch && !isGestureSleeping) {
+                            if ((!isThumbsUp || inMultiStepSequence) && !isCleanPinch && !isGestureSleeping) {
                                 // Timeout watchdog for 3-Step Gesture sequences (1600ms per step)
                                 if (homeGestureStep > 0 && (now - homeStepTime > 1600)) {
                                     homeGestureStep = 0;
@@ -3575,12 +3607,17 @@
                                             // STEP 2: Transition from Open Palm (Step 1) into Fist (Step 2)
                                             homeGestureStep = 2;
                                             homeStepTime = now;
+                                            thumbsUpStartTime = 0;
+                                            thumbsUpProgress = 0;
                                             wasIndexArmed = false;
                                             wasTwoArmed = false;
                                             isContinuousHolding = false;
                                             playGestureTone(420, 0.03); // Subtle tick for fist step
                                         } else if (homeGestureStep === 2) {
                                             // Hand is still in Fist in Step 2: keep waiting for Open Palm (Step 3)!
+                                            homeStepTime = now; // Maintain step freshness so holding fist won't timeout
+                                            thumbsUpStartTime = 0;
+                                            thumbsUpProgress = 0;
                                             wasIndexArmed = false;
                                             wasTwoArmed = false;
                                             isContinuousHolding = false;
@@ -3697,7 +3734,7 @@
                                 gestureState = 'SLEEP';
                             } else if (isCleanPinch) {
                                 gestureState = 'PINCH';
-                            } else if (isThumbsUp) {
+                            } else if (isThumbsUp && homeGestureStep === 0 && backGestureStep === 0) {
                                 gestureState = 'THUMBS_UP';
                             } else if (lastActionName === 'HOME' && (now - spatialFlashTime) < 320) {
                                 gestureState = 'HOME';
