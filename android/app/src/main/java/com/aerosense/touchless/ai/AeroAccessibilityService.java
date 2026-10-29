@@ -4,6 +4,8 @@ import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.GestureDescription;
 import android.graphics.Color;
 import android.graphics.Path;
+import android.graphics.Rect;
+import android.util.Log;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
@@ -32,6 +34,8 @@ public class AeroAccessibilityService extends AccessibilityService {
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private int screenWidth = 1080;
     private int screenHeight = 2400;
+    private int usableHeight = 2400;
+    private int navBarHeight = 0;
     private float smoothX = 540f;
     private float smoothY = 1200f;
     private float smoothX2 = 540f;
@@ -57,6 +61,11 @@ public class AeroAccessibilityService extends AccessibilityService {
             windowManager.getDefaultDisplay().getRealMetrics(dm);
             screenWidth = dm.widthPixels;
             screenHeight = dm.heightPixels;
+
+            DisplayMetrics appDm = new DisplayMetrics();
+            windowManager.getDefaultDisplay().getMetrics(appDm);
+            usableHeight = appDm.heightPixels;
+            navBarHeight = Math.max(0, screenHeight - usableHeight);
         }
     }
 
@@ -220,12 +229,20 @@ public class AeroAccessibilityService extends AccessibilityService {
     public void performAirTap(float normX, float normY) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) return;
         long now = System.currentTimeMillis();
-        if (now - lastGestureDispatchTime < 300) return;
+        if (now - lastGestureDispatchTime < 250) return;
         lastGestureDispatchTime = now;
 
         updateScreenDimensions();
-        float tapX = Math.max(5f, Math.min(screenWidth - 5f, normX * screenWidth));
-        float tapY = Math.max(5f, Math.min(screenHeight - 5f, normY * screenHeight));
+        float density = getResources().getDisplayMetrics().density;
+        float tapX = Math.max(10f, Math.min(screenWidth - 10f, normX * screenWidth));
+
+        // Map normY across the interactive screen:
+        // Top limit: below status bar (~15dp)
+        // Bottom limit: inside bottom navigation bar / footer icons (~32dp above screen bottom),
+        // preventing taps from overshooting into the Android system gesture bar / navigation bar deadzone!
+        float minTapY = 15f * density;
+        float maxTapY = screenHeight - (32f * density);
+        float tapY = minTapY + (normY * (maxTapY - minTapY));
 
         Path clickPath = new Path();
         clickPath.moveTo(tapX, tapY);
