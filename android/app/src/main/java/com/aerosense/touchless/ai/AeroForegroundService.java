@@ -157,6 +157,14 @@ public class AeroForegroundService extends Service {
     }
 
     @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
+        // Do NOT stop the gesture service when tasks are cleared from recents!
+        // Keep wake lock active so hand tracking camera runs uninterrupted.
+        acquireWakeLock();
+    }
+
+    @Override
     public void onDestroy() {
         releaseWakeLock();
         super.onDestroy();

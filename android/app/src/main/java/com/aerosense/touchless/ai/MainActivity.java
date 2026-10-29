@@ -864,6 +864,11 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        if (isBackgroundEngineRunning) {
+            // Keep background engine and floating HUD active even if activity is detached/destroyed
+            super.onDestroy();
+            return;
+        }
         if (isFloatingOverlayAttached && systemWindowManager != null && webView != null) {
             try {
                 systemWindowManager.removeView(webView);
