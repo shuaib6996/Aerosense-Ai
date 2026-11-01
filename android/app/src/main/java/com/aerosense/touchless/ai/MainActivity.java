@@ -90,6 +90,9 @@ public class MainActivity extends Activity {
             webView.onResume();
             webView.resumeTimers();
             notifyWebOverlayState(false);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                webView.evaluateJavascript("if(window.switchTab) window.switchTab('launcher');", null);
+            }
             return;
         }
 

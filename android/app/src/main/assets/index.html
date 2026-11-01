@@ -7,13 +7,13 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="AeroSense AI">
     <meta name="theme-color" content="#050811">
-    <title>AeroSense AI™ — Touchless Hand Gesture, Advanced Settings & Air Keyboard OS</title>
+    <title>AeroSense AI™ — Touchless Hand Gesture & Advanced Settings OS</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-    <!-- MediaPipe Hands & Camera Utils for 1-Hand & 2-Hand Tracking -->
+    <!-- MediaPipe Hands & Camera Utils for Touchless Hand Tracking -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
@@ -42,41 +42,7 @@
             display: none !important;
         }
 
-        /* Dual Hand Air Cursors (Left Hand = Cyan, Right Hand = Purple) */
-        .air-hand-cursor {
-            position: fixed;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9999;
-            transform: translate(-50%, -50%);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-size: 9px;
-            font-weight: 900;
-            transition: width 0.08s ease, height 0.08s ease;
-        }
-        #air-cursor-left {
-            border: 2.5px solid #22d3ee;
-            background: rgba(34, 211, 238, 0.28);
-            box-shadow: 0 0 18px rgba(34, 211, 238, 0.9);
-            color: #ffffff;
-        }
-        #air-cursor-right {
-            border: 2.5px solid #a855f7;
-            background: rgba(168, 85, 247, 0.28);
-            box-shadow: 0 0 18px rgba(168, 85, 247, 0.9);
-            color: #ffffff;
-        }
-        .air-hand-cursor.pinching {
-            width: 20px;
-            height: 20px;
-            background: #10b981 !important;
-            border-color: #ffffff !important;
-            box-shadow: 0 0 26px #10b981 !important;
-        }
+        
 
         /* 1-Finger Fold & Hold Radial / Grid Menu (Completely clean, transparent, no dark backdrop or black shadow) */
         #fold-hold-menu {
@@ -284,41 +250,11 @@
         #dynamic-control-interface.visible {
             display: flex;
         }
+        body:has(#view-settings:not(.hidden)) #dynamic-control-interface {
+            display: none !important;
+        }
 
-        /* Air Keyboard Keys */
-        .air-key {
-            height: 42px;
-            border-radius: 10px;
-            background: rgba(30, 41, 59, 0.95);
-            border: 1px solid rgba(148, 163, 184, 0.25);
-            color: #f8fafc;
-            font-weight: 800;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.1s ease;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-        .air-key.key-hovered-left {
-            border-color: #22d3ee;
-            background: rgba(8, 145, 178, 0.45);
-            box-shadow: 0 0 14px rgba(34, 211, 238, 0.6);
-            transform: translateY(-2px) scale(1.06);
-        }
-        .air-key.key-hovered-right {
-            border-color: #a855f7;
-            background: rgba(126, 34, 206, 0.45);
-            box-shadow: 0 0 14px rgba(168, 85, 247, 0.6);
-            transform: translateY(-2px) scale(1.06);
-        }
-        .air-key:active, .air-key.key-pressed {
-            background: #10b981 !important;
-            color: #020617 !important;
-            transform: scale(0.94);
-        }
+        
 
         /* Native Android Floating Window Transparency */
         html.native-overlay-mode,
@@ -326,7 +262,7 @@
             background-color: transparent !important;
             background: transparent !important;
         }
-        body.native-overlay-mode > *:not(#spatial-floating-hud):not(#fold-hold-menu):not(#air-keyboard-overlay) {
+        body.native-overlay-mode > *:not(#spatial-floating-hud):not(#fold-hold-menu) {
             display: none !important;
         }
         body.native-overlay-mode #app-shell,
@@ -478,21 +414,17 @@
         <div class="w-2 h-2 rounded-full bg-emerald-400"></div>
     </div>
 
-    <!-- Dual Hand Air Cursors (L = Left Hand Cyan, R = Right Hand Purple) -->
-    <div id="air-cursor-left" class="air-hand-cursor">L</div>
-    <div id="air-cursor-right" class="air-hand-cursor">R</div>
+    
 
     <!-- Hidden Raw Webcam Video Elements -->
     <video id="webcam-video" class="hidden" playsinline muted></video>
-    <video id="module-webcam" class="hidden" playsinline muted></video>
+    
 
     <!-- FLOATING HAND INDICATOR (Live Controlled by 'Indicator' Settings Tab) -->
     <div id="dynamic-hand-indicator">
         <div class="px-2 pt-1.5 flex items-center justify-between text-[9px] font-extrabold text-cyan-300 z-10">
             <span id="ind-hands-badge">🖐️ 0 Hands</span>
-            <button onclick="toggleAirKeyboard(true)" class="AirKeyTarget px-1.5 py-0.5 rounded bg-indigo-500/30 border border-indigo-400/50 text-white" title="Open Air Keyboard">
-                ⌨️
-            </button>
+            
         </div>
         <div class="relative flex-1 w-full h-full flex items-center justify-center overflow-hidden">
             <canvas id="module-skeleton-canvas" class="w-full h-full object-cover mirror-cam"></canvas>
@@ -518,60 +450,7 @@
         </div>
     </div>
 
-    <!-- 1-HAND & 2-HAND AIR TYPING KEYBOARD OVERLAY (For Comments & Search) -->
-    <div id="air-keyboard-overlay" class="fixed inset-x-0 bottom-0 z-[9500] bg-slate-950/95 backdrop-blur-xl border-t-2 border-cyan-500/50 p-3 shadow-2xl hidden flex-col gap-2.5 max-w-lg mx-auto rounded-t-3xl">
-        <div class="flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2">
-                <span class="px-2.5 py-1 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 text-[10px] font-extrabold">
-                    ⌨️ <span id="kb-hand-mode-text">1-Hand & 2-Hand Air Typing</span>
-                </span>
-                <span class="text-[10px] text-slate-400 font-semibold hidden sm:inline">
-                    Pinch 👌 or Fold ☝️ over keys
-                </span>
-            </div>
-            <div class="flex items-center gap-1.5">
-                <button onclick="toggleDwellTyping()" id="dwell-type-btn" class="AirKeyTarget px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-[10px] font-extrabold text-slate-300">
-                    Hover-Type: OFF
-                </button>
-                <button onclick="toggleAirKeyboard(false)" class="AirKeyTarget px-2.5 py-1 rounded-lg bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs font-extrabold">
-                    Close ✕
-                </button>
-            </div>
-        </div>
-
-        <!-- Live Typed Input Box + Search & Comment Buttons -->
-        <div class="flex items-center gap-1.5">
-            <div class="flex-1 relative">
-                <input id="air-typed-input" type="text" placeholder="Type comment or search with 1 or 2 hands..."
-                    class="w-full bg-slate-900 border border-cyan-500/40 rounded-xl px-3 py-2.5 text-sm font-bold text-white focus:outline-none">
-                <button onclick="clearAirInput()" class="AirKeyTarget absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs px-1.5">
-                    <i class="fa-solid fa-delete-left"></i>
-                </button>
-            </div>
-            <button onclick="submitAirText('COMMENT')" class="AirKeyTarget px-3 py-2.5 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-950 font-black text-xs whitespace-nowrap shadow-md">
-                💬 Comment
-            </button>
-            <button onclick="submitAirText('SEARCH')" class="AirKeyTarget px-3 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-black text-xs whitespace-nowrap shadow-md">
-                🔍 Search
-            </button>
-        </div>
-
-        <!-- Smart Word Suggestions & Quick Emojis -->
-        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-            <button onclick="insertQuickPhrase('Awesome video! 🔥')" class="AirKeyTarget px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] font-bold text-cyan-300 whitespace-nowrap">Awesome video! 🔥</button>
-            <button onclick="insertQuickPhrase('Love this ❤️')" class="AirKeyTarget px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] font-bold text-rose-300 whitespace-nowrap">Love this ❤️</button>
-            <button onclick="insertQuickPhrase('Nice song 🎵')" class="AirKeyTarget px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] font-bold text-purple-300 whitespace-nowrap">Nice song 🎵</button>
-            <button onclick="insertQuickPhrase('😂')" class="AirKeyTarget px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-xs">😂</button>
-            <button onclick="insertQuickPhrase('🔥')" class="AirKeyTarget px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-xs">🔥</button>
-            <button onclick="insertQuickPhrase('❤️')" class="AirKeyTarget px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-xs">❤️</button>
-            <button onclick="insertQuickPhrase('👏')" class="AirKeyTarget px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-xs">👏</button>
-        </div>
-
-        <!-- Split-Friendly QWERTY Keyboard Grid -->
-        <div id="qwerty-rows-container" class="space-y-1.5 select-none">
-            <!-- Populated by JS -->
-        </div>
-    </div>
+    
 
 
 
@@ -754,9 +633,7 @@
                 </div>
 
                 <div class="flex items-center gap-1.5 shrink-0">
-                    <button onclick="toggleAirKeyboard(true)" class="AirClickable w-8 h-8 rounded-xl bg-indigo-500/20 border border-indigo-400/40 text-indigo-300 hover:text-white flex items-center justify-center text-xs active:scale-95 transition" title="Air Keyboard">
-                        <i class="fa-solid fa-keyboard"></i>
-                    </button>
+                    
                     <button id="voice-btn" onclick="toggleVoiceControl()" class="AirClickable w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-cyan-400 flex items-center justify-center active:scale-95 transition" title="Voice Control">
                         <i id="voice-icon" class="fa-solid fa-microphone-slash text-xs"></i>
                     </button>
@@ -801,7 +678,7 @@
         </div>
 
         <!-- 3. MAIN SCROLLABLE VIEWPORT -->
-        <main class="flex-1 min-h-0 w-full overflow-y-auto no-scrollbar p-3 space-y-3 pb-36">
+        <main class="flex-1 min-h-0 w-full overflow-y-auto no-scrollbar p-3 space-y-3 pb-3">
 
             <!-- VIEW 1: START & APPS -->
             <section id="view-launcher" class="space-y-3">
@@ -917,64 +794,13 @@
                 </div>
             </section>
 
-            <!-- VIEW 2: STREAM TEST -->
-            <section id="view-stream" class="hidden space-y-3">
-                <div class="bento-card rounded-3xl p-4 text-center space-y-3">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-black text-cyan-300 uppercase tracking-wider">📺 Stream & Gesture Tester</span>
-                        <span id="stream-badge" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold text-[9px]">PAUSED</span>
-                    </div>
+            
 
-                    <div class="relative w-full aspect-video rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center overflow-hidden">
-                        <div class="text-center space-y-2 p-4">
-                            <i class="fa-solid fa-film text-cyan-400 text-3xl"></i>
-                            <p class="text-xs font-bold text-white">Interactive Reel / Video Simulator</p>
-                            <p class="text-[10px] text-slate-400">Pinch 👌 to Play/Pause • 1-Fold ☝️ to Next Reel</p>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-center gap-2">
-                        <button onclick="executeAction('PREV')" class="AirClickable px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs font-bold">
-                            ⏮️ Prev
-                        </button>
-                        <button onclick="executeAction('PLAY_PAUSE')" class="AirClickable px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-black text-xs">
-                            ⏯️ Play / Pause
-                        </button>
-                        <button onclick="executeAction('NEXT')" class="AirClickable px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs font-bold">
-                            ⏭️ Next
-                        </button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- VIEW 3: SPATIAL SETTINGS & 1/2-HAND AIR KEYBOARD MODULE -->
+            <!-- VIEW 3: SPATIAL SETTINGS -->
             <section id="view-settings" class="hidden space-y-4">
-                <!-- Top Title + Camera & Air Keyboard Quick Launchers -->
+                <!-- Top Title -->
                 <div class="flex items-center justify-between gap-2">
                     <h2 class="text-xl font-black tracking-tight text-white">Spatial Settings</h2>
-                    <div class="flex items-center gap-1.5">
-                        <button id="cam-start-btn" onclick="toggleModuleCamera()" class="AirKeyTarget px-2.5 py-1.5 rounded-xl bg-emerald-500 text-slate-950 font-black text-xs flex items-center gap-1 shadow-lg">
-                            <i class="fa-solid fa-camera"></i>
-                            <span id="cam-start-label">Start 2-Hand AI</span>
-                        </button>
-                        <button onclick="toggleAirKeyboard(true)" class="AirKeyTarget px-2.5 py-1.5 rounded-xl bg-indigo-600 text-white font-black text-xs flex items-center gap-1 shadow-lg">
-                            <i class="fa-solid fa-keyboard"></i>
-                            <span>Air Keyboard</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Two-Hand Keyboard Sign Banner -->
-                <div class="p-3.5 rounded-2xl bg-gradient-to-r from-blue-950/90 via-indigo-950/90 to-slate-900 border border-blue-500/40 flex items-center justify-between gap-3">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-2xl bg-blue-500/20 border border-blue-400/40 flex items-center justify-center text-lg shrink-0">
-                            🙌
-                        </div>
-                        <div>
-                            <p class="text-xs font-extrabold text-white">Two-Hand Sign: Open Air Keyboard</p>
-                            <p class="text-[11px] text-blue-200/80">Show <strong>Both Hands Pinch (👌+👌)</strong> or <strong>Dual L-Sign</strong> for 0.5s to type with 1 or 2 hands!</p>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- Top Pill Tabs: Gestures | Indicator | Controls -->
@@ -1001,14 +827,6 @@
                         <div onclick="openDeviceAppPickerModal()" class="AirKeyTarget flex items-center justify-between py-1 cursor-pointer">
                             <span class="text-sm font-bold text-white">App Settings</span>
                             <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
-                        </div>
-
-                        <div onclick="cycleGestureType()" class="AirKeyTarget flex items-center justify-between py-1 cursor-pointer">
-                            <span class="text-sm font-bold text-white">Gesture Type</span>
-                            <div class="flex items-center gap-2">
-                                <span id="val-gesture-type" class="text-sm font-bold text-slate-400">FingerFold</span>
-                                <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
-                            </div>
                         </div>
 
                         <div class="flex items-center justify-between py-1">
@@ -1331,37 +1149,27 @@
                             </button>
                         </div>
 
+                        <!-- Live Inline Preview Box (Clean layout, no floating overlap) -->
+                        <div class="p-3.5 rounded-3xl bg-slate-900/90 border border-indigo-500/40 flex flex-col items-center justify-center gap-2.5 shadow-lg">
+                            <div onclick="cycleControlStyle()" class="AirKeyTarget w-full flex items-center justify-between px-1 cursor-pointer" title="Tap to switch style">
+                                <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-300 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-sliders text-xs"></i> <span id="ctrl-preview-style-label">Island Control</span>
+                                </span>
+                                <span id="ctrl-preview-badge" class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 hover:bg-indigo-500/30 transition flex items-center gap-1">
+                                    Switch Style <i class="fa-solid fa-chevron-right text-[8px]"></i>
+                                </span>
+                            </div>
+                            <div id="ctrl-preview-grid" class="grid grid-cols-3 gap-2 w-full">
+                                <!-- Populated dynamically with active shortcuts -->
+                            </div>
+                        </div>
+
+                        <!-- Style Selector -->
                         <div onclick="cycleControlStyle()" class="AirKeyTarget flex items-center justify-between py-1 cursor-pointer">
                             <span class="text-sm font-bold text-white">Style</span>
                             <div class="flex items-center gap-2">
                                 <span id="val-control-style" class="text-sm font-bold text-slate-400">Island</span>
                                 <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center justify-between py-1">
-                            <div class="flex items-center gap-2">
-                                <span class="text-sm font-bold text-white">Always Show</span>
-                                <span class="px-2 py-0.5 rounded-full bg-[#465fff] text-white font-black text-[9px] border border-white/40">PRO</span>
-                            </div>
-                            <button id="toggle-ctrl-always" onclick="toggleControlAlwaysShow()"
-                                class="AirKeyTarget w-13 h-7 rounded-full bg-slate-700 p-1 flex items-center justify-start transition">
-                                <div class="w-5 h-5 rounded-full bg-white flex items-center justify-center text-slate-700 text-[10px]">
-                                    <i id="icon-ctrl-always" class="fa-solid fa-xmark"></i>
-                                </div>
-                            </button>
-                        </div>
-
-                        <div class="space-y-2">
-                            <div onclick="toggleShortcutsDrawer()" class="AirKeyTarget flex items-center justify-between py-1 cursor-pointer">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-sm font-bold text-white">Shortcuts</span>
-                                    <span class="px-2 py-0.5 rounded-full bg-[#465fff] text-white font-black text-[9px] border border-white/40">PRO</span>
-                                </div>
-                                <i id="shortcuts-chevron" class="fa-solid fa-chevron-down text-slate-400 text-xs transition"></i>
-                            </div>
-                            <div id="shortcuts-drawer" class="hidden grid-cols-2 gap-2 pt-2">
-                                <!-- Dynamically rendered checkboxes -->
                             </div>
                         </div>
 
@@ -1457,9 +1265,8 @@
                 <div id="gpanel-gestures" class="space-y-3">
                     <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
                         <button onclick="filterGestureCards('ALL')" id="gfilt-ALL" class="px-3 py-1 rounded-full bg-cyan-500 text-slate-950 font-black text-[10px] whitespace-nowrap">All (7)</button>
-                        <button onclick="filterGestureCards('FOLD')" id="gfilt-FOLD" class="px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300 font-bold text-[10px] whitespace-nowrap">Finger-Fold</button>
-                        <button onclick="filterGestureCards('SYSTEM')" id="gfilt-SYSTEM" class="px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300 font-bold text-[10px] whitespace-nowrap">Back & Home</button>
-                        <button onclick="filterGestureCards('TYPING')" id="gfilt-TYPING" class="px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300 font-bold text-[10px] whitespace-nowrap">Air Keyboard</button>
+                        <button onclick="filterGestureCards('FOLD')" id="gfilt-FOLD" class="px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300 font-bold text-[10px] whitespace-nowrap">Reels & Media</button>
+                        <button onclick="filterGestureCards('SYSTEM')" id="gfilt-SYSTEM" class="px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300 font-bold text-[10px] whitespace-nowrap">System & Like</button>
                     </div>
                     <div id="gesture-guide-cards" class="space-y-3"></div>
                 </div>
@@ -1570,8 +1377,7 @@
                                     <option value="HOME">🏠 System Home Screen</option>
                                     <option value="VOL_UP">🔊 Volume Up</option>
                                     <option value="VOL_DOWN">🔉 Volume Down</option>
-                                    <option value="OPEN_KEYBOARD">⌨️ Open 2-Hand Air Keyboard</option>
-                                </select>
+                                                                    </select>
                             </div>
 
                             <button onclick="addCustomVoiceCommand()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-black text-xs shadow-lg active:scale-95 transition">
@@ -1625,16 +1431,12 @@
             </section>
         </main>
 
-        <!-- 4. BOTTOM NAVIGATION (Apps | Stream | Settings | Gestures | Admin) -->
+        <!-- 4. BOTTOM NAVIGATION (Apps | Settings | Gestures | Admin) -->
         <nav class="shrink-0 bg-[#04070f] border-t border-slate-800 px-2 py-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] z-20">
-            <div class="grid grid-cols-5 gap-1">
+            <div class="grid grid-cols-4 gap-1">
                 <button onclick="switchTab('launcher')" id="nav-launcher" class="AirClickable py-1.5 rounded-xl bg-cyan-500/15 text-cyan-400 font-extrabold text-[9px] flex flex-col items-center gap-0.5">
                     <i class="fa-solid fa-power-off text-xs"></i>
                     <span>Apps</span>
-                </button>
-                <button onclick="switchTab('stream')" id="nav-stream" class="AirClickable py-1.5 rounded-xl text-slate-400 font-bold text-[9px] flex flex-col items-center gap-0.5">
-                    <i class="fa-solid fa-circle-play text-xs"></i>
-                    <span>Stream</span>
                 </button>
                 <button onclick="switchTab('settings')" id="nav-settings" class="AirClickable py-1.5 rounded-xl text-slate-400 font-bold text-[9px] flex flex-col items-center gap-0.5">
                     <i class="fa-solid fa-sliders text-xs"></i>
@@ -1668,28 +1470,28 @@
                     <span class="font-bold text-purple-300">✌️ 2-Finger Fold & Open</span>
                     <span class="text-slate-300">Previous Reel</span>
                 </div>
+                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-rose-500/30 flex justify-between">
+                    <span class="font-bold text-rose-300">👍 Thumbs-Up Gesture</span>
+                    <span class="text-slate-200 font-bold">Like Video / Reel</span>
+                </div>
+                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-blue-500/30 flex justify-between">
+                    <span class="font-bold text-blue-300">👌 Air Cursor & Pinch</span>
+                    <span class="text-slate-200 font-bold">Tap / Click anywhere</span>
+                </div>
                 <div class="p-2.5 rounded-xl bg-slate-900/90 border border-amber-500/30 flex justify-between">
-                    <span class="font-bold text-amber-300">⬅️ 3-Finger Fold & Open</span>
+                    <span class="font-bold text-amber-300">⬅️ 3-Step Back (✋➔🤘➔✋)</span>
                     <span class="text-slate-200 font-bold">System Back</span>
                 </div>
                 <div class="p-2.5 rounded-xl bg-slate-900/90 border border-emerald-500/30 flex justify-between">
-                    <span class="font-bold text-emerald-300">🏠 ✋ ➔ ✊ ➔ ✋ (3 Steps)</span>
+                    <span class="font-bold text-emerald-300">🏠 3-Step Home (✋➔✊➔✋)</span>
                     <span class="text-slate-200 font-bold">System Home</span>
                 </div>
-                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex justify-between">
-                    <span class="font-bold text-indigo-300">⏱️ 1-Finger Fold & Hold</span>
-                    <span class="text-slate-300">Open Action Menu</span>
-                </div>
-                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex justify-between">
-                    <span class="font-bold text-emerald-400">👌 Index + Thumb Pinch</span>
-                    <span class="text-slate-300">Air Tap / Play-Pause</span>
-                </div>
-                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-blue-500/40 flex justify-between">
-                    <span class="font-bold text-blue-300">🙌 Both Hands Pinch (👌+👌)</span>
-                    <span class="text-slate-200 font-bold">Open Air Keyboard</span>
+                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-indigo-500/30 flex justify-between">
+                    <span class="font-bold text-indigo-300">⏱️ Long Pinch Hold (2.5s)</span>
+                    <span class="text-slate-300">Open Quick Action Menu</span>
                 </div>
             </div>
-            <button onclick="closeGestureGuideModal()" class="w-full py-2.5 rounded-xl bg-cyan-500 text-slate-950 font-black text-xs">Got It</button>
+            <button onclick="closeGestureGuideModal()" class="w-full py-2.5 rounded-xl bg-cyan-500 text-slate-950 font-black text-xs active:scale-95 transition">Got It</button>
         </div>
     </div>
 
@@ -1786,8 +1588,7 @@
         let pinchHoldProgress = 0;
         let lastPinchX = 0.5;
         let lastPinchY = 0.5;
-        let isTwoHandMode = false;
-        let isGestureSleeping = false;
+                let isGestureSleeping = false;
         let wasPinching2 = false;
         let lastActionName = '';
 
@@ -1812,8 +1613,7 @@
         // 2. SPATIAL SETTINGS STATE (Matching Screenshots 1, 2, 3, 4)
         // =====================================================================
         const defaultAeroSettings = {
-            gestureType: 'FingerFold',
-            gestureSound: true,
+                        gestureSound: true,
             performance: 3,
             sensitivity: 3,
             dragRepeatSpeed: 3,
@@ -1835,8 +1635,7 @@
 
             // Controls Tab
             controlStyle: 'Island',
-            controlAlwaysShow: false,
-            ctrlWidth: 300,
+                        ctrlWidth: 300,
             ctrlHeight: 190,
             ctrlHoriz: 50,
             ctrlVert: 52,
@@ -1847,12 +1646,15 @@
                 { id: 'LIKE', label: 'Like ❤️', enabled: true },
                 { id: 'SWIPE_UP', label: 'Swipe Up', enabled: true },
                 { id: 'BACK', label: 'Back ⬅️', enabled: true },
-                { id: 'HOME', label: 'Home 🏠', enabled: true },
-                { id: 'KEYBOARD', label: 'Air Keyboard ⌨️', enabled: true }
+                { id: 'HOME', label: 'Home 🏠', enabled: true }
             ]
         };
 
         let aeroConfig = JSON.parse(localStorage.getItem('aero_spatial_settings')) || JSON.parse(JSON.stringify(defaultAeroSettings));
+        if (aeroConfig && Array.isArray(aeroConfig.shortcuts)) {
+            aeroConfig.shortcuts = aeroConfig.shortcuts.filter(s => s && s.id !== 'KEYBOARD');
+            localStorage.setItem('aero_spatial_settings', JSON.stringify(aeroConfig));
+        }
 
         function saveAeroConfig() {
             localStorage.setItem('aero_spatial_settings', JSON.stringify(aeroConfig));
@@ -1913,20 +1715,8 @@
                         : 'AirKeyTarget flex-1 py-2 px-3 rounded-full font-extrabold text-xs text-slate-400 hover:text-white transition';
                 }
             });
-            if (tab === 'controls') {
-                toggleControlInterface(true);
-            } else if (!aeroConfig.controlAlwaysShow) {
-                toggleControlInterface(false);
-            }
-        }
-
-        const gestureTypes = ['FingerFold', 'Pinch', 'Hybrid'];
-        function cycleGestureType() {
-            const idx = (gestureTypes.indexOf(aeroConfig.gestureType) + 1) % gestureTypes.length;
-            aeroConfig.gestureType = gestureTypes[idx];
-            document.getElementById('val-gesture-type').textContent = aeroConfig.gestureType;
-            saveAeroConfig();
-            playGestureTone(640, 0.05);
+            // Never show floating overlay over settings panel
+            toggleControlInterface(false);
         }
 
         function toggleGestureSound() {
@@ -2032,26 +1822,9 @@
             playGestureTone(640, 0.05);
         }
 
-        function toggleControlAlwaysShow() {
-            aeroConfig.controlAlwaysShow = !aeroConfig.controlAlwaysShow;
-            toggleControlInterface(aeroConfig.controlAlwaysShow);
-            renderSettingsUI();
-            saveAeroConfig();
-            playGestureTone(620, 0.05);
-        }
-
-        function toggleShortcutsDrawer() {
-            const drawer = document.getElementById('shortcuts-drawer');
-            drawer.classList.toggle('hidden');
-            drawer.classList.toggle('grid');
-        }
-
-        function toggleShortcutItem(id) {
-            const item = aeroConfig.shortcuts.find(s => s.id === id);
-            if (item) item.enabled = !item.enabled;
-            renderControlShortcuts();
-            saveAeroConfig();
-        }
+        function toggleControlAlwaysShow() {}
+        function toggleShortcutsDrawer() {}
+        function toggleShortcutItem(id) {}
 
         function updateControlInterface(prop, val) {
             const num = parseFloat(val);
@@ -2072,22 +1845,26 @@
             ctrl.style.bottom = `${aeroConfig.ctrlVert}%`;
             const lbl = document.getElementById('ctrl-style-label');
             if (lbl) lbl.textContent = `${aeroConfig.controlStyle} Control`;
+            const prevLbl = document.getElementById('ctrl-preview-style-label');
+            if (prevLbl) prevLbl.textContent = `${aeroConfig.controlStyle} Control`;
+            const stVal = document.getElementById('val-control-style');
+            if (stVal) stVal.textContent = aeroConfig.controlStyle;
         }
 
         function toggleControlInterface(show) {
-            const ctrl = document.getElementById('dynamic-control-interface');
-            if (!ctrl) return;
-            if (show) ctrl.classList.add('visible');
-            else if (!aeroConfig.controlAlwaysShow) ctrl.classList.remove('visible');
-        }
+        const ctrl = document.getElementById('dynamic-control-interface');
+        if (!ctrl) return;
+        if (show) ctrl.classList.add('visible');
+        else ctrl.classList.remove('visible');
+    }
 
         function resetControlSettings() {
             aeroConfig.controlStyle = 'Island';
-            aeroConfig.controlAlwaysShow = false;
-            aeroConfig.ctrlWidth = 300;
+                        aeroConfig.ctrlWidth = 300;
             aeroConfig.ctrlHeight = 190;
             aeroConfig.ctrlHoriz = 50;
             aeroConfig.ctrlVert = 52;
+            aeroConfig.shortcuts = JSON.parse(JSON.stringify(defaultAeroSettings.shortcuts));
             renderSettingsUI();
             saveAeroConfig();
             playGestureTone(440, 0.08);
@@ -2095,32 +1872,27 @@
 
         function renderControlShortcuts() {
             const grid = document.getElementById('ctrl-shortcuts-grid');
-            const drawer = document.getElementById('shortcuts-drawer');
-            if (!grid || !drawer) return;
-            const active = aeroConfig.shortcuts.filter(s => s.enabled);
+            const previewGrid = document.getElementById('ctrl-preview-grid');
 
-            grid.innerHTML = active.map(s => `
+            if (aeroConfig.shortcuts) {
+                aeroConfig.shortcuts = aeroConfig.shortcuts.filter(s => s && s.id !== 'KEYBOARD');
+            }
+            const active = (aeroConfig.shortcuts || defaultAeroSettings.shortcuts).filter(s => s.enabled);
+
+            const gridButtonsHtml = active.map(s => `
                 <button onclick="executeControlShortcut('${s.id}')"
-                    class="AirKeyTarget py-2 px-1.5 rounded-2xl bg-slate-800/90 hover:bg-indigo-600/40 border border-slate-600/50 text-[11px] font-extrabold text-white transition active:scale-95 truncate">
+                    class="AirKeyTarget py-2 px-1.5 rounded-2xl bg-slate-800/90 hover:bg-indigo-600/40 border border-slate-700/60 text-white text-[10px] font-black tracking-tight transition active:scale-95 shadow-md flex items-center justify-center text-center">
                     ${s.label}
                 </button>
             `).join('');
 
-            drawer.innerHTML = aeroConfig.shortcuts.map(s => `
-                <button onclick="toggleShortcutItem('${s.id}')"
-                    class="p-2 rounded-xl border text-left text-xs font-bold flex items-center justify-between ${s.enabled ? 'bg-blue-600/20 border-blue-500 text-white' : 'bg-slate-900 border-slate-800 text-slate-500'}">
-                    <span>${s.label}</span>
-                    <i class="fa-solid ${s.enabled ? 'fa-check text-blue-400' : 'fa-plus'}"></i>
-                </button>
-            `).join('');
+            if (grid) grid.innerHTML = gridButtonsHtml;
+            if (previewGrid) previewGrid.innerHTML = gridButtonsHtml;
         }
 
         function executeControlShortcut(id) {
             playGestureTone(740, 0.06);
-            if (id === 'KEYBOARD') {
-                toggleControlInterface(false);
-                toggleAirKeyboard(true);
-            } else if (id === 'BACK') {
+            if (id === 'BACK') {
                 executeSystemNavigation('BACK');
             } else if (id === 'HOME') {
                 executeSystemNavigation('HOME');
@@ -2140,9 +1912,6 @@
         }
 
         function renderSettingsUI() {
-            const vgt = document.getElementById('val-gesture-type');
-            if (vgt) vgt.textContent = aeroConfig.gestureType;
-
             const sndBtn = document.getElementById('toggle-gesture-sound');
             const sndIcon = document.getElementById('icon-gesture-sound');
             if (sndBtn && sndIcon) {
@@ -2206,14 +1975,7 @@
 
             const vcs = document.getElementById('val-control-style');
             if (vcs) vcs.textContent = aeroConfig.controlStyle;
-            const alwBtn = document.getElementById('toggle-ctrl-always');
-            const alwIcon = document.getElementById('icon-ctrl-always');
-            if (alwBtn && alwIcon) {
-                alwBtn.className = aeroConfig.controlAlwaysShow
-                    ? 'AirKeyTarget w-13 h-7 rounded-full bg-[#465fff] p-1 flex items-center justify-end transition'
-                    : 'AirKeyTarget w-13 h-7 rounded-full bg-slate-700 p-1 flex items-center justify-start transition';
-                alwIcon.className = aeroConfig.controlAlwaysShow ? 'fa-solid fa-check text-[#465fff]' : 'fa-solid fa-xmark text-slate-700';
-            }
+            
 
             const slCw = document.getElementById('sl-ctrl-width');
             if (slCw) slCw.value = aeroConfig.ctrlWidth;
@@ -2228,291 +1990,11 @@
         }
 
         // =====================================================================
-        // 4. ONE-HAND & TWO-HAND AIR TYPING KEYBOARD ENGINE
+        // 4. AIR KEYBOARD & 2-HAND STUBS (REMOVED)
         // =====================================================================
-        const qwertyLayout = [
-            ['1','2','3','4','5','6','7','8','9','0'],
-            ['Q','W','E','R','T','Y','U','I','O','P'],
-            ['A','S','D','F','G','H','J','K','L'],
-            ['SHIFT','Z','X','C','V','B','N','M','⌫'],
-            ['123','🌐','SPACE','🔍','⏎']
-        ];
-        let isUpperCase = true;
-        let dwellTypingEnabled = false;
-
-        function buildAirKeyboard() {
-            const container = document.getElementById('qwerty-rows-container');
-            if (!container) return;
-            container.innerHTML = qwertyLayout.map(row => `
-                <div class="flex justify-center gap-1 w-full">
-                    ${row.map(key => {
-                        let widthClass = 'flex-1';
-                        let label = key;
-                        if (key === 'SPACE') { widthClass = 'flex-[4]'; label = 'SPACE (1/2 Hand)'; }
-                        else if (key === 'SHIFT' || key === '⌫' || key === '⏎') { widthClass = 'flex-[1.5]'; }
-                        return `<button data-air-key="${key}" onclick="handleAirKeyPress('${key}')" class="AirKeyTarget air-key ${widthClass}">${label}</button>`;
-                    }).join('')}
-                </div>
-            `).join('');
-        }
-
-        function handleAirKeyPress(key) {
-            playGestureTone(680, 0.045);
-            const input = document.getElementById('air-typed-input');
-            if (!input) return;
-            if (key === '⌫') {
-                input.value = input.value.slice(0, -1);
-            } else if (key === 'SPACE') {
-                input.value += ' ';
-            } else if (key === 'SHIFT') {
-                isUpperCase = !isUpperCase;
-            } else if (key === '🔍') {
-                submitAirText('SEARCH');
-                return;
-            } else if (key === '⏎') {
-                submitAirText('COMMENT');
-                return;
-            } else if (key !== '123' && key !== '🌐') {
-                const ch = isUpperCase ? key.toUpperCase() : key.toLowerCase();
-                input.value += ch;
-            }
-
-            if (window.AndroidBridge && window.AndroidBridge.injectAirTypedText) {
-                window.AndroidBridge.injectAirTypedText(input.value, false);
-            }
-        }
-
-        function insertQuickPhrase(phrase) {
-            playGestureTone(760, 0.06);
-            const input = document.getElementById('air-typed-input');
-            if (!input) return;
-            input.value = (input.value ? input.value + ' ' : '') + phrase;
-            if (window.AndroidBridge && window.AndroidBridge.injectAirTypedText) {
-                window.AndroidBridge.injectAirTypedText(input.value, false);
-            }
-        }
-
-        function clearAirInput() {
-            const input = document.getElementById('air-typed-input');
-            if (input) input.value = '';
-        }
-
-        function submitAirText(mode) {
-            const input = document.getElementById('air-typed-input');
-            const text = input ? input.value.trim() : '';
-            if (!text) return;
-            playGestureTone(880, 0.09);
-
-            if (window.AndroidBridge && window.AndroidBridge.injectAirTypedText) {
-                window.AndroidBridge.injectAirTypedText(text, true);
-            } else if (mode === 'SEARCH') {
-                window.open(`https://www.google.com/search?q=${encodeURIComponent(text)}`, '_blank');
-            }
-            showToast(mode === 'SEARCH' ? '🔍' : '💬', mode, text);
-        }
-
-        function toggleAirKeyboard(show) {
-            const kb = document.getElementById('air-keyboard-overlay');
-            if (!kb) return;
-            playGestureTone(show ? 780 : 460, 0.07);
-            if (show) {
-                kb.classList.remove('hidden');
-                kb.classList.add('flex');
-            } else {
-                kb.classList.add('hidden');
-                kb.classList.remove('flex');
-            }
-        }
-
-        function toggleDwellTyping() {
-            dwellTypingEnabled = !dwellTypingEnabled;
-            const btn = document.getElementById('dwell-type-btn');
-            if (btn) {
-                btn.textContent = dwellTypingEnabled ? 'Hover-Type: ON' : 'Hover-Type: OFF';
-                btn.className = dwellTypingEnabled
-                    ? 'AirKeyTarget px-2.5 py-1 rounded-lg bg-emerald-500 text-slate-950 text-[10px] font-black'
-                    : 'AirKeyTarget px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-[10px] font-extrabold text-slate-300';
-            }
-        }
-
-        // =====================================================================
-        // 5. MEDIAPIPE 2-HAND TRACKING + DUAL CURSORS & TWO-HAND SIGN
-        // =====================================================================
-        let moduleCamActive = false;
-        let mpHands = null;
-        let mpCam = null;
-
-        const handCursors = [
-            { x: window.innerWidth * 0.35, y: window.innerHeight * 0.5, pinching: false, hoveredEl: null, dwellStart: 0 },
-            { x: window.innerWidth * 0.65, y: window.innerHeight * 0.5, pinching: false, hoveredEl: null, dwellStart: 0 }
-        ];
-        let twoHandSignStart = 0;
-        let twoHandKeyboardTriggered = false;
-
-        function isHandMakingKeyboardSign(lm) {
-            const pinchDist = Math.hypot(lm[8].x - lm[4].x, lm[8].y - lm[4].y);
-            const indexExtended = lm[8].y < lm[6].y;
-            const middleFolded = lm[12].y > lm[10].y;
-            const ringFolded = lm[16].y > lm[14].y;
-            const thumbOut = Math.hypot(lm[4].x - lm[5].x, lm[4].y - lm[5].y) > 0.07;
-            return pinchDist < 0.06 || (indexExtended && middleFolded && ringFolded && thumbOut);
-        }
-
-        async function toggleModuleCamera() {
-            const videoEl = document.getElementById('module-webcam');
-            const canvasEl = document.getElementById('module-skeleton-canvas');
-            const ctx = canvasEl ? canvasEl.getContext('2d') : null;
-            const cursorL = document.getElementById('air-cursor-left');
-            const cursorR = document.getElementById('air-cursor-right');
-            const dynInd = document.getElementById('dynamic-hand-indicator');
-
-            if (moduleCamActive) {
-                moduleCamActive = false;
-                if (mpCam) await mpCam.stop();
-                if (cursorL) cursorL.style.display = 'none';
-                if (cursorR) cursorR.style.display = 'none';
-                if (dynInd) dynInd.classList.remove('active');
-                document.getElementById('cam-start-label').textContent = 'Start 2-Hand AI';
-                return;
-            }
-
-            if (!mpHands) {
-                mpHands = new Hands({
-                    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
-                });
-                mpHands.setOptions({
-                    maxNumHands: 2,
-                    modelComplexity: 1,
-                    minDetectionConfidence: 0.62,
-                    minTrackingConfidence: 0.62
-                });
-
-                mpHands.onResults((results) => {
-                    if (!canvasEl || !ctx) return;
-                    canvasEl.width = 240;
-                    canvasEl.height = 280;
-                    ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-
-                    document.querySelectorAll('.key-hovered-left, .key-hovered-right').forEach(el => {
-                        el.classList.remove('key-hovered-left', 'key-hovered-right');
-                    });
-
-                    if (aeroConfig.cameraPreview && results.image) {
-                        ctx.drawImage(results.image, 0, 0, canvasEl.width, canvasEl.height);
-                    }
-
-                    const hands = results.multiHandLandmarks || [];
-                    const hBadge = document.getElementById('ind-hands-badge');
-                    if (hBadge) hBadge.textContent = `🖐️ ${hands.length} Hand${hands.length === 1 ? '' : 's'}`;
-                    const kbMode = document.getElementById('kb-hand-mode-text');
-                    if (kbMode) {
-                        kbMode.textContent = hands.length === 2 ? '🙌 2-Hand Dual Typing Active' : '☝️ 1-Hand Air Typing Active';
-                    }
-
-                    if (hands.length === 2 && isHandMakingKeyboardSign(hands[0]) && isHandMakingKeyboardSign(hands[1])) {
-                        if (!twoHandSignStart) twoHandSignStart = Date.now();
-                        const elapsed = Date.now() - twoHandSignStart;
-                        const pct = Math.min(100, (elapsed / 500) * 100);
-                        const pBar = document.getElementById('sign-hold-progress');
-                        if (pBar) pBar.style.width = `${pct}%`;
-                        if (elapsed >= 500 && !twoHandKeyboardTriggered) {
-                            twoHandKeyboardTriggered = true;
-                            toggleAirKeyboard(true);
-                            const st = document.getElementById('ind-gesture-status');
-                            if (st) st.textContent = '⌨️ 2-Hand Keyboard!';
-                        }
-                    } else {
-                        twoHandSignStart = 0;
-                        twoHandKeyboardTriggered = false;
-                        const pBar = document.getElementById('sign-hold-progress');
-                        if (pBar) pBar.style.width = '0%';
-                    }
-
-                    const lerpFactor = 0.18 + (aeroConfig.pointerSpeed * 0.11);
-                    const pinchThreshold = 0.042 + (aeroConfig.sensitivity * 0.005);
-
-                    [0, 1].forEach(hIdx => {
-                        const domCursor = hIdx === 0 ? cursorL : cursorR;
-                        if (!hands[hIdx]) {
-                            if (domCursor) domCursor.style.display = 'none';
-                            return;
-                        }
-
-                        const lm = hands[hIdx];
-                        drawConnectors(ctx, lm, HAND_CONNECTIONS, {
-                            color: hIdx === 0 ? '#22d3ee' : '#a855f7',
-                            lineWidth: 3
-                        });
-                        drawLandmarks(ctx, lm, { color: '#10b981', lineWidth: 1, radius: 2.5 });
-
-                        const rawX = 1 - lm[8].x;
-                        const rawY = lm[8].y;
-                        const normX = Math.max(0, Math.min(1, (rawX - 0.15) / 0.70));
-                        const normY = Math.max(0, Math.min(1, (rawY - 0.15) / 0.68));
-
-                        const st = handCursors[hIdx];
-                        st.x += (normX * window.innerWidth - st.x) * lerpFactor;
-                        st.y += (normY * window.innerHeight - st.y) * lerpFactor;
-
-                        if (domCursor) {
-                            domCursor.style.display = 'flex';
-                            domCursor.style.left = `${st.x}px`;
-                            domCursor.style.top = `${st.y}px`;
-                        }
-
-                        const pinchDist = Math.hypot(lm[8].x - lm[4].x, lm[8].y - lm[4].y);
-                        const isPinching = pinchDist < pinchThreshold;
-                        if (domCursor) domCursor.classList.toggle('pinching', isPinching);
-
-                        const targetEl = document.elementFromPoint(st.x, st.y);
-                        const clickable = targetEl ? targetEl.closest('.AirKeyTarget, .AirClickable, .air-key, button') : null;
-
-                        if (clickable) {
-                            clickable.classList.add(hIdx === 0 ? 'key-hovered-left' : 'key-hovered-right');
-
-                            if (dwellTypingEnabled) {
-                                if (st.hoveredEl !== clickable) {
-                                    st.hoveredEl = clickable;
-                                    st.dwellStart = Date.now();
-                                } else if (Date.now() - st.dwellStart > 550) {
-                                    st.dwellStart = Date.now() + 400;
-                                    clickable.click();
-                                }
-                            }
-                        } else {
-                            st.hoveredEl = null;
-                        }
-
-                        if (isPinching && !st.pinching) {
-                            st.pinching = true;
-                            if (clickable) {
-                                clickable.classList.add('key-pressed');
-                                setTimeout(() => clickable.classList.remove('key-pressed'), 140);
-                                clickable.click();
-                            }
-                        } else if (!isPinching) {
-                            st.pinching = false;
-                        }
-                    });
-                });
-            }
-
-            mpCam = new Camera(videoEl, {
-                onFrame: async () => {
-                    if (moduleCamActive && mpHands) {
-                        await mpHands.send({ image: videoEl });
-                    }
-                },
-                width: 320,
-                height: 240,
-                facingMode: 'user'
-            });
-
-            await mpCam.start();
-            moduleCamActive = true;
-            if (dynInd) dynInd.classList.add('active');
-            document.getElementById('cam-start-label').textContent = '2-Hand Live';
-        }
+        function toggleAirKeyboard(show) {}
+        function buildAirKeyboard() {}
+        function toggleModuleCamera() {}
 
         // =====================================================================
         // 6. APPS & FINGER-FOLD SYSTEM INTEGRATION
@@ -2660,12 +2142,8 @@
                 closeFoldHoldMenu();
                 handled = true;
             }
-            const kbOverlay = document.getElementById('air-keyboard-overlay');
-            if (kbOverlay && !kbOverlay.classList.contains('hidden')) {
-                toggleAirKeyboard(false);
-                handled = true;
-            }
-            if (!handled && typeof currentTab !== 'undefined' && currentTab !== 'launcher') {
+            
+            if (!handled && currentTab !== 'launcher') {
                 switchTab('launcher');
                 handled = true;
             }
@@ -4134,15 +3612,25 @@
             m.classList.remove('flex');
         }
 
+        let currentTab = 'launcher';
+        window.currentTab = 'launcher';
+
         function switchTab(tab) {
+            currentTab = tab;
+            window.currentTab = tab;
             document.getElementById('view-launcher').classList.toggle('hidden', tab !== 'launcher');
-            document.getElementById('view-stream').classList.toggle('hidden', tab !== 'stream');
+            const vStream = document.getElementById('view-stream');
+            if (vStream) vStream.classList.toggle('hidden', tab !== 'stream');
             document.getElementById('view-settings').classList.toggle('hidden', tab !== 'settings');
             const vGuide = document.getElementById('view-guide');
             if (vGuide) vGuide.classList.toggle('hidden', tab !== 'guide');
             document.getElementById('view-admin').classList.toggle('hidden', tab !== 'admin');
 
-            const tabs = ['launcher', 'stream', 'settings', 'guide', 'admin'];
+            if (tab === 'settings') {
+                toggleControlInterface(false);
+            }
+
+            const tabs = ['launcher', 'settings', 'guide', 'admin'];
             tabs.forEach(t => {
                 const navBtn = document.getElementById(`nav-${t}`);
                 if (navBtn) {
@@ -4192,8 +3680,15 @@
                         <rect x="6" y="46" width="44" height="34" rx="5" fill="#1e293b"/>
                     </g>
                     <path d="M28 16 L28 74 M22 68 L28 75 L34 68" stroke="#c084fc" stroke-width="2.2" stroke-linecap="round"/>`;
+            } else if (mode === 'LIKE') {
+                gestureSymbol = '👍';
+                phoneScreenContent = `
+                    <rect x="0" y="0" width="56" height="90" rx="10" fill="#090d16" stroke="#f43f5e" stroke-width="2"/>
+                    <circle cx="28" cy="42" r="16" fill="rgba(244,63,94,0.2)" stroke="#f43f5e" stroke-width="1.8"/>
+                    <path d="M28 50 C28 50 18 43 18 36 C18 32 21 29 25 29 C27 29 28 31 28 31 C28 31 29 29 31 29 C35 29 38 32 38 36 C38 43 28 50 28 50 Z" fill="#f43f5e"/>
+                    <text x="28" y="78" text-anchor="middle" fill="#fda4af" font-size="7" font-weight="800">LIKE</text>`;
             } else if (mode === 'FOLD_3') {
-                gestureSymbol = '🤘';
+                gestureSymbol = '✋➔🤘➔✋';
                 phoneScreenContent = `
                     <g class="phone-back-slide">
                         <rect x="10" y="24" width="36" height="42" rx="6" fill="rgba(245,158,11,0.2)" stroke="#fbbf24" stroke-width="1.5"/>
@@ -4201,7 +3696,7 @@
                     </g>
                     <text x="28" y="80" text-anchor="middle" fill="#fcd34d" font-size="7" font-weight="800">BACK</text>`;
             } else if (mode === 'FOLD_4') {
-                gestureSymbol = '✊';
+                gestureSymbol = '✋➔✊➔✋';
                 phoneScreenContent = `
                     <g class="phone-home-pop">
                         <rect x="10" y="16" width="14" height="14" rx="3" fill="#34d399"/>
@@ -4212,7 +3707,7 @@
                     </g>
                     <text x="28" y="80" text-anchor="middle" fill="#6ee7b7" font-size="7" font-weight="800">HOME</text>`;
             } else if (mode === 'HOLD') {
-                gestureSymbol = '⏱️☝️';
+                gestureSymbol = '⏱️👌';
                 phoneScreenContent = `
                     <circle cx="28" cy="44" r="16" stroke="#334155" stroke-width="3"/>
                     <circle cx="28" cy="44" r="16" stroke="#6366f1" stroke-width="3" class="hold-ring-progress" transform="rotate(-90 28 44)"/>
@@ -4227,27 +3722,15 @@
                 phoneScreenContent = `
                     <rect x="0" y="0" width="56" height="90" rx="10" fill="#090d16" stroke="#334155" stroke-width="2"/>
                     <circle cx="28" cy="45" r="14" fill="rgba(16,185,129,0.2)" stroke="#10b981" stroke-width="1.8"/>
-                    <polygon points="25,39 25,51 35,45" fill="#10b981"/>
+                    <circle cx="28" cy="45" r="4" fill="#10b981"/>
                     <circle cx="28" cy="45" r="18" stroke="#22d3ee" stroke-width="1.5" class="pinch-ripple"/>
-                    <text x="28" y="80" text-anchor="middle" fill="#67e8f9" font-size="7" font-weight="800">TAP</text>`;
-            } else if (mode === 'TWO_HAND') {
-                gestureSymbol = '🙌';
-                phoneScreenContent = `
-                    <rect x="0" y="0" width="56" height="90" rx="10" fill="#090d16" stroke="#f43f5e" stroke-width="2"/>
-                    <rect x="6" y="10" width="44" height="12" rx="3" fill="#1e293b"/>
-                    <text x="28" y="18" text-anchor="middle" fill="#38bdf8" font-size="6" font-weight="800">Type...</text>
-                    <g fill="#334155" transform="translate(4, 28)">
-                        <rect x="2" y="2" width="8" height="8" rx="2"/><rect x="12" y="2" width="8" height="8" rx="2" fill="#22d3ee"/>
-                        <rect x="22" y="2" width="8" height="8" rx="2"/><rect x="32" y="2" width="8" height="8" rx="2"/>
-                        <rect x="7" y="13" width="34" height="8" rx="2" fill="#10b981"/>
-                    </g>
-                    <text x="28" y="80" text-anchor="middle" fill="#fda4af" font-size="7" font-weight="800">KEYBOARD</text>`;
+                    <text x="28" y="80" text-anchor="middle" fill="#67e8f9" font-size="7" font-weight="800">AIR TAP</text>`;
             }
 
             return `
             <div class="gesture-stage w-full h-24">
                 <div class="flex flex-col items-center justify-center bg-slate-900/90 border border-slate-700/80 px-4 py-3 rounded-2xl shadow-lg">
-                    <span class="text-3xl">${gestureSymbol}</span>
+                    <span class="text-2xl">${gestureSymbol}</span>
                     <span class="text-[9px] font-extrabold text-cyan-300 uppercase tracking-wider mt-1">Air Gesture</span>
                 </div>
                 <i class="fa-solid fa-arrow-right-long text-slate-500 text-sm"></i>
@@ -4260,13 +3743,13 @@
         }
 
         const HAND_GESTURE_GUIDE = [
-            { id: 'FOLD_1', category: 'FOLD', badge: 'Most Used', badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40', title: '☝️ 1-Finger Fold & Open', actionLabel: 'Scroll Next Reel (Swipe Up)', howTo: 'Keep palm facing camera, bend ONLY Index finger down and open back up.', voiceEquivalent: '"Next" or "Agla"', actionCode: 'NEXT', stageHtml: buildMinimalGestureStage('FOLD_1') },
+            { id: 'FOLD_1', category: 'FOLD', badge: 'Reels / Shorts', badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40', title: '☝️ 1-Finger Fold & Open', actionLabel: 'Scroll Next Reel (Swipe Up)', howTo: 'Keep palm facing camera, bend ONLY Index finger down and open back up.', voiceEquivalent: '"Next" or "Agla"', actionCode: 'NEXT', stageHtml: buildMinimalGestureStage('FOLD_1') },
             { id: 'FOLD_2', category: 'FOLD', badge: 'Reels / Shorts', badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/40', title: '✌️ 2-Finger Fold & Open', actionLabel: 'Previous Reel (Swipe Down)', howTo: 'Bend Index and Middle fingers down together and open back up.', voiceEquivalent: '"Previous" or "Pichla"', actionCode: 'PREV', stageHtml: buildMinimalGestureStage('FOLD_2') },
+            { id: 'THUMBS_LIKE', category: 'SYSTEM', badge: 'YouTube & Insta', badgeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/40', title: '👍 Thumbs-Up Gesture', actionLabel: 'Like Video / Reel', howTo: 'Show a clear Thumbs-Up 👍 towards camera to instantly like YouTube videos or send Heart reaction on Instagram Reels.', voiceEquivalent: '"Like" or "Heart"', actionCode: 'LIKE', stageHtml: buildMinimalGestureStage('LIKE') },
+            { id: 'PINCH_TAP', category: 'FOLD', badge: 'Air Pointer', badgeColor: 'bg-blue-500/20 text-blue-300 border-blue-500/40', title: '👌 Air Cursor & Pinch Tap', actionLabel: 'Click / Tap Anywhere on Screen', howTo: 'Move your hand to guide the neon Air Cursor, then pinch Thumb + Index fingertips together to tap any app icon, reel footer, or button.', voiceEquivalent: '"Click" or "Tap"', actionCode: 'PLAY_PAUSE', stageHtml: buildMinimalGestureStage('PINCH') },
             { id: 'FOLD_3_BACK', category: 'SYSTEM', badge: 'System OS', badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40', title: '⬅️ 3-Step Back (✋➔🤘➔✋)', actionLabel: 'System Back Navigation', howTo: 'Show Open Palm ✋, make Rock sign 🤘 (Index & Pinky open, Middle & Ring folded), then open back to Palm ✋ to trigger Back.', voiceEquivalent: '"Back" or "Wapas"', actionCode: 'BACK', stageHtml: buildMinimalGestureStage('FOLD_3') },
-            { id: 'FOLD_4_HOME', category: 'SYSTEM', badge: 'System OS', badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40', title: '🏠 3-Step Home (✋➔✊➔✋)', actionLabel: 'Go to Phone Home Screen', howTo: 'Show Open Palm ✋, curl into Fist ✊, then open back to Palm ✋ to trigger Home.', voiceEquivalent: '"Home" or "Home Screen"', actionCode: 'HOME', stageHtml: buildMinimalGestureStage('FOLD_4') },
-            { id: 'FOLD_HOLD', category: 'FOLD', badge: 'Island Menu', badgeColor: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40', title: '⏱️ Long Pinch / Menu', actionLabel: 'Open Radial Action Menu', howTo: 'Pinch Index + Thumb together for 2.5s to pop open radial controls.', voiceEquivalent: '"Open Menu" or "Controls"', actionCode: 'HOLD_MENU', stageHtml: buildMinimalGestureStage('HOLD') },
-            { id: 'PINCH_TAP', category: 'FOLD', badge: 'Air Pointer', badgeColor: 'bg-blue-500/20 text-blue-300 border-blue-500/40', title: '👌 Clean Pinch Air Tap', actionLabel: 'Air Tap / Click / Play & Pause', howTo: 'Touch Thumb and Index tips together to air-click buttons or pause media.', voiceEquivalent: '"Play", "Pause" or "Click"', actionCode: 'PLAY_PAUSE', stageHtml: buildMinimalGestureStage('PINCH') },
-            { id: 'THUMBS_LIKE', category: 'SYSTEM', badge: 'Social Media', badgeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/40', title: '👍 Thumbs-Up Hold (2s)', actionLabel: 'Like / Heart Current Reel', howTo: 'Show Thumbs Up 👍 facing camera and hold for set slider duration (default 2s) to like.', voiceEquivalent: '"Like" or "Heart"', actionCode: 'LIKE', stageHtml: buildMinimalGestureStage('HOLD') }
+            { id: 'FOLD_4_HOME', category: 'SYSTEM', badge: 'System OS', badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40', title: '🏠 3-Step Home (✋➔✊➔✋)', actionLabel: 'Go to Phone Home Screen', howTo: 'Show Open Palm ✋, curl hand into Fist ✊, then open back to Palm ✋ to trigger Home.', voiceEquivalent: '"Home" or "Ghar"', actionCode: 'HOME', stageHtml: buildMinimalGestureStage('FOLD_4') },
+            { id: 'FOLD_HOLD', category: 'FOLD', badge: 'Island Menu', badgeColor: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40', title: '⏱️ Long Pinch Hold (2.5s)', actionLabel: 'Open Quick Action Menu', howTo: 'Pinch Index + Thumb together and hold for 2.5s to pop open Volume Up/Down, Recents, and System controls.', voiceEquivalent: '"Open Menu"', actionCode: 'HOLD_MENU', stageHtml: buildMinimalGestureStage('HOLD') }
         ];
 
         const BUILTIN_VOICE_COMMANDS = [
@@ -4277,8 +3760,7 @@
             { action: 'BACK', title: 'System Back Navigation', phrases: ['back', 'go back', 'wapas', 'peeche jao'], displaySay: '"Back" / "Wapas"', icon: 'fa-chevron-left text-amber-400' },
             { action: 'HOME', title: 'Go to Phone Home Screen', phrases: ['home', 'home screen', 'ghar', 'main screen'], displaySay: '"Home" / "Home Screen"', icon: 'fa-house text-emerald-400' },
             { action: 'VOL_UP', title: 'Volume Up', phrases: ['volume up', 'louder', 'aawaz badhao', 'tej karo'], displaySay: '"Volume Up" / "Aawaz Badhao"', icon: 'fa-volume-high text-blue-400' },
-            { action: 'VOL_DOWN', title: 'Volume Down', phrases: ['volume down', 'quieter', 'aawaz kam karo'], displaySay: '"Volume Down" / "Aawaz Kam"', icon: 'fa-volume-low text-indigo-400' },
-            { action: 'OPEN_KEYBOARD', title: 'Open Air Keyboard', phrases: ['keyboard', 'open keyboard', 'type'], displaySay: '"Open Keyboard"', icon: 'fa-keyboard text-pink-400' }
+            { action: 'VOL_DOWN', title: 'Volume Down', phrases: ['volume down', 'quieter', 'aawaz kam karo'], displaySay: '"Volume Down" / "Aawaz Kam"', icon: 'fa-volume-low text-indigo-400' }
         ];
 
         let customVoiceTriggers = JSON.parse(localStorage.getItem('aero_custom_voice_triggers') || '[]');
@@ -4488,7 +3970,6 @@
             else if (actionCode === 'LIKE') executeAction('LIKE');
             else if (actionCode === 'VOL_UP') triggerHoldMenuOption('VOL_UP');
             else if (actionCode === 'VOL_DOWN') triggerHoldMenuOption('VOL_DOWN');
-            else if (actionCode === 'OPEN_KEYBOARD') toggleAirKeyboard(true);
             else if (actionCode === 'HOLD_MENU') openFoldHoldMenu();
         }
 
@@ -4733,10 +4214,10 @@
         }
 
         window.onload = () => {
+            switchTab('launcher');
             renderUserApps();
             refreshNativePermissionStatus();
-            buildAirKeyboard();
-            renderSettingsUI();
+                        renderSettingsUI();
             renderGestureCards('ALL');
             renderVoiceCommandsList();
             renderCustomTriggers();
