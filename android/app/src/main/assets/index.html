@@ -3344,21 +3344,60 @@
                     clearInterval(window.aeroKeepAliveInterval);
                     window.aeroKeepAliveInterval = null;
                 }
-                if (cameraInstance) await cameraInstance.stop();
-                hud.classList.remove('hud-visible');
-                cursor.style.display = 'none';
-                pill.textContent = 'OFF';
-                pill.className = 'px-2 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-400 font-extrabold text-[9px] uppercase tracking-wider whitespace-nowrap';
-                heroLabel.textContent = 'START';
+
+                // 1. Fully release webcam stream and camera hardware
+                try {
+                    const videoEl = document.getElementById('webcam-video');
+                    if (videoEl) {
+                        if (videoEl.srcObject) {
+                            const stream = videoEl.srcObject;
+                            if (stream && stream.getTracks) {
+                                stream.getTracks().forEach(t => {
+                                    try { t.stop(); } catch (e) {}
+                                });
+                            }
+                            videoEl.srcObject = null;
+                        }
+                        try { videoEl.pause(); } catch (e) {}
+                    }
+                } catch (e) {}
+
+                // 2. Stop cameraInstance
+                if (cameraInstance) {
+                    try {
+                        await cameraInstance.stop();
+                    } catch (e) {}
+                    cameraInstance = null;
+                }
+
+                // 3. Close handsInstance to release WebGL / GPU context
+                if (handsInstance) {
+                    try {
+                        handsInstance.close();
+                    } catch (e) {}
+                    handsInstance = null;
+                }
+
+                // 4. Update UI to OFF / START
+                if (hud) hud.classList.remove('hud-visible');
+                if (cursor) cursor.style.display = 'none';
+                if (pill) {
+                    pill.textContent = 'OFF';
+                    pill.className = 'px-2 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-400 font-extrabold text-[9px] uppercase tracking-wider whitespace-nowrap';
+                }
+                if (heroLabel) heroLabel.textContent = 'START';
                 const statusHeading = document.getElementById('hero-status-heading');
                 if (statusHeading) statusHeading.textContent = 'Tap START to Activate Camera Hand Control';
-                dot.className = 'w-1.5 h-1.5 rounded-full bg-slate-600 shrink-0';
+                if (dot) dot.className = 'w-1.5 h-1.5 rounded-full bg-slate-600 shrink-0';
+
+                // 5. Notify Android native bridge to stop foreground service and overlay
                 if (window.AndroidBridge && window.AndroidBridge.stopBackgroundService) {
-                    window.AndroidBridge.stopBackgroundService();
+                    try { window.AndroidBridge.stopBackgroundService(); } catch (e) {}
                 }
                 if (window.AndroidBridge && window.AndroidBridge.exitFloatingOverlay) {
-                    window.AndroidBridge.exitFloatingOverlay();
+                    try { window.AndroidBridge.exitFloatingOverlay(); } catch (e) {}
                 }
+
                 showToast('⏹️', 'Engine Stopped', 'Hand tracking paused');
                 return;
             }
@@ -3947,6 +3986,34 @@
         };
 
         window.refreshNativePermissionStatus = function(showToastNotice) {
+            if (window.AndroidBridge && window.AndroidBridge.isNativeEngineRunning) {
+                try {
+                    const isRunning = window.AndroidBridge.isNativeEngineRunning();
+                    const heroLabel = document.getElementById('hero-start-label');
+                    const pill = document.getElementById('header-bg-pill');
+                    const dot = document.getElementById('cam-live-dot');
+                    const statusHeading = document.getElementById('hero-status-heading');
+                    if (isRunning && !engineRunning) {
+                        engineRunning = true;
+                        if (heroLabel) heroLabel.textContent = 'STOP';
+                        if (pill) {
+                            pill.textContent = 'LIVE';
+                            pill.className = 'px-2 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-extrabold text-[9px] uppercase tracking-wider whitespace-nowrap';
+                        }
+                        if (statusHeading) statusHeading.textContent = 'Camera Hand Control Active';
+                        if (dot) dot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping shrink-0';
+                    } else if (!isRunning && engineRunning) {
+                        engineRunning = false;
+                        if (heroLabel) heroLabel.textContent = 'START';
+                        if (pill) {
+                            pill.textContent = 'OFF';
+                            pill.className = 'px-2 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-400 font-extrabold text-[9px] uppercase tracking-wider whitespace-nowrap';
+                        }
+                        if (statusHeading) statusHeading.textContent = 'Tap START to Activate Camera Hand Control';
+                        if (dot) dot.className = 'w-1.5 h-1.5 rounded-full bg-slate-600 shrink-0';
+                    }
+                } catch (e) {}
+            }
             if (window.AndroidBridge && window.AndroidBridge.checkPermissionsJson) {
                 try {
                     const st = JSON.parse(window.AndroidBridge.checkPermissionsJson());
@@ -4652,6 +4719,17 @@
 
             hud.addEventListener('touchstart', onStart, { passive: true });
             hud.addEventListener('mousedown', onStart);
+
+            let lastHudTap = 0;
+            hud.addEventListener('touchend', (e) => {
+                const now = Date.now();
+                if (now - lastHudTap < 350) {
+                    if (window.AndroidBridge && window.AndroidBridge.exitFloatingOverlayToApp) {
+                        window.AndroidBridge.exitFloatingOverlayToApp();
+                    }
+                }
+                lastHudTap = now;
+            });
         }
 
         window.onload = () => {

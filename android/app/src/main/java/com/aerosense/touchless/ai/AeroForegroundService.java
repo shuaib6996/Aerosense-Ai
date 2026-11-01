@@ -14,6 +14,8 @@ import android.os.PowerManager;
 
 public class AeroForegroundService extends Service {
 
+    public static volatile boolean isServiceRunning = false;
+
     public static final String ACTION_START = "ACTION_START";
     public static final String ACTION_STOP = "ACTION_STOP";
     private static final String CHANNEL_ID = "aero_gesture_service_channel";
@@ -22,6 +24,7 @@ public class AeroForegroundService extends Service {
     private PowerManager.WakeLock wakeLock;
 
     public static void start(Context context) {
+        isServiceRunning = true;
         try {
             Intent intent = new Intent(context, AeroForegroundService.class);
             intent.setAction(ACTION_START);
@@ -34,10 +37,12 @@ public class AeroForegroundService extends Service {
     }
 
     public static void stop(Context context) {
+        isServiceRunning = false;
         try {
             Intent intent = new Intent(context, AeroForegroundService.class);
             intent.setAction(ACTION_STOP);
             context.startService(intent);
+            context.stopService(intent);
         } catch (Exception ignored) {}
     }
 
@@ -51,11 +56,24 @@ public class AeroForegroundService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null && ACTION_STOP.equals(intent.getAction())) {
+            isServiceRunning = false;
             releaseWakeLock();
-            stopForeground(true);
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    stopForeground(STOP_FOREGROUND_REMOVE);
+                } else {
+                    stopForeground(true);
+                }
+                NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                if (nm != null) {
+                    nm.cancel(NOTIFICATION_ID);
+                }
+            } catch (Exception ignored) {}
             stopSelf();
             return START_NOT_STICKY;
         }
+
+        isServiceRunning = true;
 
         Notification notification = buildNotification();
         try {
@@ -159,14 +177,27 @@ public class AeroForegroundService extends Service {
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
-        // Do NOT stop the gesture service when tasks are cleared from recents!
-        // Keep wake lock active so hand tracking camera runs uninterrupted.
-        acquireWakeLock();
+        // Only keep wake lock active if user has background engine running!
+        if (isServiceRunning) {
+            acquireWakeLock();
+        }
     }
 
     @Override
     public void onDestroy() {
+        isServiceRunning = false;
         releaseWakeLock();
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                stopForeground(STOP_FOREGROUND_REMOVE);
+            } else {
+                stopForeground(true);
+            }
+            NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            if (nm != null) {
+                nm.cancel(NOTIFICATION_ID);
+            }
+        } catch (Exception ignored) {}
         super.onDestroy();
     }
 }

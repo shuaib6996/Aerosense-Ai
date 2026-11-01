@@ -20,6 +20,7 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.FrameLayout;
 import android.content.Context;
 import android.media.AudioManager;
+import java.util.List;
 
 public class AeroAccessibilityService extends AccessibilityService {
 
@@ -295,8 +296,13 @@ public class AeroAccessibilityService extends AccessibilityService {
                     pkg = root.getPackageName().toString().toLowerCase();
                 }
 
-                // If not Instagram, check accessibility tree for Like button (YouTube, FB, etc.)
-                if (root != null && !pkg.contains("instagram")) {
+                // 1. YouTube specific handler: Directly target YouTube video / short Like button
+                if (root != null && (pkg.contains("youtube") || pkg.contains("chrome") || pkg.contains("browser"))) {
+                    clicked = findAndClickYouTubeLikeButton(root);
+                }
+
+                // 2. Generic app handler (Twitter/X, Facebook, Reddit, etc.) - skip on Instagram
+                if (!clicked && root != null && !pkg.contains("instagram")) {
                     clicked = findAndClickLikeButton(root);
                 }
 
@@ -304,12 +310,193 @@ public class AeroAccessibilityService extends AccessibilityService {
                     try { root.recycle(); } catch (Exception ignored) {}
                 }
 
-                // If not clicked via accessibility node (or if in Instagram Reels/Posts), perform universal double-tap at center
+                // 3. Fallback: For Instagram (Reels/Posts/Stories) or TikTok, perform universal double-tap at center
                 if (!clicked) {
                     performDoubleTapCenter();
                 }
             } catch (Exception ignored) {}
         });
+    }
+
+    private boolean findAndClickYouTubeLikeButton(AccessibilityNodeInfo root) {
+        if (root == null) return false;
+        try {
+            updateScreenDimensions();
+
+            // Check known YouTube Like button view IDs directly using fast native lookup
+            String[] ytIds = new String[]{
+                "com.google.android.youtube:id/segmented_like_button",
+                "com.google.android.youtube:id/like_button",
+                "com.google.android.youtube:id/reel_like_button",
+                "com.google.android.youtube:id/slim_like_button",
+                "com.google.android.youtube:id/like_toggle_button",
+                "com.google.android.youtube:id/like_button_container"
+            };
+
+            for (String ytId : ytIds) {
+                try {
+                    List<AccessibilityNodeInfo> nodes = root.findAccessibilityNodeInfosByViewId(ytId);
+                    if (nodes != null && !nodes.isEmpty()) {
+                        for (AccessibilityNodeInfo n : nodes) {
+                            if (isLegitimateLikeButtonNode(n)) {
+                                boolean success = clickNodeOrCoordinates(n);
+                                n.recycle();
+                                if (success) return true;
+                            } else {
+                                n.recycle();
+                            }
+                        }
+                    }
+                } catch (Exception ignored) {}
+            }
+
+            // Search for exact YouTube Like button in accessibility hierarchy
+            AccessibilityNodeInfo targetNode = searchYouTubeLikeNode(root, 0);
+            if (targetNode != null) {
+                boolean success = clickNodeOrCoordinates(targetNode);
+                targetNode.recycle();
+                return success;
+            }
+        } catch (Exception ignored) {}
+        return false;
+    }
+
+    private AccessibilityNodeInfo searchYouTubeLikeNode(AccessibilityNodeInfo node, int depth) {
+        if (node == null || depth > 30) return null;
+        try {
+            CharSequence descSeq = node.getContentDescription();
+            CharSequence textSeq = node.getText();
+            String desc = descSeq != null ? descSeq.toString().toLowerCase() : "";
+            String text = textSeq != null ? textSeq.toString().toLowerCase() : "";
+            String id = node.getViewIdResourceName() != null ? node.getViewIdResourceName().toLowerCase() : "";
+
+            if (isLegitimateLikeButtonNode(node)) {
+                boolean matchesLike = false;
+
+                // Match explicit YouTube like button descriptions
+                if (desc.startsWith("like this video") || desc.startsWith("like this short") ||
+                    desc.contains("like this video along with") || desc.contains("like this short along with") ||
+                    desc.equals("like") || desc.equals("thumbs up") || desc.equals("like button") ||
+                    (desc.startsWith("like ") && !desc.contains("comment") && !desc.contains("reply")) ||
+                    (desc.contains("पसंद करें") && !desc.contains("नापसंद"))) {
+                    matchesLike = true;
+                }
+
+                // Match view ID
+                if (id.contains("like_button") || id.contains("segmented_like") ||
+                    id.contains("reel_like") || id.contains("slim_like") || id.contains("like_toggle")) {
+                    matchesLike = true;
+                }
+
+                // Match clean button text
+                if (text.equals("like") || text.equals("thumbs up") || text.equals("👍")) {
+                    matchesLike = true;
+                }
+
+                if (matchesLike) {
+                    return AccessibilityNodeInfo.obtain(node);
+                }
+            }
+
+            int childCount = node.getChildCount();
+            for (int i = 0; i < childCount; i++) {
+                AccessibilityNodeInfo child = node.getChild(i);
+                if (child != null) {
+                    AccessibilityNodeInfo found = searchYouTubeLikeNode(child, depth + 1);
+                    child.recycle();
+                    if (found != null) {
+                        return found;
+                    }
+                }
+            }
+        } catch (Exception ignored) {}
+        return null;
+    }
+
+    private boolean isLegitimateLikeButtonNode(AccessibilityNodeInfo node) {
+        if (node == null) return false;
+        try {
+            CharSequence descSeq = node.getContentDescription();
+            CharSequence textSeq = node.getText();
+            String desc = descSeq != null ? descSeq.toString().toLowerCase() : "";
+            String text = textSeq != null ? textSeq.toString().toLowerCase() : "";
+            String id = node.getViewIdResourceName() != null ? node.getViewIdResourceName().toLowerCase() : "";
+
+            // 1. Strictly reject dislikes, unlikes, and removed likes
+            if (desc.contains("dislike") || text.contains("dislike") || id.contains("dislike")) return false;
+            if (desc.contains("unlike") || text.contains("unlike") || id.contains("unlike")) return false;
+            if (desc.contains("remove like") || desc.contains("liked")) return false;
+
+            // 2. Strictly reject descriptions, expanders, metadata, comments, titles, channel headers
+            if (id.contains("expand") || id.contains("collapse") || id.contains("description") || 
+                id.contains("desc") || id.contains("metadata") || id.contains("comment") || 
+                id.contains("title") || id.contains("header") || id.contains("channel") ||
+                id.contains("summary") || id.contains("player_learn_more")) {
+                return false;
+            }
+
+            if (desc.contains("more") || desc.contains("expand") || desc.contains("description") || 
+                desc.contains("collapse") || desc.contains("view") || desc.contains("subscribe") ||
+                desc.contains("share") || desc.contains("remix") || desc.contains("download")) {
+                return false;
+            }
+
+            if (text.contains("more") || text.contains("view") || text.contains("subscriber") || text.length() > 20) {
+                return false;
+            }
+
+            // 3. Must be visible on screen
+            Rect bounds = new Rect();
+            node.getBoundsInScreen(bounds);
+            if (bounds.width() <= 0 || bounds.height() <= 0) return false;
+            if (bounds.bottom <= 0 || bounds.top >= screenHeight) return false;
+
+            return true;
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    private boolean clickNodeOrCoordinates(AccessibilityNodeInfo node) {
+        if (node == null) return false;
+        try {
+            // 1. If the node itself is clickable, execute accessibility click
+            if (node.isClickable()) {
+                boolean ok = node.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                if (ok) return true;
+            }
+
+            // 2. Check immediate parent if clickable (e.g. segmented button wrapper)
+            AccessibilityNodeInfo parent = node.getParent();
+            if (parent != null) {
+                String pId = parent.getViewIdResourceName() != null ? parent.getViewIdResourceName().toLowerCase() : "";
+                if (!pId.contains("description") && !pId.contains("expand") && !pId.contains("metadata") && !pId.contains("scroll")) {
+                    if (parent.isClickable()) {
+                        boolean ok = parent.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                        parent.recycle();
+                        if (ok) return true;
+                    } else {
+                        parent.recycle();
+                    }
+                } else {
+                    parent.recycle();
+                }
+            }
+
+            // 3. Guaranteed coordinate fallback: Tap exact center of button on screen
+            Rect bounds = new Rect();
+            node.getBoundsInScreen(bounds);
+            if (bounds.width() > 0 && bounds.height() > 0) {
+                updateScreenDimensions();
+                float cx = bounds.exactCenterX();
+                float cy = bounds.exactCenterY();
+                if (cx > 0 && cx < screenWidth && cy > 0 && cy < screenHeight) {
+                    performTapAt(cx, cy, null);
+                    return true;
+                }
+            }
+        } catch (Exception ignored) {}
+        return false;
     }
 
     private boolean findAndClickLikeButton(AccessibilityNodeInfo node) {
@@ -321,20 +508,25 @@ public class AeroAccessibilityService extends AccessibilityService {
             String text = textSeq != null ? textSeq.toString().toLowerCase() : "";
             String id = node.getViewIdResourceName() != null ? node.getViewIdResourceName().toLowerCase() : "";
 
-            boolean hasLike = desc.contains("like") || text.contains("like") || id.contains("like") ||
-                              desc.contains("thumbs up") || text.contains("thumbs up") || id.contains("thumb_up");
-            boolean isNegative = desc.contains("unlike") || text.contains("unlike") ||
-                                 desc.contains("dislike") || text.contains("dislike") ||
+            boolean isNegative = desc.contains("unlike") || text.contains("unlike") || id.contains("unlike") ||
+                                 desc.contains("dislike") || text.contains("dislike") || id.contains("dislike") ||
                                  desc.contains("liked") || text.contains("liked") ||
                                  desc.contains("remove like") || text.contains("remove like");
 
-            if (hasLike && !isNegative) {
-                AccessibilityNodeInfo clickableTarget = node;
-                while (clickableTarget != null && !clickableTarget.isClickable()) {
-                    clickableTarget = clickableTarget.getParent();
-                }
-                if (clickableTarget != null && clickableTarget.isClickable()) {
-                    return clickableTarget.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+            boolean isContentOrExpander = id.contains("expand") || id.contains("collapse") || 
+                                          id.contains("description") || id.contains("desc") || 
+                                          id.contains("metadata") || id.contains("title") || 
+                                          id.contains("comment") || id.contains("header") ||
+                                          desc.contains("more") || text.contains("more") || 
+                                          text.length() > 20;
+
+            if (!isNegative && !isContentOrExpander) {
+                boolean hasLike = (desc.startsWith("like") || desc.equals("like") || desc.contains("like this") || desc.contains("thumbs up")) ||
+                                  (text.equals("like") || text.equals("thumbs up") || text.equals("👍")) ||
+                                  (id.contains("like") && !id.contains("dislike"));
+
+                if (hasLike) {
+                    return clickNodeOrCoordinates(node);
                 }
             }
 

@@ -40,11 +40,13 @@ import java.util.List;
 
 public class MainActivity extends Activity {
 
+    public static MainActivity instance;
+    private static WebView activeWebView;
+    public static volatile boolean isBackgroundEngineRunning = false;
+    public static volatile boolean isFloatingOverlayAttached = false;
     private WebView webView;
     private static final int PERMISSION_REQ_CODE = 1001;
-    private boolean isBackgroundEngineRunning = false;
     private boolean isFullMobileControlEnabled = false;
-    private boolean isFloatingOverlayAttached = false;
     private WindowManager systemWindowManager;
     private WindowManager.LayoutParams floatingOverlayParams;
     private String currentHudSize = "sm";
@@ -59,11 +61,40 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        instance = this;
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         systemWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 
+        if (activeWebView != null) {
+            webView = activeWebView;
+            if (isFloatingOverlayAttached && systemWindowManager != null) {
+                try {
+                    systemWindowManager.removeView(webView);
+                } catch (Exception ignored) {
+                    try {
+                        systemWindowManager.removeViewImmediate(webView);
+                    } catch (Exception ignored2) {}
+                }
+                isFloatingOverlayAttached = false;
+            }
+            if (webView.getParent() instanceof ViewGroup) {
+                ((ViewGroup) webView.getParent()).removeView(webView);
+            }
+            webView.setBackgroundColor(Color.parseColor("#050811"));
+            ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+            );
+            webView.setLayoutParams(lp);
+            setContentView(webView);
+            webView.onResume();
+            webView.resumeTimers();
+            notifyWebOverlayState(false);
+            return;
+        }
+
         webView = new WebView(this);
+        activeWebView = webView;
         webView.setBackgroundColor(Color.parseColor("#050811"));
         setContentView(webView);
 
@@ -354,7 +385,7 @@ public class MainActivity extends Activity {
         }
         isFloatingOverlayAttached = false;
 
-        if (webView != null) {
+        if (webView != null && !isFinishing()) {
             try {
                 webView.setOnTouchListener(null);
                 if (webView.getParent() instanceof ViewGroup) {
@@ -433,6 +464,21 @@ public class MainActivity extends Activity {
             if (AeroAccessibilityService.instance != null) {
                 AeroAccessibilityService.instance.setCursorVisibility(false);
             }
+        }
+
+        @JavascriptInterface
+        public void exitFloatingOverlayToApp() {
+            runOnUiThread(() -> {
+                exitSystemFloatingOverlay();
+                Intent intent = new Intent(MainActivity.this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+            });
+        }
+
+        @JavascriptInterface
+        public boolean isNativeEngineRunning() {
+            return isBackgroundEngineRunning || AeroForegroundService.isServiceRunning;
         }
 
         @JavascriptInterface
@@ -859,13 +905,13 @@ public class MainActivity extends Activity {
             moveTaskToBack(true);
             return;
         }
-        moveTaskToBack(true);
+        finish();
     }
 
     @Override
     protected void onDestroy() {
-        if (isBackgroundEngineRunning) {
-            // Keep background engine and floating HUD active even if activity is detached/destroyed
+        if (isBackgroundEngineRunning || AeroForegroundService.isServiceRunning) {
+            // Keep background engine and floating HUD active while running in background
             super.onDestroy();
             return;
         }
@@ -876,6 +922,7 @@ public class MainActivity extends Activity {
             isFloatingOverlayAttached = false;
         }
         AeroForegroundService.stop(this);
+        activeWebView = null;
         super.onDestroy();
         if (voiceControlPatch != null) {
             voiceControlPatch.stopListening();
