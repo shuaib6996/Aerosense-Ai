@@ -800,7 +800,7 @@
             
 
             <!-- VIEW 3: SPATIAL SETTINGS -->
-            <section id="view-settings" class="hidden space-y-4 pb-32">
+            <section id="view-settings" class="hidden space-y-4">
                 <!-- Top Title -->
                 <div class="flex items-center justify-between gap-2">
                     <h2 class="text-xl font-black tracking-tight text-white">Spatial Settings</h2>
@@ -855,118 +855,172 @@
                             </button>
                         </div>
 
-                        <div class="space-y-1">
-                            <span class="text-xs font-bold text-white">Performance</span>
+                        
+                        <!-- 1. Engine Performance -->
+                        <div class="space-y-1.5 p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                                    <i class="fa-solid fa-bolt text-indigo-400"></i>
+                                    <span>Engine Performance</span>
+                                </span>
+                                <div class="flex items-center gap-1.5">
+                                    <span id="lbl-performance" class="text-xs font-extrabold text-cyan-400">3 (Balanced)</span>
+                                    <button onclick="resetSingleSlider('performance', 3)" class="AirClickable p-1 text-[11px] text-slate-400 hover:text-cyan-300 active:scale-90 transition" title="Reset to Balanced">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </button>
+                                </div>
+                            </div>
                             <div class="aero-slider-wrap">
                                 <input id="sl-performance" type="range" min="1" max="5" step="1" value="3"
                                     oninput="updateSetting('performance', this.value)" class="aero-slider">
                                 <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span></div>
                             </div>
                             <div class="flex justify-between text-[10px] font-bold text-slate-400">
-                                <span>Battery Saver</span>
-                                <span>Faster Response</span>
+                                <span>Battery Saver (1)</span>
+                                <span class="text-indigo-400">Balanced (3)</span>
+                                <span>Faster Response (5)</span>
                             </div>
                         </div>
 
-                        <div class="space-y-1">
-                            <span class="text-xs font-bold text-white">Sensitivity</span>
+                        <!-- 2. Gesture Sensitivity -->
+                        <div class="space-y-1.5 p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                                    <i class="fa-solid fa-sliders text-indigo-400"></i>
+                                    <span>Gesture Sensitivity</span>
+                                </span>
+                                <div class="flex items-center gap-1.5">
+                                    <span id="lbl-sensitivity" class="text-xs font-extrabold text-cyan-400">3 (Standard)</span>
+                                    <button onclick="resetSingleSlider('sensitivity', 3)" class="AirClickable p-1 text-[11px] text-slate-400 hover:text-cyan-300 active:scale-90 transition" title="Reset to Standard">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </button>
+                                </div>
+                            </div>
                             <div class="aero-slider-wrap">
                                 <input id="sl-sensitivity" type="range" min="1" max="5" step="1" value="3"
                                     oninput="updateSetting('sensitivity', this.value)" class="aero-slider">
                                 <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span></div>
                             </div>
                             <div class="flex justify-between text-[10px] font-bold text-slate-400">
-                                <span>Stable</span>
-                                <span>Sensitive</span>
+                                <span>Stable (1)</span>
+                                <span class="text-indigo-400">Standard (3)</span>
+                                <span>Sensitive (5)</span>
                             </div>
                         </div>
 
-                        <div class="space-y-1">
-                            <span class="text-xs font-bold text-white">Drag Repeat Speed</span>
+                        <!-- 3. Drag Repeat Speed -->
+                        <div class="space-y-1.5 p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                                    <i class="fa-solid fa-forward text-indigo-400"></i>
+                                    <span>Drag Repeat Speed</span>
+                                </span>
+                                <div class="flex items-center gap-1.5">
+                                    <span id="lbl-drag-speed" class="text-xs font-extrabold text-cyan-400">3 (Normal)</span>
+                                    <button onclick="resetSingleSlider('dragRepeatSpeed', 3)" class="AirClickable p-1 text-[11px] text-slate-400 hover:text-cyan-300 active:scale-90 transition" title="Reset to Normal">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </button>
+                                </div>
+                            </div>
                             <div class="aero-slider-wrap">
                                 <input id="sl-drag-speed" type="range" min="1" max="5" step="1" value="3"
                                     oninput="updateSetting('dragRepeatSpeed', this.value)" class="aero-slider">
                                 <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span></div>
                             </div>
                             <div class="flex justify-between text-[10px] font-bold text-slate-400">
-                                <span>Slow</span>
-                                <span>Fast</span>
+                                <span>Slow (1)</span>
+                                <span class="text-indigo-400">Normal (3)</span>
+                                <span>Fast (5)</span>
                             </div>
                         </div>
 
-                        <!-- Scroll Timing & Hold Delay (Option 2 & Option 3 Testing) -->
-                        <div class="space-y-3 p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20">
-                            <div class="flex items-center justify-between">
-                                <span class="text-xs font-extrabold text-indigo-300 flex items-center gap-1.5">
-                                    <i class="fa-solid fa-arrows-up-down"></i>
-                                    <span>Scroll Control & Physics</span>
+                        <!-- 4. Repeat Hold Pause (Scroll Timing - Option 2) -->
+                        <div class="space-y-1.5 p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                                    <i class="fa-solid fa-stopwatch text-indigo-400"></i>
+                                    <span>Repeat Hold Pause</span>
+                                    <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-semibold">Scroll</span>
                                 </span>
-                                <span class="text-[9px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-bold">Option 2 & 3</span>
-                            </div>
-
-                            <!-- Option 2: Hold Delay Before Repeat -->
-                            <div class="space-y-1">
-                                <div class="flex justify-between items-center">
-                                    <span class="text-xs font-bold text-white">⏱️ Repeat Hold Pause (Option 2)</span>
-                                    <div class="flex items-center gap-1.5">
-                                        <span id="lbl-scroll-hold-delay" class="text-xs font-extrabold text-indigo-400">1.0s</span>
-                                        <button onclick="resetSingleSlider('scrollHoldDelay', 1.0)" class="AirClickable p-1 text-[11px] text-slate-400 hover:text-indigo-300 active:scale-90 transition" title="Reset to 1.0s">
-                                            <i class="fa-solid fa-rotate-left"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="aero-slider-wrap">
-                                    <input id="sl-scroll-hold-delay" type="range" min="0.3" max="3.0" step="0.1" value="1.0"
-                                        oninput="updateSetting('scrollHoldDelay', this.value)" class="aero-slider">
-                                    <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span><span></span></div>
-                                </div>
-                                <div class="flex justify-between text-[10px] font-bold text-slate-400">
-                                    <span>0.3s (Fast Repeat)</span>
-                                    <span class="text-indigo-400">1.0s (Recommended)</span>
-                                    <span>3.0s (Single Scroll)</span>
+                                <div class="flex items-center gap-1.5">
+                                    <span id="lbl-scroll-hold-delay" class="text-xs font-extrabold text-indigo-400">0.3s</span>
+                                    <button onclick="resetSingleSlider('scrollHoldDelay', 0.3)" class="AirClickable p-1 text-[11px] text-slate-400 hover:text-indigo-300 active:scale-90 transition" title="Reset to 0.3s">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </button>
                                 </div>
                             </div>
-
-                            <!-- Option 3: Swipe Drag Physics (Distance & Smoothness) -->
-                            <div class="space-y-1">
-                                <div class="flex justify-between items-center">
-                                    <span class="text-xs font-bold text-white">🎯 Swipe Smoothness (Option 3)</span>
-                                    <div class="flex items-center gap-1.5">
-                                        <span id="lbl-scroll-distance" class="text-xs font-extrabold text-cyan-400">Calm Snap (YT/Gallery)</span>
-                                        <button onclick="resetSingleSlider('scrollDistance', 1)" class="AirClickable p-1 text-[11px] text-slate-400 hover:text-cyan-300 active:scale-90 transition" title="Reset to Calm Snap">
-                                            <i class="fa-solid fa-rotate-left"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="aero-slider-wrap">
-                                    <input id="sl-scroll-distance" type="range" min="1" max="3" step="1" value="1"
-                                        oninput="updateSetting('scrollDistance', this.value)" class="aero-slider">
-                                    <div class="slider-ticks"><span></span><span></span><span></span></div>
-                                </div>
-                                <div class="flex justify-between text-[10px] font-bold text-slate-400">
-                                    <span class="text-cyan-400">Calm Snap (YT/Gallery)</span>
-                                    <span>Balanced Feed</span>
-                                    <span>Quick Scroll</span>
-                                </div>
+                            <div class="aero-slider-wrap">
+                                <input id="sl-scroll-hold-delay" type="range" min="0.3" max="3.0" step="0.1" value="0.3"
+                                    oninput="updateSetting('scrollHoldDelay', this.value)" class="aero-slider">
+                                <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] font-bold text-slate-400">
+                                <span class="text-indigo-400">0.3s (Fast Repeat)</span>
+                                <span>1.0s</span>
+                                <span>3.0s (Single Scroll)</span>
                             </div>
                         </div>
 
-                        <div class="space-y-1">
-                            <span class="text-xs font-bold text-white">Pointer Speed</span>
+                        <!-- 5. Swipe Smoothness (Scroll Physics - Option 3) -->
+                        <div class="space-y-1.5 p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                                    <i class="fa-solid fa-arrows-up-down text-indigo-400"></i>
+                                    <span>Swipe Smoothness</span>
+                                    <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-semibold">Scroll</span>
+                                </span>
+                                <div class="flex items-center gap-1.5">
+                                    <span id="lbl-scroll-distance" class="text-xs font-extrabold text-cyan-400">Quick Scroll</span>
+                                    <button onclick="resetSingleSlider('scrollDistance', 3)" class="AirClickable p-1 text-[11px] text-slate-400 hover:text-cyan-300 active:scale-90 transition" title="Reset to Quick Scroll">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="aero-slider-wrap">
+                                <input id="sl-scroll-distance" type="range" min="1" max="3" step="1" value="3"
+                                    oninput="updateSetting('scrollDistance', this.value)" class="aero-slider">
+                                <div class="slider-ticks"><span></span><span></span><span></span></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] font-bold text-slate-400">
+                                <span>Calm Snap (YT/Gallery)</span>
+                                <span>Balanced Feed</span>
+                                <span class="text-cyan-400">Quick Scroll</span>
+                            </div>
+                        </div>
+
+                        <!-- 6. Air Pointer Speed -->
+                        <div class="space-y-1.5 p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                                    <i class="fa-solid fa-arrow-pointer text-indigo-400"></i>
+                                    <span>Air Pointer Speed</span>
+                                </span>
+                                <div class="flex items-center gap-1.5">
+                                    <span id="lbl-pointer-speed" class="text-xs font-extrabold text-cyan-400">3 (Normal)</span>
+                                    <button onclick="resetSingleSlider('pointerSpeed', 3)" class="AirClickable p-1 text-[11px] text-slate-400 hover:text-cyan-300 active:scale-90 transition" title="Reset to Normal">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </button>
+                                </div>
+                            </div>
                             <div class="aero-slider-wrap">
                                 <input id="sl-pointer-speed" type="range" min="1" max="5" step="1" value="3"
                                     oninput="updateSetting('pointerSpeed', this.value)" class="aero-slider">
                                 <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span></div>
                             </div>
                             <div class="flex justify-between text-[10px] font-bold text-slate-400">
-                                <span>Slow</span>
-                                <span>Fast</span>
+                                <span>Slow (1)</span>
+                                <span class="text-indigo-400">Normal (3)</span>
+                                <span>Fast (5)</span>
                             </div>
                         </div>
 
-                        <div class="space-y-1">
+                        <!-- 7. Popup Hand Size -->
+                        <div class="space-y-1.5 p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20">
                             <div class="flex justify-between items-center">
-                                <span class="text-xs font-bold text-white">Popup Hand Size</span>
+                                <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                                    <i class="fa-solid fa-hand text-indigo-400"></i>
+                                    <span>Popup Hand Size</span>
+                                </span>
                                 <div class="flex items-center gap-1.5">
                                     <span id="lbl-hand-scale" class="text-xs font-extrabold text-cyan-400">1.0x</span>
                                     <button onclick="resetSingleSlider('handScale', 1.0)" class="AirClickable p-1 text-[11px] text-slate-400 hover:text-cyan-300 active:scale-90 transition" title="Reset to 1.0x">
@@ -981,17 +1035,18 @@
                             </div>
                             <div class="flex justify-between text-[10px] font-bold text-slate-400">
                                 <span>Compact (0.6x)</span>
-                                <span>Normal (1.0x)</span>
+                                <span class="text-indigo-400">Normal (1.0x)</span>
                                 <span>Large (1.6x)</span>
                             </div>
                         </div>
 
-                        <!-- Social Media Like Gesture Timing Slider (Insta, Facebook, YouTube) -->
-                        <div class="space-y-1 p-2.5 rounded-xl bg-pink-500/10 border border-pink-500/20">
+                        <!-- 8. Like Gesture Timing -->
+                        <div class="space-y-1.5 p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20">
                             <div class="flex justify-between items-center">
                                 <span class="text-xs font-bold text-white flex items-center gap-1.5">
-                                    <span>👍 Like Gesture Timing</span>
-                                    <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-pink-500/25 text-pink-300 font-semibold">Insta/FB/YT</span>
+                                    <i class="fa-solid fa-thumbs-up text-indigo-400"></i>
+                                    <span>Like Gesture Timing</span>
+                                    <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-semibold">Insta/FB/YT</span>
                                 </span>
                                 <div class="flex items-center gap-1.5">
                                     <span id="lbl-like-hold-duration" class="text-xs font-extrabold text-pink-400">2.0s</span>
@@ -1007,17 +1062,18 @@
                             </div>
                             <div class="flex justify-between text-[10px] font-bold text-slate-400">
                                 <span>0.0s (Instant)</span>
-                                <span class="text-pink-400">2.0s (Default)</span>
+                                <span class="text-indigo-400">2.0s (Default)</span>
                                 <span>5.0s</span>
                             </div>
                         </div>
 
-                        <!-- Long Pinch Menu Timing Slider -->
-                        <div class="space-y-1 p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
+                        <!-- 9. Long Pinch Menu Timing -->
+                        <div class="space-y-1.5 p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20">
                             <div class="flex justify-between items-center">
                                 <span class="text-xs font-bold text-white flex items-center gap-1.5">
-                                    <span>🤏 Long Pinch Menu Timing</span>
-                                    <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-cyan-500/25 text-cyan-300 font-semibold">Hold</span>
+                                    <i class="fa-solid fa-hand-holding-hand text-indigo-400"></i>
+                                    <span>Long Pinch Menu Timing</span>
+                                    <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-semibold">Hold</span>
                                 </span>
                                 <div class="flex items-center gap-1.5">
                                     <span id="lbl-long-pinch-duration" class="text-xs font-extrabold text-cyan-400">2.5s</span>
@@ -1033,15 +1089,24 @@
                             </div>
                             <div class="flex justify-between text-[10px] font-bold text-slate-400">
                                 <span>0.0s (Instant)</span>
-                                <span class="text-cyan-400">2.5s (Default)</span>
+                                <span class="text-indigo-400">2.5s (Default)</span>
                                 <span>5.0s</span>
                             </div>
                         </div>
 
-                        <div class="space-y-1">
+                        <!-- 10. Hand Sign Hold Duration -->
+                        <div class="space-y-1.5 p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20">
                             <div class="flex justify-between items-center">
-                                <span class="text-xs font-bold text-white">Hand Sign Hold Duration</span>
-                                <span id="lbl-hold-duration" class="text-xs font-bold text-slate-400">1.5s</span>
+                                <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                                    <i class="fa-solid fa-hourglass-half text-indigo-400"></i>
+                                    <span>Hand Sign Hold Duration</span>
+                                </span>
+                                <div class="flex items-center gap-1.5">
+                                    <span id="lbl-hold-duration" class="text-xs font-extrabold text-cyan-400">1.5s</span>
+                                    <button onclick="resetSingleSlider('holdDuration', 1.5)" class="AirClickable p-1 text-[11px] text-slate-400 hover:text-cyan-300 active:scale-90 transition" title="Reset to 1.5s">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="aero-slider-wrap">
                                 <input id="sl-hold-duration" type="range" min="1.0" max="2.0" step="0.25" value="1.5"
@@ -1050,15 +1115,24 @@
                             </div>
                             <div class="flex justify-between text-[10px] font-bold text-slate-400">
                                 <span>1.0s</span>
-                                <span>1.5s</span>
+                                <span class="text-indigo-400">1.5s (Default)</span>
                                 <span>2.0s</span>
                             </div>
                         </div>
 
-                        <div class="space-y-1">
+                        <!-- 11. Hand Sign Activation Delay -->
+                        <div class="space-y-1.5 p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20">
                             <div class="flex justify-between items-center">
-                                <span class="text-xs font-bold text-white">Hand Sign Activation Delay</span>
-                                <span id="lbl-activation-delay" class="text-xs font-bold text-slate-400">1.0s</span>
+                                <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                                    <i class="fa-solid fa-clock text-indigo-400"></i>
+                                    <span>Hand Sign Activation Delay</span>
+                                </span>
+                                <div class="flex items-center gap-1.5">
+                                    <span id="lbl-activation-delay" class="text-xs font-extrabold text-cyan-400">1.0s</span>
+                                    <button onclick="resetSingleSlider('activationDelay', 1.0)" class="AirClickable p-1 text-[11px] text-slate-400 hover:text-cyan-300 active:scale-90 transition" title="Reset to 1.0s">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="aero-slider-wrap">
                                 <input id="sl-activation-delay" type="range" min="0.0" max="2.0" step="0.5" value="1.0"
@@ -1066,24 +1140,39 @@
                                 <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span></div>
                             </div>
                             <div class="flex justify-between text-[10px] font-bold text-slate-400">
-                                <span>0.0s</span>
-                                <span>1.0s</span>
+                                <span>0.0s (Instant)</span>
+                                <span class="text-indigo-400">1.0s (Default)</span>
                                 <span>2.0s</span>
                             </div>
                         </div>
 
-                        <div class="space-y-1">
-                            <span class="text-xs font-bold text-white">Hand Sign Sensitivity</span>
+                        <!-- 12. Hand Sign Sensitivity -->
+                        <div class="space-y-1.5 p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                                    <i class="fa-solid fa-bullseye text-indigo-400"></i>
+                                    <span>Hand Sign Sensitivity</span>
+                                </span>
+                                <div class="flex items-center gap-1.5">
+                                    <span id="lbl-sign-sensitivity" class="text-xs font-extrabold text-cyan-400">3 (Standard)</span>
+                                    <button onclick="resetSingleSlider('signSensitivity', 3)" class="AirClickable p-1 text-[11px] text-slate-400 hover:text-cyan-300 active:scale-90 transition" title="Reset to Standard">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </button>
+                                </div>
+                            </div>
                             <div class="aero-slider-wrap">
                                 <input id="sl-sign-sensitivity" type="range" min="1" max="5" step="1" value="3"
                                     oninput="updateSetting('signSensitivity', this.value)" class="aero-slider">
                                 <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span></div>
                             </div>
                             <div class="flex justify-between text-[10px] font-bold text-slate-400">
-                                <span>Stable</span>
-                                <span>Sensitive</span>
+                                <span>Stable (1)</span>
+                                <span class="text-indigo-400">Standard (3)</span>
+                                <span>Sensitive (5)</span>
                             </div>
                         </div>
+
+
 
 
                         <!-- Full-width Bottom Reset Action -->
@@ -1094,107 +1183,189 @@
                     </div>
                 </div>
 
-                <!-- TAB 2: INDICATOR -->
+                                <!-- TAB 2: INDICATOR -->
                 <div id="panel-indicator" class="space-y-4 hidden">
-                    <div class="settings-group-card space-y-5">
-                        <div class="flex items-center justify-between">
-                            <h3 class="text-base font-extrabold text-white">Indicator</h3>
-                            <button onclick="resetIndicatorSettings()" class="AirKeyTarget text-xs font-extrabold text-[#465fff] hover:underline">
-                                Reset
+                    <div class="settings-group-card space-y-4">
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-1.5 min-w-0">
+                                <h3 class="text-sm font-black text-white truncate">Indicator Settings</h3>
+                                <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 font-bold shrink-0">6 Controls</span>
+                            </div>
+                            <button onclick="resetIndicatorSettings()" class="AirClickable flex items-center gap-1 px-2.5 py-1 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 hover:border-cyan-400 text-xs font-bold text-cyan-300 active:scale-95 transition shadow-sm shrink-0" title="Reset Indicator">
+                                <i class="fa-solid fa-arrow-rotate-left text-[11px]"></i>
+                                <span>Reset</span>
                             </button>
                         </div>
 
-                        <!-- Hand Gesture Popup Size Slider (50px to 88px max) -->
-                        <div class="space-y-1.5 p-3 rounded-2xl bg-slate-900/90 border border-cyan-500/30">
+                        <!-- 1. Hand Gesture Popup Size Slider (50px to 88px max) -->
+                        <div class="space-y-1.5 p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20">
                             <div class="flex justify-between items-center">
                                 <span class="text-xs font-bold text-white flex items-center gap-1.5">
-                                    <i class="fa-solid fa-expand text-cyan-400 text-xs"></i>
-                                    Hand Gesture Popup Size
+                                    <i class="fa-solid fa-expand text-indigo-400"></i>
+                                    <span>Popup HUD Size</span>
                                 </span>
-                                <span id="lbl-hud-size" class="text-xs font-extrabold text-cyan-400">52 px</span>
+                                <div class="flex items-center gap-1.5">
+                                    <span id="lbl-hud-size" class="text-xs font-extrabold text-cyan-400">52 px</span>
+                                    <button onclick="setCustomHudSize(52); renderSettingsUI();" class="AirClickable p-1 text-[11px] text-slate-400 hover:text-cyan-300 active:scale-90 transition" title="Reset to 52px">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="aero-slider-wrap">
                                 <input id="sl-hud-popup-size" type="range" min="50" max="88" step="2" value="52"
                                     oninput="setCustomHudSize(this.value)" class="aero-slider">
+                                <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span></div>
                             </div>
                             <div class="flex justify-between text-[10px] font-bold text-slate-400">
                                 <span>Mini (50px)</span>
+                                <span class="text-indigo-400">52px (Default)</span>
                                 <span>Max Limit (88px)</span>
                             </div>
                         </div>
 
-                        <div class="flex items-center justify-between py-1">
-                            <span class="text-sm font-bold text-white">Camera PreView</span>
-                            <button id="toggle-cam-preview" onclick="toggleCameraPreview()"
-                                class="AirKeyTarget w-13 h-7 rounded-full bg-slate-700 p-1 flex items-center justify-start transition">
-                                <div class="w-5 h-5 rounded-full bg-white flex items-center justify-center text-slate-700 text-[10px]">
-                                    <i id="icon-cam-preview" class="fa-solid fa-xmark"></i>
-                                </div>
-                            </button>
+                        <!-- 2. Camera Preview Toggle Card -->
+                        <div class="space-y-1.5 p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                                    <i class="fa-solid fa-camera text-indigo-400"></i>
+                                    <span>Camera Live Preview</span>
+                                </span>
+                                <button id="toggle-cam-preview" onclick="toggleCameraPreview()"
+                                    class="AirKeyTarget w-13 h-7 rounded-full bg-slate-700 p-1 flex items-center justify-start transition">
+                                    <div class="w-5 h-5 rounded-full bg-white flex items-center justify-center text-slate-700 text-[10px]">
+                                        <i id="icon-cam-preview" class="fa-solid fa-xmark"></i>
+                                    </div>
+                                </button>
+                            </div>
                         </div>
 
-                        <div class="space-y-1">
-                            <span class="text-xs font-bold text-white">Indicator Frequency</span>
+                        <!-- 3. Indicator Frequency -->
+                        <div class="space-y-1.5 p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                                    <i class="fa-solid fa-wave-square text-indigo-400"></i>
+                                    <span>Indicator Frequency</span>
+                                </span>
+                                <div class="flex items-center gap-1.5">
+                                    <span id="lbl-ind-freq" class="text-xs font-extrabold text-cyan-400">On Gesture (2)</span>
+                                    <button onclick="resetSingleIndicator('frequency', 2)" class="AirClickable p-1 text-[11px] text-slate-400 hover:text-cyan-300 active:scale-90 transition" title="Reset">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </button>
+                                </div>
+                            </div>
                             <div class="aero-slider-wrap">
                                 <input id="sl-ind-freq" type="range" min="1" max="4" step="1" value="2"
                                     oninput="updateIndicator('frequency', this.value)" class="aero-slider">
                                 <div class="slider-ticks"><span></span><span></span><span></span><span></span></div>
                             </div>
                             <div class="flex justify-between text-[10px] font-bold text-slate-400">
-                                <span>Never</span>
-                                <span>Always</span>
+                                <span>Never (1)</span>
+                                <span class="text-indigo-400">On Gesture (2)</span>
+                                <span>Always (4)</span>
                             </div>
                         </div>
 
-                        <div class="space-y-1">
-                            <span class="text-xs font-bold text-white">Opacity</span>
+                        <!-- 4. Opacity -->
+                        <div class="space-y-1.5 p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                                    <i class="fa-solid fa-circle-half-stroke text-indigo-400"></i>
+                                    <span>Indicator Opacity</span>
+                                </span>
+                                <div class="flex items-center gap-1.5">
+                                    <span id="lbl-ind-opacity" class="text-xs font-extrabold text-cyan-400">60%</span>
+                                    <button onclick="resetSingleIndicator('opacity', 60)" class="AirClickable p-1 text-[11px] text-slate-400 hover:text-cyan-300 active:scale-90 transition" title="Reset">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </button>
+                                </div>
+                            </div>
                             <div class="aero-slider-wrap">
                                 <input id="sl-ind-opacity" type="range" min="15" max="100" step="5" value="60"
                                     oninput="updateIndicator('opacity', this.value)" class="aero-slider">
                                 <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span></div>
                             </div>
                             <div class="flex justify-between text-[10px] font-bold text-slate-400">
-                                <span>Transparent</span>
-                                <span>Solid</span>
+                                <span>Transparent (15%)</span>
+                                <span class="text-indigo-400">60%</span>
+                                <span>Solid (100%)</span>
                             </div>
                         </div>
 
-                        <div class="space-y-1">
-                            <span class="text-xs font-bold text-white">Size</span>
+                        <!-- 5. Size -->
+                        <div class="space-y-1.5 p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                                    <i class="fa-solid fa-up-right-and-down-left-from-center text-indigo-400"></i>
+                                    <span>Indicator Size</span>
+                                </span>
+                                <div class="flex items-center gap-1.5">
+                                    <span id="lbl-ind-size" class="text-xs font-extrabold text-cyan-400">120px</span>
+                                    <button onclick="resetSingleIndicator('size', 120)" class="AirClickable p-1 text-[11px] text-slate-400 hover:text-cyan-300 active:scale-90 transition" title="Reset">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </button>
+                                </div>
+                            </div>
                             <div class="aero-slider-wrap">
                                 <input id="sl-ind-size" type="range" min="80" max="200" step="10" value="120"
                                     oninput="updateIndicator('size', this.value)" class="aero-slider">
                                 <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span></div>
                             </div>
                             <div class="flex justify-between text-[10px] font-bold text-slate-400">
-                                <span>Small</span>
-                                <span>Big</span>
+                                <span>Small (80px)</span>
+                                <span class="text-indigo-400">120px</span>
+                                <span>Big (200px)</span>
                             </div>
                         </div>
 
-                        <div class="space-y-1">
-                            <span class="text-xs font-bold text-white">Horizontal Position</span>
+                        <!-- 6. Horizontal Position -->
+                        <div class="space-y-1.5 p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                                    <i class="fa-solid fa-left-right text-indigo-400"></i>
+                                    <span>Horizontal Position</span>
+                                </span>
+                                <div class="flex items-center gap-1.5">
+                                    <span id="lbl-ind-horiz" class="text-xs font-extrabold text-cyan-400">50%</span>
+                                    <button onclick="resetSingleIndicator('horiz', 50)" class="AirClickable p-1 text-[11px] text-slate-400 hover:text-cyan-300 active:scale-90 transition" title="Reset">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </button>
+                                </div>
+                            </div>
                             <div class="aero-slider-wrap">
                                 <input id="sl-ind-horiz" type="range" min="15" max="85" step="5" value="50"
                                     oninput="updateIndicator('horiz', this.value)" class="aero-slider">
                                 <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span></div>
                             </div>
                             <div class="flex justify-between text-[10px] font-bold text-slate-400">
-                                <span>Left</span>
-                                <span>Right</span>
+                                <span>Left (15%)</span>
+                                <span class="text-indigo-400">Center (50%)</span>
+                                <span>Right (85%)</span>
                             </div>
                         </div>
 
-                        <div class="space-y-1">
-                            <span class="text-xs font-bold text-white">Vertical Position</span>
+                        <!-- 7. Vertical Position -->
+                        <div class="space-y-1.5 p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                                    <i class="fa-solid fa-up-down text-indigo-400"></i>
+                                    <span>Vertical Position</span>
+                                </span>
+                                <div class="flex items-center gap-1.5">
+                                    <span id="lbl-ind-vert" class="text-xs font-extrabold text-cyan-400">14%</span>
+                                    <button onclick="resetSingleIndicator('vert', 14)" class="AirClickable p-1 text-[11px] text-slate-400 hover:text-cyan-300 active:scale-90 transition" title="Reset">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </button>
+                                </div>
+                            </div>
                             <div class="aero-slider-wrap">
                                 <input id="sl-ind-vert" type="range" min="8" max="82" step="2" value="14"
                                     oninput="updateIndicator('vert', this.value)" class="aero-slider">
                                 <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span></div>
                             </div>
                             <div class="flex justify-between text-[10px] font-bold text-slate-400">
-                                <span>Bottom</span>
-                                <span>Top</span>
+                                <span>Bottom (8%)</span>
+                                <span class="text-indigo-400">14% (Default)</span>
+                                <span>Top (82%)</span>
                             </div>
                         </div>
                     </div>
@@ -1202,15 +1373,19 @@
 
                 <!-- TAB 3: CONTROLS -->
                 <div id="panel-controls" class="space-y-4 hidden">
-                    <div class="settings-group-card space-y-5">
-                        <div class="flex items-center justify-between">
-                            <h3 class="text-base font-extrabold text-white">Control Interface</h3>
-                            <button onclick="resetControlSettings()" class="AirKeyTarget text-xs font-extrabold text-[#465fff] hover:underline">
-                                Reset
+                    <div class="settings-group-card space-y-4">
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-1.5 min-w-0">
+                                <h3 class="text-sm font-black text-white truncate">Control Interface</h3>
+                                <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 font-bold shrink-0">4 Controls</span>
+                            </div>
+                            <button onclick="resetControlSettings()" class="AirClickable flex items-center gap-1 px-2.5 py-1 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 hover:border-cyan-400 text-xs font-bold text-cyan-300 active:scale-95 transition shadow-sm shrink-0" title="Reset Controls">
+                                <i class="fa-solid fa-arrow-rotate-left text-[11px]"></i>
+                                <span>Reset</span>
                             </button>
                         </div>
 
-                        <!-- Live Inline Preview Box (Clean layout, no floating overlap) -->
+                        <!-- Live Inline Preview Box -->
                         <div class="p-3.5 rounded-3xl bg-slate-900/90 border border-indigo-500/40 flex flex-col items-center justify-center gap-2.5 shadow-lg">
                             <div onclick="cycleControlStyle()" class="AirKeyTarget w-full flex items-center justify-between px-1 cursor-pointer" title="Tap to switch style">
                                 <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-300 flex items-center gap-1.5">
@@ -1225,70 +1400,127 @@
                             </div>
                         </div>
 
-                        <!-- Style Selector -->
-                        <div onclick="cycleControlStyle()" class="AirKeyTarget flex items-center justify-between py-1 cursor-pointer">
-                            <span class="text-sm font-bold text-white">Style</span>
-                            <div class="flex items-center gap-2">
-                                <span id="val-control-style" class="text-sm font-bold text-slate-400">Island</span>
-                                <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
+                        <!-- Style Selector Card -->
+                        <div onclick="cycleControlStyle()" class="AirKeyTarget space-y-1.5 p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 cursor-pointer">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                                    <i class="fa-solid fa-palette text-indigo-400"></i>
+                                    <span>Interface Style</span>
+                                </span>
+                                <div class="flex items-center gap-1.5">
+                                    <span id="val-control-style" class="text-xs font-extrabold text-cyan-400">Island</span>
+                                    <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="space-y-1">
-                            <span class="text-xs font-bold text-white">Width</span>
+                        <!-- 1. Width -->
+                        <div class="space-y-1.5 p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                                    <i class="fa-solid fa-arrows-left-right text-indigo-400"></i>
+                                    <span>Interface Width</span>
+                                </span>
+                                <div class="flex items-center gap-1.5">
+                                    <span id="lbl-ctrl-width" class="text-xs font-extrabold text-cyan-400">300px</span>
+                                    <button onclick="resetSingleControl('width', 300)" class="AirClickable p-1 text-[11px] text-slate-400 hover:text-cyan-300 active:scale-90 transition" title="Reset">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </button>
+                                </div>
+                            </div>
                             <div class="aero-slider-wrap">
                                 <input id="sl-ctrl-width" type="range" min="220" max="360" step="10" value="300"
                                     oninput="updateControlInterface('width', this.value)" class="aero-slider">
                                 <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span></div>
                             </div>
                             <div class="flex justify-between text-[10px] font-bold text-slate-400">
-                                <span>Small</span>
-                                <span>Big</span>
+                                <span>Small (220px)</span>
+                                <span class="text-indigo-400">300px</span>
+                                <span>Big (360px)</span>
                             </div>
                         </div>
 
-                        <div class="space-y-1">
-                            <span class="text-xs font-bold text-white">Height</span>
+                        <!-- 2. Height -->
+                        <div class="space-y-1.5 p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                                    <i class="fa-solid fa-arrows-up-down text-indigo-400"></i>
+                                    <span>Interface Height</span>
+                                </span>
+                                <div class="flex items-center gap-1.5">
+                                    <span id="lbl-ctrl-height" class="text-xs font-extrabold text-cyan-400">190px</span>
+                                    <button onclick="resetSingleControl('height', 190)" class="AirClickable p-1 text-[11px] text-slate-400 hover:text-cyan-300 active:scale-90 transition" title="Reset">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </button>
+                                </div>
+                            </div>
                             <div class="aero-slider-wrap">
                                 <input id="sl-ctrl-height" type="range" min="140" max="300" step="10" value="190"
                                     oninput="updateControlInterface('height', this.value)" class="aero-slider">
                                 <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span></div>
                             </div>
                             <div class="flex justify-between text-[10px] font-bold text-slate-400">
-                                <span>Small</span>
-                                <span>Big</span>
+                                <span>Small (140px)</span>
+                                <span class="text-indigo-400">190px</span>
+                                <span>Big (300px)</span>
                             </div>
                         </div>
 
-                        <div class="space-y-1">
-                            <span class="text-xs font-bold text-white">Horizontal Position</span>
+                        <!-- 3. Horizontal Position -->
+                        <div class="space-y-1.5 p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                                    <i class="fa-solid fa-left-right text-indigo-400"></i>
+                                    <span>Horizontal Position</span>
+                                </span>
+                                <div class="flex items-center gap-1.5">
+                                    <span id="lbl-ctrl-horiz" class="text-xs font-extrabold text-cyan-400">50%</span>
+                                    <button onclick="resetSingleControl('horiz', 50)" class="AirClickable p-1 text-[11px] text-slate-400 hover:text-cyan-300 active:scale-90 transition" title="Reset">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </button>
+                                </div>
+                            </div>
                             <div class="aero-slider-wrap">
                                 <input id="sl-ctrl-horiz" type="range" min="20" max="80" step="5" value="50"
                                     oninput="updateControlInterface('horiz', this.value)" class="aero-slider">
                                 <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span></div>
                             </div>
                             <div class="flex justify-between text-[10px] font-bold text-slate-400">
-                                <span>Left</span>
-                                <span>Right</span>
+                                <span>Left (20%)</span>
+                                <span class="text-indigo-400">Center (50%)</span>
+                                <span>Right (80%)</span>
                             </div>
                         </div>
 
-                        <div class="space-y-1">
-                            <span class="text-xs font-bold text-white">Vertical Position</span>
+                        <!-- 4. Vertical Position -->
+                        <div class="space-y-1.5 p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                                    <i class="fa-solid fa-up-down text-indigo-400"></i>
+                                    <span>Vertical Position</span>
+                                </span>
+                                <div class="flex items-center gap-1.5">
+                                    <span id="lbl-ctrl-vert" class="text-xs font-extrabold text-cyan-400">52%</span>
+                                    <button onclick="resetSingleControl('vert', 52)" class="AirClickable p-1 text-[11px] text-slate-400 hover:text-cyan-300 active:scale-90 transition" title="Reset">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </button>
+                                </div>
+                            </div>
                             <div class="aero-slider-wrap">
                                 <input id="sl-ctrl-vert" type="range" min="20" max="80" step="5" value="52"
                                     oninput="updateControlInterface('vert', this.value)" class="aero-slider">
                                 <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span></div>
                             </div>
                             <div class="flex justify-between text-[10px] font-bold text-slate-400">
-                                <span>Bottom</span>
-                                <span>Top</span>
+                                <span>Bottom (20%)</span>
+                                <span class="text-indigo-400">52% (Default)</span>
+                                <span>Top (80%)</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Ultra-Compact Floating Settings Save Pill (Floats safely above footer, zero overlap) -->
+<!-- Ultra-Compact Floating Settings Save Pill (Floats safely above footer, zero overlap) -->
                 <div id="settings-save-bar" style="bottom: calc(6.5rem + env(safe-area-inset-bottom, 0px));" class="fixed inset-x-0 mx-auto w-fit max-w-[88vw] z-40 px-2.5 py-1 rounded-full bg-slate-900/95 border border-cyan-500/60 shadow-xl backdrop-blur-md flex items-center gap-2 transition-all duration-300 translate-y-48 opacity-0 pointer-events-none select-none">
                     <div class="flex items-center gap-1.5 shrink-0">
                         <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
@@ -1700,8 +1932,8 @@
             performance: 3,
             sensitivity: 3,
             dragRepeatSpeed: 3,
-            scrollHoldDelay: 1.0,
-            scrollDistance: 1,
+            scrollHoldDelay: 0.3,
+            scrollDistance: 3,
             pointerSpeed: 3,
             handScale: 1.0,
             likeHoldDuration: 2.0,
@@ -1738,6 +1970,11 @@
         let aeroConfig = JSON.parse(localStorage.getItem('aero_spatial_settings')) || JSON.parse(JSON.stringify(defaultAeroSettings));
         if (aeroConfig && Array.isArray(aeroConfig.shortcuts)) {
             aeroConfig.shortcuts = aeroConfig.shortcuts.filter(s => s && s.id !== 'KEYBOARD');
+        }
+        if (localStorage.getItem('aero_quick_scroll_v4') !== 'true') {
+            aeroConfig.scrollDistance = 3;
+            aeroConfig.scrollHoldDelay = 0.3;
+            try { localStorage.setItem('aero_quick_scroll_v4', 'true'); } catch(e) {}
             localStorage.setItem('aero_spatial_settings', JSON.stringify(aeroConfig));
         }
 
@@ -1768,7 +2005,7 @@
             savedAeroConfig = JSON.parse(JSON.stringify(aeroConfig));
             markSettingsUnsaved(false);
             if (window.AndroidBridge && window.AndroidBridge.setSwipePhysics) {
-                window.AndroidBridge.setSwipePhysics(parseInt(aeroConfig.scrollDistance || 1));
+                window.AndroidBridge.setSwipePhysics(parseInt(aeroConfig.scrollDistance || 3));
             }
             playGestureTone(720, 0.08);
             showToast('💾', 'Settings Saved', 'All slider values saved successfully');
@@ -1854,10 +2091,27 @@
 
         function updateSetting(key, val) {
             aeroConfig[key] = parseFloat(val);
-            if (key === 'holdDuration') {
-                document.getElementById('lbl-hold-duration').textContent = `${aeroConfig.holdDuration}s`;
+            if (key === 'performance') {
+                const lbl = document.getElementById('lbl-performance');
+                if (lbl) lbl.textContent = `${val} (${val == 1 ? 'Battery' : (val == 5 ? 'Max' : 'Balanced')})`;
+            } else if (key === 'sensitivity') {
+                const lbl = document.getElementById('lbl-sensitivity');
+                if (lbl) lbl.textContent = `${val} (${val == 1 ? 'Stable' : (val == 5 ? 'Sensitive' : 'Standard')})`;
+            } else if (key === 'dragRepeatSpeed') {
+                const lbl = document.getElementById('lbl-drag-speed');
+                if (lbl) lbl.textContent = `${val} (${val == 1 ? 'Slow' : (val == 5 ? 'Fast' : 'Normal')})`;
+            } else if (key === 'pointerSpeed') {
+                const lbl = document.getElementById('lbl-pointer-speed');
+                if (lbl) lbl.textContent = `${val} (${val == 1 ? 'Slow' : (val == 5 ? 'Fast' : 'Normal')})`;
+            } else if (key === 'signSensitivity') {
+                const lbl = document.getElementById('lbl-sign-sensitivity');
+                if (lbl) lbl.textContent = `${val} (${val == 1 ? 'Stable' : (val == 5 ? 'Sensitive' : 'Standard')})`;
+            } else if (key === 'holdDuration') {
+                const lbl = document.getElementById('lbl-hold-duration');
+                if (lbl) lbl.textContent = `${aeroConfig.holdDuration}s`;
             } else if (key === 'activationDelay') {
-                document.getElementById('lbl-activation-delay').textContent = `${aeroConfig.activationDelay.toFixed(1)}s`;
+                const lbl = document.getElementById('lbl-activation-delay');
+                if (lbl) lbl.textContent = `${aeroConfig.activationDelay.toFixed(1)}s`;
             } else if (key === 'handScale') {
                 const lbl = document.getElementById('lbl-hand-scale');
                 if (lbl) lbl.textContent = `${aeroConfig.handScale.toFixed(1)}x`;
@@ -1909,13 +2163,41 @@
 
         function updateIndicator(prop, val) {
             const num = parseFloat(val);
-            if (prop === 'frequency') aeroConfig.indFrequency = num;
-            if (prop === 'opacity') aeroConfig.indOpacity = num;
-            if (prop === 'size') aeroConfig.indSize = num;
-            if (prop === 'horiz') aeroConfig.indHoriz = num;
-            if (prop === 'vert') aeroConfig.indVert = num;
+            if (prop === 'frequency') {
+                aeroConfig.indFrequency = num;
+                const lbl = document.getElementById('lbl-ind-freq');
+                if (lbl) lbl.textContent = num == 1 ? 'Never (1)' : (num == 2 ? 'On Gesture (2)' : (num == 3 ? 'Normal (3)' : 'Always (4)'));
+            }
+            if (prop === 'opacity') {
+                aeroConfig.indOpacity = num;
+                const lbl = document.getElementById('lbl-ind-opacity');
+                if (lbl) lbl.textContent = `${num}%`;
+            }
+            if (prop === 'size') {
+                aeroConfig.indSize = num;
+                const lbl = document.getElementById('lbl-ind-size');
+                if (lbl) lbl.textContent = `${num}px`;
+            }
+            if (prop === 'horiz') {
+                aeroConfig.indHoriz = num;
+                const lbl = document.getElementById('lbl-ind-horiz');
+                if (lbl) lbl.textContent = `${num}%`;
+            }
+            if (prop === 'vert') {
+                aeroConfig.indVert = num;
+                const lbl = document.getElementById('lbl-ind-vert');
+                if (lbl) lbl.textContent = `${num}%`;
+            }
             applyIndicatorStyles();
             markSettingsUnsaved(true);
+        }
+
+        function resetSingleIndicator(prop, defaultVal) {
+            updateIndicator(prop, defaultVal);
+            const sl = document.getElementById(`sl-ind-${prop}`);
+            if (sl) sl.value = defaultVal;
+            playGestureTone(600, 0.05);
+            showToast('🔄', 'Reset (Unsaved)', `${prop} set to ${defaultVal}. Tap Save to apply.`);
         }
 
         function applyIndicatorStyles() {
@@ -1964,12 +2246,36 @@
 
         function updateControlInterface(prop, val) {
             const num = parseFloat(val);
-            if (prop === 'width') aeroConfig.ctrlWidth = num;
-            if (prop === 'height') aeroConfig.ctrlHeight = num;
-            if (prop === 'horiz') aeroConfig.ctrlHoriz = num;
-            if (prop === 'vert') aeroConfig.ctrlVert = num;
+            if (prop === 'width') {
+                aeroConfig.ctrlWidth = num;
+                const lbl = document.getElementById('lbl-ctrl-width');
+                if (lbl) lbl.textContent = `${num}px`;
+            }
+            if (prop === 'height') {
+                aeroConfig.ctrlHeight = num;
+                const lbl = document.getElementById('lbl-ctrl-height');
+                if (lbl) lbl.textContent = `${num}px`;
+            }
+            if (prop === 'horiz') {
+                aeroConfig.ctrlHoriz = num;
+                const lbl = document.getElementById('lbl-ctrl-horiz');
+                if (lbl) lbl.textContent = `${num}%`;
+            }
+            if (prop === 'vert') {
+                aeroConfig.ctrlVert = num;
+                const lbl = document.getElementById('lbl-ctrl-vert');
+                if (lbl) lbl.textContent = `${num}%`;
+            }
             applyControlInterfaceStyles();
             markSettingsUnsaved(true);
+        }
+
+        function resetSingleControl(prop, defaultVal) {
+            updateControlInterface(prop, defaultVal);
+            const sl = document.getElementById(`sl-ctrl-${prop}`);
+            if (sl) sl.value = defaultVal;
+            playGestureTone(600, 0.05);
+            showToast('🔄', 'Reset (Unsaved)', `${prop} set to ${defaultVal}. Tap Save to apply.`);
         }
 
         function applyControlInterfaceStyles() {
@@ -2059,48 +2365,69 @@
 
             const slPerf = document.getElementById('sl-performance');
             if (slPerf) slPerf.value = aeroConfig.performance;
+            const lblPerf = document.getElementById('lbl-performance');
+            if (lblPerf) lblPerf.textContent = `${aeroConfig.performance} (${aeroConfig.performance == 1 ? 'Battery' : (aeroConfig.performance == 5 ? 'Max' : 'Balanced')})`;
+
             const slSens = document.getElementById('sl-sensitivity');
             if (slSens) slSens.value = aeroConfig.sensitivity;
+            const lblSens = document.getElementById('lbl-sensitivity');
+            if (lblSens) lblSens.textContent = `${aeroConfig.sensitivity} (${aeroConfig.sensitivity == 1 ? 'Stable' : (aeroConfig.sensitivity == 5 ? 'Sensitive' : 'Standard')})`;
+
             const slDrag = document.getElementById('sl-drag-speed');
             if (slDrag) slDrag.value = aeroConfig.dragRepeatSpeed;
+            const lblDrag = document.getElementById('lbl-drag-speed');
+            if (lblDrag) lblDrag.textContent = `${aeroConfig.dragRepeatSpeed} (${aeroConfig.dragRepeatSpeed == 1 ? 'Slow' : (aeroConfig.dragRepeatSpeed == 5 ? 'Fast' : 'Normal')})`;
+
             const slScrollHold = document.getElementById('sl-scroll-hold-delay');
-            if (slScrollHold) slScrollHold.value = aeroConfig.scrollHoldDelay !== undefined ? aeroConfig.scrollHoldDelay : 1.0;
+            if (slScrollHold) slScrollHold.value = aeroConfig.scrollHoldDelay !== undefined ? aeroConfig.scrollHoldDelay : 0.3;
             const lblScrollHold = document.getElementById('lbl-scroll-hold-delay');
             if (lblScrollHold) {
-                const sVal = parseFloat(aeroConfig.scrollHoldDelay !== undefined ? aeroConfig.scrollHoldDelay : 1.0);
+                const sVal = parseFloat(aeroConfig.scrollHoldDelay !== undefined ? aeroConfig.scrollHoldDelay : 0.3);
                 lblScrollHold.textContent = (sVal >= 3.0) ? '3.0s (Single Scroll)' : `${sVal.toFixed(1)}s`;
             }
+
             const slScrollDist = document.getElementById('sl-scroll-distance');
-            if (slScrollDist) slScrollDist.value = aeroConfig.scrollDistance !== undefined ? aeroConfig.scrollDistance : 1;
+            if (slScrollDist) slScrollDist.value = aeroConfig.scrollDistance !== undefined ? aeroConfig.scrollDistance : 3;
             const lblScrollDist = document.getElementById('lbl-scroll-distance');
             if (lblScrollDist) {
-                const dVal = parseInt(aeroConfig.scrollDistance !== undefined ? aeroConfig.scrollDistance : 1);
+                const dVal = parseInt(aeroConfig.scrollDistance !== undefined ? aeroConfig.scrollDistance : 3);
                 lblScrollDist.textContent = (dVal === 1) ? 'Calm Snap (YT/Gallery)' : ((dVal === 2) ? 'Balanced Feed' : 'Quick Scroll');
             }
+
             const slPtr = document.getElementById('sl-pointer-speed');
             if (slPtr) slPtr.value = aeroConfig.pointerSpeed;
+            const lblPtr = document.getElementById('lbl-pointer-speed');
+            if (lblPtr) lblPtr.textContent = `${aeroConfig.pointerSpeed} (${aeroConfig.pointerSpeed == 1 ? 'Slow' : (aeroConfig.pointerSpeed == 5 ? 'Fast' : 'Normal')})`;
+
             const slHand = document.getElementById('sl-hand-scale');
             if (slHand) slHand.value = aeroConfig.handScale !== undefined ? aeroConfig.handScale : 1.0;
             const lblHand = document.getElementById('lbl-hand-scale');
             if (lblHand) lblHand.textContent = `${(aeroConfig.handScale !== undefined ? aeroConfig.handScale : 1.0).toFixed(1)}x`;
+
             const slLike = document.getElementById('sl-like-hold-duration');
             if (slLike) slLike.value = aeroConfig.likeHoldDuration !== undefined ? aeroConfig.likeHoldDuration : 2.0;
             const lblLike = document.getElementById('lbl-like-hold-duration');
             if (lblLike) lblLike.textContent = `${(aeroConfig.likeHoldDuration !== undefined ? aeroConfig.likeHoldDuration : 2.0).toFixed(1)}s`;
+
             const slLongPinch = document.getElementById('sl-long-pinch-duration');
             if (slLongPinch) slLongPinch.value = aeroConfig.longPinchDuration !== undefined ? aeroConfig.longPinchDuration : 2.5;
             const lblLongPinch = document.getElementById('lbl-long-pinch-duration');
             if (lblLongPinch) lblLongPinch.textContent = `${(aeroConfig.longPinchDuration !== undefined ? aeroConfig.longPinchDuration : 2.5).toFixed(1)}s`;
+
             const slHold = document.getElementById('sl-hold-duration');
             if (slHold) slHold.value = aeroConfig.holdDuration;
             const lblHold = document.getElementById('lbl-hold-duration');
             if (lblHold) lblHold.textContent = `${aeroConfig.holdDuration}s`;
+
             const slAct = document.getElementById('sl-activation-delay');
             if (slAct) slAct.value = aeroConfig.activationDelay;
             const lblAct = document.getElementById('lbl-activation-delay');
             if (lblAct) lblAct.textContent = `${aeroConfig.activationDelay.toFixed(1)}s`;
+
             const slSign = document.getElementById('sl-sign-sensitivity');
             if (slSign) slSign.value = aeroConfig.signSensitivity;
+            const lblSign = document.getElementById('lbl-sign-sensitivity');
+            if (lblSign) lblSign.textContent = `${aeroConfig.signSensitivity} (${aeroConfig.signSensitivity == 1 ? 'Stable' : (aeroConfig.signSensitivity == 5 ? 'Sensitive' : 'Standard')})`;
 
             const camBtn = document.getElementById('toggle-cam-preview');
             const camIcon = document.getElementById('icon-cam-preview');
@@ -2113,14 +2440,49 @@
 
             const slFreq = document.getElementById('sl-ind-freq');
             if (slFreq) slFreq.value = aeroConfig.indFrequency;
+            const lblFreq = document.getElementById('lbl-ind-freq');
+            if (lblFreq) lblFreq.textContent = aeroConfig.indFrequency == 1 ? 'Never (1)' : (aeroConfig.indFrequency == 2 ? 'On Gesture (2)' : (aeroConfig.indFrequency == 3 ? 'Normal (3)' : 'Always (4)'));
+
             const slOpac = document.getElementById('sl-ind-opacity');
             if (slOpac) slOpac.value = aeroConfig.indOpacity;
+            const lblOpac = document.getElementById('lbl-ind-opacity');
+            if (lblOpac) lblOpac.textContent = `${aeroConfig.indOpacity}%`;
+
             const slSize = document.getElementById('sl-ind-size');
             if (slSize) slSize.value = aeroConfig.indSize;
+            const lblSize = document.getElementById('lbl-ind-size');
+            if (lblSize) lblSize.textContent = `${aeroConfig.indSize}px`;
+
             const slHoriz = document.getElementById('sl-ind-horiz');
             if (slHoriz) slHoriz.value = aeroConfig.indHoriz;
+            const lblHoriz = document.getElementById('lbl-ind-horiz');
+            if (lblHoriz) lblHoriz.textContent = `${aeroConfig.indHoriz}%`;
+
             const slVert = document.getElementById('sl-ind-vert');
             if (slVert) slVert.value = aeroConfig.indVert;
+            const lblVert = document.getElementById('lbl-ind-vert');
+            if (lblVert) lblVert.textContent = `${aeroConfig.indVert}%`;
+
+            const slCtrlW = document.getElementById('sl-ctrl-width');
+            if (slCtrlW) slCtrlW.value = aeroConfig.ctrlWidth;
+            const lblCtrlW = document.getElementById('lbl-ctrl-width');
+            if (lblCtrlW) lblCtrlW.textContent = `${aeroConfig.ctrlWidth}px`;
+
+            const slCtrlH = document.getElementById('sl-ctrl-height');
+            if (slCtrlH) slCtrlH.value = aeroConfig.ctrlHeight;
+            const lblCtrlH = document.getElementById('lbl-ctrl-height');
+            if (lblCtrlH) lblCtrlH.textContent = `${aeroConfig.ctrlHeight}px`;
+
+            const slCtrlHoriz = document.getElementById('sl-ctrl-horiz');
+            if (slCtrlHoriz) slCtrlHoriz.value = aeroConfig.ctrlHoriz;
+            const lblCtrlHoriz = document.getElementById('lbl-ctrl-horiz');
+            if (lblCtrlHoriz) lblCtrlHoriz.textContent = `${aeroConfig.ctrlHoriz}%`;
+
+            const slCtrlVert = document.getElementById('sl-ctrl-vert');
+            if (slCtrlVert) slCtrlVert.value = aeroConfig.ctrlVert;
+            const lblCtrlVert = document.getElementById('lbl-ctrl-vert');
+            if (lblCtrlVert) lblCtrlVert.textContent = `${aeroConfig.ctrlVert}%`;
+
             applyIndicatorStyles();
 
             const vcs = document.getElementById('val-control-style');
@@ -4550,7 +4912,7 @@
             }
             setCustomHudSize(savedSize);
             if (window.AndroidBridge && window.AndroidBridge.setSwipePhysics) {
-                window.AndroidBridge.setSwipePhysics(parseInt(aeroConfig.scrollDistance || 1));
+                window.AndroidBridge.setSwipePhysics(parseInt(aeroConfig.scrollDistance || 3));
             }
             if (!localStorage.getItem('aero_perm_prompted')) {
                 openStartupPermissionModal();

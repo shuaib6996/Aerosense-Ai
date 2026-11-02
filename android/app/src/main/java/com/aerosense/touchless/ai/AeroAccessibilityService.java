@@ -253,9 +253,9 @@ public class AeroAccessibilityService extends AccessibilityService {
         dispatchGesture(builder.build(), null, null);
     }
 
-    public static float swipeStartRatio = 0.59f;
-    public static float swipeEndRatio = 0.41f;
-    public static int swipeDuration = 160;
+    public static float swipeStartRatio = 0.68f;
+    public static float swipeEndRatio = 0.32f;
+    public static int swipeDuration = 170;
 
     public void setSwipePhysics(int level) {
         if (level == 1) {
