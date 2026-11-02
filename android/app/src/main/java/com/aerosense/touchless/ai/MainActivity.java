@@ -50,8 +50,8 @@ public class MainActivity extends Activity {
     private WindowManager systemWindowManager;
     private WindowManager.LayoutParams floatingOverlayParams;
     private String currentHudSize = "sm";
-    private int customHudWidthDp = 68;
-    private int customHudHeightDp = 84;
+    private int customHudWidthDp = 52;
+    private int customHudHeightDp = 64;
     private boolean isModalOpenInWeb = false;
     private volatile boolean isHoldMenuShowing = false;
     private int savedOverlayX = -1;
@@ -251,7 +251,7 @@ public class MainActivity extends Activity {
         }
         if ("lg".equals(sizeKey)) return new int[]{88, 108};
         if ("md".equals(sizeKey)) return new int[]{78, 96};
-        return new int[]{68, 84}; // default sleek & compact (max 88px)
+        return new int[]{52, 64}; // default sleek & compact (max 88px)
     }
 
     private void enterSystemFloatingOverlay() {

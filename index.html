@@ -98,8 +98,8 @@
             bottom: 14px;
             left: 50%;
             transform: translateX(-50%);
-            width: 68px;
-            height: 84px;
+            width: 52px;
+            height: 64px;
             border-radius: 10px;
             background: transparent;
             backdrop-filter: none;
@@ -657,7 +657,7 @@
 
                 <button onclick="openHudSizeModal()" class="AirClickable h-8 px-2 rounded-xl bg-slate-900 border border-slate-800 text-cyan-300 text-[11px] font-extrabold flex items-center justify-center gap-1.5 whitespace-nowrap active:scale-95 transition" title="Adjust Gesture Popup Size Slider">
                     <i class="fa-solid fa-expand text-[10px] shrink-0"></i>
-                    <span id="header-hud-size">HUD: 68px</span>
+                    <span id="header-hud-size">HUD: 52px</span>
                 </button>
             </div>
         </header>
@@ -1050,10 +1050,10 @@
                                     <i class="fa-solid fa-expand text-cyan-400 text-xs"></i>
                                     Hand Gesture Popup Size
                                 </span>
-                                <span id="lbl-hud-size" class="text-xs font-extrabold text-cyan-400">68 px</span>
+                                <span id="lbl-hud-size" class="text-xs font-extrabold text-cyan-400">52 px</span>
                             </div>
                             <div class="aero-slider-wrap">
-                                <input id="sl-hud-popup-size" type="range" min="50" max="88" step="2" value="68"
+                                <input id="sl-hud-popup-size" type="range" min="50" max="88" step="2" value="52"
                                     oninput="setCustomHudSize(this.value)" class="aero-slider">
                             </div>
                             <div class="flex justify-between text-[10px] font-bold text-slate-400">
@@ -1508,10 +1508,10 @@
             <div class="space-y-2">
                 <div class="flex justify-between items-center text-xs font-bold text-slate-300">
                     <span>Popup Width:</span>
-                    <span id="modal-hud-size-val" class="font-extrabold text-cyan-400">68 px</span>
+                    <span id="modal-hud-size-val" class="font-extrabold text-cyan-400">52 px</span>
                 </div>
                 <div class="aero-slider-wrap">
-                    <input id="modal-sl-hud-size" type="range" min="50" max="88" step="2" value="68"
+                    <input id="modal-sl-hud-size" type="range" min="50" max="88" step="2" value="52"
                         oninput="setCustomHudSize(this.value)" class="aero-slider w-full">
                 </div>
                 <div class="flex justify-between text-[10px] font-bold text-slate-400">
@@ -2304,7 +2304,7 @@
 
         function setCustomHudSize(val) {
             let w = parseInt(val, 10);
-            if (isNaN(w)) w = 68;
+            if (isNaN(w)) w = 52;
             w = Math.max(50, Math.min(88, w));
             const h = Math.round(w * 1.23);
             const r = Math.round(w * 0.28);
@@ -2366,8 +2366,8 @@
         }
 
         function cyclePopupHudSize() {
-            const presets = [54, 68, 88];
-            let current = parseInt(localStorage.getItem('aero_hud_custom_size') || '68', 10);
+            const presets = [52, 68, 88];
+            let current = parseInt(localStorage.getItem('aero_hud_custom_size') || '52', 10);
             let nextIdx = (presets.indexOf(current) + 1) % presets.length;
             if (nextIdx < 0 || nextIdx >= presets.length) nextIdx = 0;
             setCustomHudSize(presets[nextIdx]);
@@ -2848,13 +2848,9 @@
                     cameraInstance = null;
                 }
 
-                // 3. Close handsInstance to release WebGL / GPU context
-                if (handsInstance) {
-                    try {
-                        handsInstance.close();
-                    } catch (e) {}
-                    handsInstance = null;
-                }
+                // 3. Keep handsInstance warm & ready (0% CPU/GPU when stopped)
+                // MediaPipe Hands WASM/WebGL context is preserved so the app restarts instantly on next tap
+                isTrackingFrameProcessing = false;
 
                 // 4. Update UI to OFF / START
                 if (hud) hud.classList.remove('hud-visible');
@@ -2898,8 +2894,8 @@
 
                     handsInstance.onResults((results) => {
                         const dpr = window.devicePixelRatio || 1;
-                        const displayW = Math.max(68, canvasEl.clientWidth || 68);
-                        const displayH = Math.max(84, canvasEl.clientHeight || 84);
+                        const displayW = Math.max(50, canvasEl.clientWidth || 52);
+                        const displayH = Math.max(60, canvasEl.clientHeight || 64);
                         if (canvasEl.width !== Math.round(displayW * dpr) || canvasEl.height !== Math.round(displayH * dpr)) {
                             canvasEl.width = Math.round(displayW * dpr);
                             canvasEl.height = Math.round(displayH * dpr);
@@ -4222,8 +4218,12 @@
             renderVoiceCommandsList();
             renderCustomTriggers();
             initDraggableHud();
-            const savedSize = localStorage.getItem('aero_hud_custom_size');
-            setCustomHudSize(savedSize || 68);
+            let savedSize = localStorage.getItem('aero_hud_custom_size');
+            if (!savedSize || savedSize === '68') {
+                savedSize = 52;
+                try { localStorage.setItem('aero_hud_custom_size', 52); } catch (e) {}
+            }
+            setCustomHudSize(savedSize);
             if (!localStorage.getItem('aero_perm_prompted')) {
                 openStartupPermissionModal();
             }
