@@ -694,43 +694,6 @@
                     <h2 id="hero-status-heading" class="text-sm font-black text-white">Tap START to Activate Camera Hand Control</h2>
                 </div>
 
-                <!-- Full Mobile OS Control Bar -->
-                <div class="bento-card rounded-3xl p-3.5 space-y-2.5">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-8 h-8 rounded-xl bg-purple-500/15 border border-purple-500/40 flex items-center justify-center text-purple-300">
-                                <i class="fa-solid fa-mobile-screen-button text-xs"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-xs font-black text-white">Full Mobile OS Control</h3>
-                                <p class="text-[10px] text-slate-400">Global Back ⬅️, Home 🏠, Recents & Air Tap</p>
-                            </div>
-                        </div>
-                        <button id="full-mobile-toggle" onclick="toggleFullMobileControl()" class="AirClickable px-3 py-1 rounded-full bg-slate-800 text-slate-300 font-extrabold text-[10px] border border-slate-700">
-                            OFF
-                        </button>
-                    </div>
-
-                    <div class="grid grid-cols-4 gap-1.5 pt-1">
-                        <button onclick="executeSystemNavigation('BACK')" class="AirClickable py-2 rounded-xl bg-slate-900/90 border border-amber-500/30 text-amber-300 text-[10px] font-extrabold flex flex-col items-center gap-1 active:scale-95">
-                            <i class="fa-solid fa-chevron-left text-xs"></i>
-                            <span>Back ⬅️</span>
-                        </button>
-                        <button onclick="executeSystemNavigation('HOME')" class="AirClickable py-2 rounded-xl bg-slate-900/90 border border-emerald-500/30 text-emerald-300 text-[10px] font-extrabold flex flex-col items-center gap-1 active:scale-95">
-                            <i class="fa-solid fa-house text-xs"></i>
-                            <span>Home 🏠</span>
-                        </button>
-                        <button onclick="executeSystemNavigation('RECENTS')" class="AirClickable py-2 rounded-xl bg-slate-900/90 border border-purple-500/30 text-purple-300 text-[10px] font-extrabold flex flex-col items-center gap-1 active:scale-95">
-                            <i class="fa-solid fa-table-cells-large text-xs"></i>
-                            <span>Recents</span>
-                        </button>
-                        <button onclick="executeSystemNavigation('NOTIFICATIONS')" class="AirClickable py-2 rounded-xl bg-slate-900/90 border border-cyan-500/30 text-cyan-300 text-[10px] font-extrabold flex flex-col items-center gap-1 active:scale-95">
-                            <i class="fa-solid fa-bell text-xs"></i>
-                            <span>Alerts</span>
-                        </button>
-                    </div>
-                </div>
-
                 <!-- System Control Permissions (Turn On/Off Accessibility & Floating Overlay) -->
                 <div class="bento-card rounded-3xl p-3.5 space-y-3">
                     <div class="flex items-center justify-between">
@@ -776,23 +739,6 @@
                                 <p class="text-[10px] text-slate-400 mt-1 leading-snug">Show Transparent Hand Popup</p>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- User Installed Apps Controller -->
-                <div class="bento-card rounded-3xl p-3.5 space-y-3">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs font-black text-cyan-300 uppercase tracking-wider">📱 Gesture Control Apps</span>
-                        </div>
-                        <button id="card-add-app-btn" onclick="openDeviceAppPickerModal()" class="AirClickable px-2.5 py-1 rounded-xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 font-extrabold text-[10px] flex items-center gap-1 active:scale-95 transition">
-                            <i class="fa-solid fa-plus"></i>
-                            <span>Add App</span>
-                        </button>
-                    </div>
-
-                    <div id="user-apps-list" class="space-y-2">
-                        <!-- Populated dynamically -->
                     </div>
                 </div>
             </section>
@@ -4053,10 +3999,12 @@
         function toggleFullMobileControl() {
             fullMobileControl = !fullMobileControl;
             const btn = document.getElementById('full-mobile-toggle');
-            btn.textContent = fullMobileControl ? 'ON' : 'OFF';
-            btn.className = fullMobileControl
-                ? 'AirClickable px-3 py-1 rounded-full bg-emerald-500 text-slate-950 font-black text-[10px]'
-                : 'AirClickable px-3 py-1 rounded-full bg-slate-800 text-slate-300 font-extrabold text-[10px] border border-slate-700';
+            if (btn) {
+                btn.textContent = fullMobileControl ? 'ON' : 'OFF';
+                btn.className = fullMobileControl
+                    ? 'AirClickable px-3 py-1 rounded-full bg-emerald-500 text-slate-950 font-black text-[10px]'
+                    : 'AirClickable px-3 py-1 rounded-full bg-slate-800 text-slate-300 font-extrabold text-[10px] border border-slate-700';
+            }
             if (window.AndroidBridge && window.AndroidBridge.setFullMobileControl) {
                 window.AndroidBridge.setFullMobileControl(fullMobileControl);
             }
