@@ -151,6 +151,7 @@
             position: relative;
             width: 100%;
             padding: 6px 0;
+            touch-action: pan-y !important;
         }
         .aero-slider {
             -webkit-appearance: none;
@@ -162,6 +163,7 @@
             outline: none;
             position: relative;
             z-index: 2;
+            touch-action: pan-y !important;
         }
         .aero-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
@@ -174,6 +176,7 @@
             box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
             cursor: pointer;
             transition: transform 0.1s ease;
+            touch-action: pan-y !important;
         }
         .aero-slider::-webkit-slider-thumb:active {
             transform: scale(1.18);
@@ -797,7 +800,7 @@
             
 
             <!-- VIEW 3: SPATIAL SETTINGS -->
-            <section id="view-settings" class="hidden space-y-4">
+            <section id="view-settings" class="hidden space-y-4 pb-32">
                 <!-- Top Title -->
                 <div class="flex items-center justify-between gap-2">
                     <h2 class="text-xl font-black tracking-tight text-white">Spatial Settings</h2>
@@ -841,14 +844,14 @@
                     </div>
 
                     <div class="settings-group-card space-y-5">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-2">
-                                <h3 class="text-base font-extrabold text-white">Gesture Tuning</h3>
-                                <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 font-bold">10 Sliders</span>
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-1.5 min-w-0">
+                                <h3 class="text-sm font-black text-white truncate">Gesture Tuning</h3>
+                                <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 font-bold shrink-0">12 Sliders</span>
                             </div>
-                            <button onclick="resetGestureTuning()" class="AirClickable flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 hover:border-cyan-400 text-xs font-extrabold text-cyan-300 active:scale-95 transition shadow-sm" title="Reset all sliders to default">
-                                <i class="fa-solid fa-arrow-rotate-left text-xs"></i>
-                                <span>Reset Defaults</span>
+                            <button onclick="resetGestureTuning()" class="AirClickable flex items-center gap-1 px-2.5 py-1 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 hover:border-cyan-400 text-xs font-bold text-cyan-300 active:scale-95 transition shadow-sm shrink-0" title="Reset all sliders to default">
+                                <i class="fa-solid fa-arrow-rotate-left text-[11px]"></i>
+                                <span>Reset</span>
                             </button>
                         </div>
 
@@ -888,6 +891,63 @@
                             <div class="flex justify-between text-[10px] font-bold text-slate-400">
                                 <span>Slow</span>
                                 <span>Fast</span>
+                            </div>
+                        </div>
+
+                        <!-- Scroll Timing & Hold Delay (Option 2 & Option 3 Testing) -->
+                        <div class="space-y-3 p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-extrabold text-indigo-300 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-arrows-up-down"></i>
+                                    <span>Scroll Control & Physics</span>
+                                </span>
+                                <span class="text-[9px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-bold">Option 2 & 3</span>
+                            </div>
+
+                            <!-- Option 2: Hold Delay Before Repeat -->
+                            <div class="space-y-1">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs font-bold text-white">⏱️ Repeat Hold Pause (Option 2)</span>
+                                    <div class="flex items-center gap-1.5">
+                                        <span id="lbl-scroll-hold-delay" class="text-xs font-extrabold text-indigo-400">1.0s</span>
+                                        <button onclick="resetSingleSlider('scrollHoldDelay', 1.0)" class="AirClickable p-1 text-[11px] text-slate-400 hover:text-indigo-300 active:scale-90 transition" title="Reset to 1.0s">
+                                            <i class="fa-solid fa-rotate-left"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="aero-slider-wrap">
+                                    <input id="sl-scroll-hold-delay" type="range" min="0.3" max="3.0" step="0.1" value="1.0"
+                                        oninput="updateSetting('scrollHoldDelay', this.value)" class="aero-slider">
+                                    <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+                                </div>
+                                <div class="flex justify-between text-[10px] font-bold text-slate-400">
+                                    <span>0.3s (Fast Repeat)</span>
+                                    <span class="text-indigo-400">1.0s (Recommended)</span>
+                                    <span>3.0s (Single Scroll)</span>
+                                </div>
+                            </div>
+
+                            <!-- Option 3: Swipe Drag Physics (Distance & Smoothness) -->
+                            <div class="space-y-1">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs font-bold text-white">🎯 Swipe Smoothness (Option 3)</span>
+                                    <div class="flex items-center gap-1.5">
+                                        <span id="lbl-scroll-distance" class="text-xs font-extrabold text-cyan-400">Calm Snap (YT/Gallery)</span>
+                                        <button onclick="resetSingleSlider('scrollDistance', 1)" class="AirClickable p-1 text-[11px] text-slate-400 hover:text-cyan-300 active:scale-90 transition" title="Reset to Calm Snap">
+                                            <i class="fa-solid fa-rotate-left"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="aero-slider-wrap">
+                                    <input id="sl-scroll-distance" type="range" min="1" max="3" step="1" value="1"
+                                        oninput="updateSetting('scrollDistance', this.value)" class="aero-slider">
+                                    <div class="slider-ticks"><span></span><span></span><span></span></div>
+                                </div>
+                                <div class="flex justify-between text-[10px] font-bold text-slate-400">
+                                    <span class="text-cyan-400">Calm Snap (YT/Gallery)</span>
+                                    <span>Balanced Feed</span>
+                                    <span>Quick Scroll</span>
+                                </div>
                             </div>
                         </div>
 
@@ -1024,6 +1084,7 @@
                                 <span>Sensitive</span>
                             </div>
                         </div>
+
 
                         <!-- Full-width Bottom Reset Action -->
                         <button onclick="resetGestureTuning()" class="AirClickable w-full py-2.5 px-3 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-cyan-500/40 text-xs font-extrabold text-slate-300 hover:text-cyan-300 flex items-center justify-center gap-2 transition active:scale-95 shadow-sm">
@@ -1224,6 +1285,24 @@
                                 <span>Top</span>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Ultra-Compact Floating Settings Save Pill (Floats safely above footer, zero overlap) -->
+                <div id="settings-save-bar" style="bottom: calc(6.5rem + env(safe-area-inset-bottom, 0px));" class="fixed inset-x-0 mx-auto w-fit max-w-[88vw] z-40 px-2.5 py-1 rounded-full bg-slate-900/95 border border-cyan-500/60 shadow-xl backdrop-blur-md flex items-center gap-2 transition-all duration-300 translate-y-48 opacity-0 pointer-events-none select-none">
+                    <div class="flex items-center gap-1.5 shrink-0">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                        <span class="text-[11px] font-black text-white whitespace-nowrap">Unsaved</span>
+                    </div>
+                    <div class="h-3 w-[1px] bg-slate-700/80 shrink-0"></div>
+                    <div class="flex items-center gap-1 shrink-0">
+                        <button onclick="discardPendingSettings()" class="AirClickable px-2 py-0.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-[10px] font-bold active:scale-95 transition" title="Discard Changes">
+                            Discard
+                        </button>
+                        <button onclick="savePendingSettings()" class="AirClickable px-2.5 py-0.5 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 font-black text-[10px] active:scale-95 transition shadow-sm flex items-center gap-1" title="Save Changes">
+                            <i class="fa-solid fa-check text-[9px]"></i>
+                            <span>Save</span>
+                        </button>
                     </div>
                 </div>
             </section>
@@ -1621,6 +1700,8 @@
             performance: 3,
             sensitivity: 3,
             dragRepeatSpeed: 3,
+            scrollHoldDelay: 1.0,
+            scrollDistance: 1,
             pointerSpeed: 3,
             handScale: 1.0,
             likeHoldDuration: 2.0,
@@ -1662,6 +1743,47 @@
 
         function saveAeroConfig() {
             localStorage.setItem('aero_spatial_settings', JSON.stringify(aeroConfig));
+        }
+
+        let savedAeroConfig = JSON.parse(JSON.stringify(aeroConfig));
+        let hasUnsavedSettings = false;
+
+        function markSettingsUnsaved(unsaved = true) {
+            hasUnsavedSettings = unsaved;
+            const bar = document.getElementById('settings-save-bar');
+
+            if (bar) {
+                if (unsaved) {
+                    bar.classList.remove('translate-y-48', 'translate-y-44', 'translate-y-36', 'translate-y-32', 'opacity-0', 'pointer-events-none');
+                    bar.classList.add('translate-y-0', 'opacity-100', 'pointer-events-auto');
+                } else {
+                    bar.classList.add('translate-y-48', 'opacity-0', 'pointer-events-none');
+                    bar.classList.remove('translate-y-0', 'opacity-100', 'pointer-events-auto');
+                }
+            }
+        }
+
+        function savePendingSettings() {
+            saveAeroConfig();
+            savedAeroConfig = JSON.parse(JSON.stringify(aeroConfig));
+            markSettingsUnsaved(false);
+            if (window.AndroidBridge && window.AndroidBridge.setSwipePhysics) {
+                window.AndroidBridge.setSwipePhysics(parseInt(aeroConfig.scrollDistance || 1));
+            }
+            playGestureTone(720, 0.08);
+            showToast('💾', 'Settings Saved', 'All slider values saved successfully');
+        }
+
+        function discardPendingSettings(silent = false) {
+            aeroConfig = JSON.parse(JSON.stringify(savedAeroConfig));
+            markSettingsUnsaved(false);
+            renderSettingsUI();
+            applyIndicatorStyles();
+            applyControlInterfaceStyles();
+            if (!silent) {
+                playGestureTone(480, 0.06);
+                showToast('↩️', 'Changes Discarded', 'Restored previous saved settings');
+            }
         }
 
         // Tactile Web Audio Tone Synthesizer
@@ -1745,27 +1867,37 @@
             } else if (key === 'longPinchDuration') {
                 const lbl = document.getElementById('lbl-long-pinch-duration');
                 if (lbl) lbl.textContent = `${aeroConfig.longPinchDuration.toFixed(1)}s`;
+            } else if (key === 'scrollHoldDelay') {
+                const lbl = document.getElementById('lbl-scroll-hold-delay');
+                if (lbl) {
+                    const sVal = parseFloat(aeroConfig.scrollHoldDelay);
+                    lbl.textContent = (sVal >= 3.0) ? '3.0s (Single Scroll)' : `${sVal.toFixed(1)}s`;
+                }
+            } else if (key === 'scrollDistance') {
+                const lbl = document.getElementById('lbl-scroll-distance');
+                const dVal = parseInt(aeroConfig.scrollDistance);
+                if (lbl) lbl.textContent = (dVal === 1) ? 'Calm Snap (YT/Gallery)' : ((dVal === 2) ? 'Balanced Feed' : 'Quick Scroll');
             }
-            saveAeroConfig();
+            markSettingsUnsaved(true);
         }
 
         function resetSingleSlider(key, defaultVal) {
             const val = (defaultVal !== undefined) ? defaultVal : defaultAeroSettings[key];
             aeroConfig[key] = val;
             renderSettingsUI();
-            saveAeroConfig();
+            markSettingsUnsaved(true);
             playGestureTone(600, 0.05);
-            showToast('🔄', 'Reset', `${key} restored to ${val}`);
+            showToast('🔄', 'Reset (Unsaved)', `${key} set to ${val}. Tap Save to apply.`);
         }
 
         function resetGestureTuning() {
-            ['performance', 'sensitivity', 'dragRepeatSpeed', 'pointerSpeed', 'handScale', 'likeHoldDuration', 'longPinchDuration', 'holdDuration', 'activationDelay', 'signSensitivity'].forEach(k => {
+            ['performance', 'sensitivity', 'dragRepeatSpeed', 'scrollHoldDelay', 'scrollDistance', 'pointerSpeed', 'handScale', 'likeHoldDuration', 'longPinchDuration', 'holdDuration', 'activationDelay', 'signSensitivity'].forEach(k => {
                 aeroConfig[k] = defaultAeroSettings[k];
             });
             renderSettingsUI();
-            saveAeroConfig();
+            markSettingsUnsaved(true);
             playGestureTone(440, 0.08);
-            showToast('🔄', 'Sliders Reset', 'All sliders restored to recommended defaults');
+            showToast('🔄', 'Defaults (Unsaved)', 'Sliders set to defaults. Tap Save to apply.');
         }
 
         function toggleCameraPreview() {
@@ -1783,7 +1915,7 @@
             if (prop === 'horiz') aeroConfig.indHoriz = num;
             if (prop === 'vert') aeroConfig.indVert = num;
             applyIndicatorStyles();
-            saveAeroConfig();
+            markSettingsUnsaved(true);
         }
 
         function applyIndicatorStyles() {
@@ -1837,7 +1969,7 @@
             if (prop === 'horiz') aeroConfig.ctrlHoriz = num;
             if (prop === 'vert') aeroConfig.ctrlVert = num;
             applyControlInterfaceStyles();
-            saveAeroConfig();
+            markSettingsUnsaved(true);
         }
 
         function applyControlInterfaceStyles() {
@@ -1931,6 +2063,20 @@
             if (slSens) slSens.value = aeroConfig.sensitivity;
             const slDrag = document.getElementById('sl-drag-speed');
             if (slDrag) slDrag.value = aeroConfig.dragRepeatSpeed;
+            const slScrollHold = document.getElementById('sl-scroll-hold-delay');
+            if (slScrollHold) slScrollHold.value = aeroConfig.scrollHoldDelay !== undefined ? aeroConfig.scrollHoldDelay : 1.0;
+            const lblScrollHold = document.getElementById('lbl-scroll-hold-delay');
+            if (lblScrollHold) {
+                const sVal = parseFloat(aeroConfig.scrollHoldDelay !== undefined ? aeroConfig.scrollHoldDelay : 1.0);
+                lblScrollHold.textContent = (sVal >= 3.0) ? '3.0s (Single Scroll)' : `${sVal.toFixed(1)}s`;
+            }
+            const slScrollDist = document.getElementById('sl-scroll-distance');
+            if (slScrollDist) slScrollDist.value = aeroConfig.scrollDistance !== undefined ? aeroConfig.scrollDistance : 1;
+            const lblScrollDist = document.getElementById('lbl-scroll-distance');
+            if (lblScrollDist) {
+                const dVal = parseInt(aeroConfig.scrollDistance !== undefined ? aeroConfig.scrollDistance : 1);
+                lblScrollDist.textContent = (dVal === 1) ? 'Calm Snap (YT/Gallery)' : ((dVal === 2) ? 'Balanced Feed' : 'Quick Scroll');
+            }
             const slPtr = document.getElementById('sl-pointer-speed');
             if (slPtr) slPtr.value = aeroConfig.pointerSpeed;
             const slHand = document.getElementById('sl-hand-scale');
@@ -3057,6 +3203,19 @@
                                     pinchMenuTriggered = false;
                                     lastPinchX = normX;
                                     lastPinchY = normY;
+                                    // Start continuous volume repeat if pinch starts over VOL button
+                                    const _volEl = document.elementFromPoint(smoothX, smoothY);
+                                    const _volBtn = _volEl ? _volEl.closest('[data-hold-action="VOL_UP"],[data-hold-action="VOL_DOWN"]') : null;
+                                    if (_volBtn) {
+                                        const _volAct = _volBtn.getAttribute('data-hold-action');
+                                        volRepeatAction = _volAct;
+                                        clearInterval(volRepeatInterval);
+                                        // Small delay before auto-repeat (300ms) — first fire immediate
+                                        triggerHoldMenuOption(_volAct);
+                                        volRepeatInterval = setInterval(() => {
+                                            if (volRepeatAction) triggerHoldMenuOption(volRepeatAction);
+                                        }, 220);
+                                    }
                                 }
 
                                 // 🔊 RAPID CONTINUOUS VOLUME ON PINCH HOLD OVER VOL ICONS
@@ -3280,9 +3439,10 @@
                                             isContinuousHolding = false;
                                         } else {
                                             // Normal gestures when Step 0 (not a Home/Back sequence)
-                                            if (wasIndexArmed && (now - lastSpatialActionTime > 240)) {
+                                            if (wasIndexArmed && (now - lastSpatialActionTime > 380)) {
                                                 wasIndexArmed = false;
                                                 isContinuousHolding = true;
+                                                foldStartTime = now;
                                                 lastActionWasPrev = false;
                                                 lastActionName = 'NEXT';
                                                 lastSpatialActionTime = now;
@@ -3290,9 +3450,10 @@
                                                 spatialFlashTime = now;
                                                 executeAction('NEXT');
                                                 playGestureTone(680, 0.04);
-                                            } else if (wasTwoArmed && (now - lastSpatialActionTime > 240)) {
+                                            } else if (wasTwoArmed && (now - lastSpatialActionTime > 380)) {
                                                 wasTwoArmed = false;
                                                 isContinuousHolding = true;
+                                                foldStartTime = now;
                                                 lastActionWasPrev = true;
                                                 lastActionName = 'PREV';
                                                 lastSpatialActionTime = now;
@@ -3300,16 +3461,24 @@
                                                 spatialFlashTime = now;
                                                 executeAction('PREV');
                                                 playGestureTone(520, 0.04);
-                                            } else if (isContinuousHolding && isAllFolded) {
-                                                // Smooth repeat scroll while held folded
-                                                const repeatSpeed = aeroConfig.dragRepeatSpeed || 3;
-                                                const repeatInterval = Math.max(220, 800 - (repeatSpeed * 120));
-                                                if (now - lastSpatialRepeatTime >= repeatInterval) {
-                                                    lastSpatialRepeatTime = now;
-                                                    spatialFlashTime = now;
-                                                    lastActionName = lastActionWasPrev ? 'PREV' : 'NEXT';
-                                                    executeAction(lastActionWasPrev ? 'PREV' : 'NEXT');
-                                                    playGestureTone(lastActionWasPrev ? 520 : 680, 0.035);
+                                            } else if (isContinuousHolding && (isAllFolded || f.isIndexFold)) {
+                                                // Option 2: Only repeat if held past scrollHoldDelay (default 1.0s)
+                                                const holdDelaySec = (typeof aeroConfig.scrollHoldDelay === 'number') ? aeroConfig.scrollHoldDelay : 1.0;
+                                                const holdDelayMs = holdDelaySec * 1000;
+                                                const holdDuration = now - foldStartTime;
+
+                                                // If holdDelay is 3.0s or greater, acts as pure Single Scroll Mode (no repeat)
+                                                if (holdDelaySec < 3.0 && holdDuration >= holdDelayMs) {
+                                                    const repeatSpeed = aeroConfig.dragRepeatSpeed || 3;
+                                                    // Calm, comfortable cadence: 1200ms (Slow) down to 600ms (Fast), Default = 900ms
+                                                    const repeatInterval = Math.max(550, 1350 - (repeatSpeed * 150));
+                                                    if (now - lastSpatialRepeatTime >= repeatInterval) {
+                                                        lastSpatialRepeatTime = now;
+                                                        spatialFlashTime = now;
+                                                        lastActionName = lastActionWasPrev ? 'PREV' : 'NEXT';
+                                                        executeAction(lastActionWasPrev ? 'PREV' : 'NEXT');
+                                                        playGestureTone(lastActionWasPrev ? 520 : 680, 0.035);
+                                                    }
                                                 }
                                             }
                                         }
@@ -3320,6 +3489,7 @@
                                         wasIndexArmed = true;
                                         wasTwoArmed = false;
                                         isContinuousHolding = false;
+                                        foldStartTime = 0;
                                     } else if (isTwoFingerPointing) {
                                         // Point 2 Fingers ✌️ -> Arms Previous Reel
                                         homeGestureStep = 0;
@@ -3327,11 +3497,13 @@
                                         wasTwoArmed = true;
                                         wasIndexArmed = false;
                                         isContinuousHolding = false;
+                                        foldStartTime = 0;
                                     } else if (f.isIndexFold && !isAllFolded && homeGestureStep === 0 && backGestureStep === 0) {
                                         // Single index fold without whole fist
-                                        if (wasIndexArmed && (now - lastSpatialActionTime > 240)) {
+                                        if (wasIndexArmed && (now - lastSpatialActionTime > 380)) {
                                             wasIndexArmed = false;
                                             isContinuousHolding = true;
+                                            foldStartTime = now;
                                             lastActionWasPrev = false;
                                             lastActionName = 'NEXT';
                                             lastSpatialActionTime = now;
@@ -3775,6 +3947,8 @@
 
             if (tab === 'settings') {
                 toggleControlInterface(false);
+            } else if (hasUnsavedSettings) {
+                discardPendingSettings(true);
             }
 
             const tabs = ['launcher', 'settings', 'guide', 'admin'];
@@ -4375,6 +4549,9 @@
                 try { localStorage.setItem('aero_hud_custom_size', 52); } catch (e) {}
             }
             setCustomHudSize(savedSize);
+            if (window.AndroidBridge && window.AndroidBridge.setSwipePhysics) {
+                window.AndroidBridge.setSwipePhysics(parseInt(aeroConfig.scrollDistance || 1));
+            }
             if (!localStorage.getItem('aero_perm_prompted')) {
                 openStartupPermissionModal();
             }

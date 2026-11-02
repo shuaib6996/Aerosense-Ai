@@ -253,16 +253,39 @@ public class AeroAccessibilityService extends AccessibilityService {
         dispatchGesture(builder.build(), null, null);
     }
 
+    public static float swipeStartRatio = 0.59f;
+    public static float swipeEndRatio = 0.41f;
+    public static int swipeDuration = 160;
+
+    public void setSwipePhysics(int level) {
+        if (level == 1) {
+            // Calm Snap (YouTube Shorts / Reels / Gallery): 18% travel in 160ms — calm, gentle 1-item flip
+            swipeStartRatio = 0.59f;
+            swipeEndRatio = 0.41f;
+            swipeDuration = 160;
+        } else if (level == 2) {
+            // Balanced Feed (Social Media): 26% travel in 165ms
+            swipeStartRatio = 0.63f;
+            swipeEndRatio = 0.37f;
+            swipeDuration = 165;
+        } else {
+            // Quick Scroll (Web / Lists): 36% travel in 170ms
+            swipeStartRatio = 0.68f;
+            swipeEndRatio = 0.32f;
+            swipeDuration = 170;
+        }
+    }
+
     public void performAirSwipe(String direction) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) return;
         long now = System.currentTimeMillis();
-        if (now - lastGestureDispatchTime < 200) return;
+        if (now - lastGestureDispatchTime < 350) return;
         lastGestureDispatchTime = now;
 
         updateScreenDimensions();
         float centerX = screenWidth * 0.5f;
-        float startY = screenHeight * 0.78f;
-        float endY = screenHeight * 0.22f;
+        float startY = screenHeight * swipeStartRatio;
+        float endY = screenHeight * swipeEndRatio;
 
         Path swipePath = new Path();
         if ("UP".equalsIgnoreCase(direction) || "NEXT".equalsIgnoreCase(direction)) {
@@ -274,7 +297,7 @@ public class AeroAccessibilityService extends AccessibilityService {
         }
 
         GestureDescription.Builder builder = new GestureDescription.Builder();
-        builder.addStroke(new GestureDescription.StrokeDescription(swipePath, 0, 180));
+        builder.addStroke(new GestureDescription.StrokeDescription(swipePath, 0, swipeDuration));
         dispatchGesture(builder.build(), null, null);
     }
 

@@ -801,6 +801,13 @@ public class MainActivity extends Activity {
         }
 
         @JavascriptInterface
+        public void setSwipePhysics(int level) {
+            if (AeroAccessibilityService.instance != null) {
+                AeroAccessibilityService.instance.setSwipePhysics(level);
+            }
+        }
+
+        @JavascriptInterface
         public void triggerGlobalAirSwipe(String direction) {
             if (AeroAccessibilityService.instance != null) {
                 AeroAccessibilityService.instance.performAirSwipe(direction);
