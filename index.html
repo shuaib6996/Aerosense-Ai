@@ -1588,6 +1588,10 @@
         let pinchHoldProgress = 0;
         let lastPinchX = 0.5;
         let lastPinchY = 0.5;
+        // 🔊 Rapid Continuous Volume Control on Pinch Hold
+        let isRapidVolumeHolding = false;
+        let lastRapidVolumeTime = 0;
+        let rapidVolumeTargetAction = null;
                 let isGestureSleeping = false;
         let wasPinching2 = false;
         let lastActionName = '';
@@ -2232,9 +2236,108 @@
             document.body.classList.remove('menu-open');
             const menu = document.getElementById('fold-hold-menu');
             if (menu) menu.classList.remove('active');
+            isRapidVolumeHolding = false;
+            rapidVolumeTargetAction = null;
+            clearRapidVolumeHighlight();
             if (window.AndroidBridge && window.AndroidBridge.showSystemHoldMenu) {
                 window.AndroidBridge.showSystemHoldMenu(false);
             }
+        }
+
+        function isHoldMenuOpen() {
+            const menu = document.getElementById('fold-hold-menu');
+            return (menu && menu.classList.contains('active')) || document.body.classList.contains('menu-open');
+        }
+
+        function getHoldMenuVolumeAction(nx, ny) {
+            if (!isHoldMenuOpen()) return null;
+
+            let curX, curY, centerX, centerY, menuTop, menuBottom;
+
+            if (document.body.classList.contains('native-overlay-mode') && window.screen && window.screen.width) {
+                // In native overlay mode: menu is centered on physical screen
+                const sW = window.screen.width;
+                const sH = window.screen.height;
+                curX = nx * sW;
+                curY = ny * sH;
+                centerX = sW * 0.5;
+                centerY = sH * 0.5;
+                menuTop = centerY - 180;
+                menuBottom = centerY + 180;
+            } else {
+                // In full-screen app or browser window: menu is centered in viewport
+                const vW = window.innerWidth || 390;
+                const vH = window.innerHeight || 844;
+                curX = nx * vW;
+                curY = ny * vH;
+                centerX = vW * 0.5;
+                centerY = vH * 0.5;
+                menuTop = centerY - 180;
+                menuBottom = centerY + 180;
+
+                try {
+                    const el = document.elementFromPoint(curX, curY);
+                    if (el) {
+                        const btn = el.closest('[data-hold-action="VOL_UP"], [data-hold-action="VOL_DOWN"]');
+                        if (btn) return btn.getAttribute('data-hold-action');
+                    }
+                } catch(e) {}
+            }
+
+            // Hit zone: horizontal center ± 85px (170px wide target)
+            if (curX < centerX - 85 || curX > centerX + 85) {
+                return null;
+            }
+
+            // Top button: Volume Up (height ~45px, generous 125px touch zone)
+            if (curY >= menuTop - 25 && curY <= menuTop + 100) {
+                return 'VOL_UP';
+            }
+            // Bottom button: Volume Down (height ~45px, generous 125px touch zone)
+            if (curY >= menuBottom - 100 && curY <= menuBottom + 25) {
+                return 'VOL_DOWN';
+            }
+
+            return null;
+        }
+
+        function executeRapidVolume(direction) {
+            try {
+                if (direction === 'VOL_UP') {
+                    if (window.AndroidBridge && typeof window.AndroidBridge.adjustSystemVolume === 'function') {
+                        window.AndroidBridge.adjustSystemVolume('UP');
+                    }
+                    playGestureTone(840, 0.03);
+                    showRapidVolumeIndicator('VOL_UP');
+                } else {
+                    if (window.AndroidBridge && typeof window.AndroidBridge.adjustSystemVolume === 'function') {
+                        window.AndroidBridge.adjustSystemVolume('DOWN');
+                    }
+                    playGestureTone(540, 0.03);
+                    showRapidVolumeIndicator('VOL_DOWN');
+                }
+            } catch (e) {
+                console.warn('Rapid volume error', e);
+            }
+        }
+
+        function showRapidVolumeIndicator(action) {
+            const btn = document.querySelector(`[data-hold-action="${action}"]`);
+            if (btn) {
+                btn.classList.add('bg-cyan-500/30', 'border-cyan-300', 'scale-105');
+            }
+            const other = action === 'VOL_UP' ? 'VOL_DOWN' : 'VOL_UP';
+            const otherBtn = document.querySelector(`[data-hold-action="${other}"]`);
+            if (otherBtn) {
+                otherBtn.classList.remove('bg-cyan-500/30', 'border-cyan-300', 'scale-105');
+            }
+        }
+
+        function clearRapidVolumeHighlight() {
+            const upBtn = document.querySelector('[data-hold-action="VOL_UP"]');
+            const downBtn = document.querySelector('[data-hold-action="VOL_DOWN"]');
+            if (upBtn) upBtn.classList.remove('bg-cyan-500/30', 'border-cyan-300', 'scale-105');
+            if (downBtn) downBtn.classList.remove('bg-cyan-500/30', 'border-cyan-300', 'scale-105');
         }
 
         let lastVolumeTriggerTime = 0;
@@ -2955,24 +3058,51 @@
                                     lastPinchX = normX;
                                     lastPinchY = normY;
                                 }
-                                const pinchElapsed = now - pinchStartTime;
-                                pinchHoldProgress = longPinchTargetMs > 0 ? Math.min(1.0, pinchElapsed / longPinchTargetMs) : 1.0;
 
-                                // Long Pinch Menu Open (default 2.5s)
-                                if (pinchElapsed >= longPinchTargetMs && !pinchMenuTriggered) {
-                                    pinchMenuTriggered = true;
-                                    if (isGestureSleeping) {
-                                        isGestureSleeping = false;
-                                        showToast('', 'Awake', 'Gestures Resumed');
+                                // 🔊 RAPID CONTINUOUS VOLUME ON PINCH HOLD OVER VOL ICONS
+                                const volAct = getHoldMenuVolumeAction(normX, normY);
+                                if (volAct) {
+                                    isRapidVolumeHolding = true;
+                                    rapidVolumeTargetAction = volAct;
+                                    pinchStartTime = now;       // Never let 2.5s menu timer fire while adjusting volume
+                                    pinchMenuTriggered = true;  // Prevent stray tap on pinch release
+
+                                    if (now - lastRapidVolumeTime >= 120) {
+                                        lastRapidVolumeTime = now;
+                                        executeRapidVolume(volAct);
                                     }
-                                    openFoldHoldMenu();
-                                    playGestureTone(750, 0.08);
-                                    setTimeout(() => playGestureTone(950, 0.10), 90);
+                                } else {
+                                    // Not over volume button: stop active rapid volume if cursor moved away
+                                    if (isRapidVolumeHolding) {
+                                        isRapidVolumeHolding = false;
+                                        rapidVolumeTargetAction = null;
+                                        clearRapidVolumeHighlight();
+                                    }
+
+                                    const pinchElapsed = now - pinchStartTime;
+                                    pinchHoldProgress = longPinchTargetMs > 0 ? Math.min(1.0, pinchElapsed / longPinchTargetMs) : 1.0;
+
+                                    // Long Pinch Menu Open (default 2.5s) — ONLY if menu is not already open!
+                                    if (!isHoldMenuOpen() && pinchElapsed >= longPinchTargetMs && !pinchMenuTriggered) {
+                                        pinchMenuTriggered = true;
+                                        if (isGestureSleeping) {
+                                            isGestureSleeping = false;
+                                            showToast('', 'Awake', 'Gestures Resumed');
+                                        }
+                                        openFoldHoldMenu();
+                                        playGestureTone(750, 0.08);
+                                        setTimeout(() => playGestureTone(950, 0.10), 90);
+                                    }
                                 }
                             } else if (wasPinching) {
                                 wasPinching = false;
-                                // Clean Air Tap on short pinch release (only if not sleeping and not triggered as menu)
-                                if (!pinchMenuTriggered && !isGestureSleeping) {
+                                const hadRapid = isRapidVolumeHolding;
+                                isRapidVolumeHolding = false;
+                                rapidVolumeTargetAction = null;
+                                clearRapidVolumeHighlight();
+
+                                // Clean Air Tap on short pinch release (only if not sleeping and not rapid volume)
+                                if (!pinchMenuTriggered && !hadRapid && !isGestureSleeping) {
                                     const targetEl = document.elementFromPoint(smoothX, smoothY);
                                     if (targetEl) {
                                         const clickable = targetEl.closest('.AirClickable, .AirKeyTarget, .air-key, button');
@@ -3292,6 +3422,27 @@
                             spatialTrackingState = 'IDLE';
                             foldState = 0;
                             holdTriggered = false;
+                            // Stop continuous volume repeat if hand disappears mid-pinch
+                            const hadRapidLost = isRapidVolumeHolding;
+                            isRapidVolumeHolding = false;
+                            rapidVolumeTargetAction = null;
+                            clearRapidVolumeHighlight();
+                            // Fire pending pinch click if hand disappeared mid-pinch (no-hand frame on release)
+                            if (wasPinching && !pinchMenuTriggered && !hadRapidLost && !isGestureSleeping) {
+                                const tapX = lastPinchX * window.innerWidth;
+                                const tapY = lastPinchY * window.innerHeight;
+                                const targetEl = document.elementFromPoint(tapX, tapY);
+                                if (targetEl) {
+                                    const clickable = targetEl.closest('.AirClickable, .AirKeyTarget, button');
+                                    if (clickable) clickable.click();
+                                }
+                                if (window.AndroidBridge && window.AndroidBridge.triggerGlobalAirTap) {
+                                    window.AndroidBridge.triggerGlobalAirTap(lastPinchX, lastPinchY);
+                                }
+                                pinchStartTime = 0;
+                                pinchMenuTriggered = false;
+                                pinchHoldProgress = 0;
+                            }
                             wasPinching = false;
                             homeGestureStep = 0;
                             homeStep1HoldStart = 0;
