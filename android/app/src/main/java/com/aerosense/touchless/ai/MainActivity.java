@@ -58,6 +58,31 @@ public class MainActivity extends Activity {
     private int savedOverlayY = -1;
     private final AeroVoiceControlPatch voiceControlPatch = new AeroVoiceControlPatch();
 
+    private final Handler keepAliveHeartbeatHandler = new Handler(Looper.getMainLooper());
+    private final Runnable keepAliveHeartbeatRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (isBackgroundEngineRunning && webView != null) {
+                try {
+                    webView.resumeTimers();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                        webView.evaluateJavascript("if(window.aeroKeepAlivePulse) window.aeroKeepAlivePulse();", null);
+                    }
+                } catch (Exception ignored) {}
+                keepAliveHeartbeatHandler.postDelayed(this, 2000);
+            }
+        }
+    };
+
+    private void startKeepAliveHeartbeat() {
+        keepAliveHeartbeatHandler.removeCallbacks(keepAliveHeartbeatRunnable);
+        keepAliveHeartbeatHandler.postDelayed(keepAliveHeartbeatRunnable, 2000);
+    }
+
+    private void stopKeepAliveHeartbeat() {
+        keepAliveHeartbeatHandler.removeCallbacks(keepAliveHeartbeatRunnable);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -444,6 +469,8 @@ public class MainActivity extends Activity {
         public void startBackgroundService() {
             isBackgroundEngineRunning = true;
             AeroForegroundService.start(MainActivity.this);
+            startKeepAliveHeartbeat();
+            requestBatteryExemption();
             if (AeroAccessibilityService.instance != null) {
                 AeroAccessibilityService.instance.setCursorVisibility(true);
             }
@@ -452,6 +479,7 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void stopBackgroundService() {
             isBackgroundEngineRunning = false;
+            stopKeepAliveHeartbeat();
             AeroForegroundService.stop(MainActivity.this);
             runOnUiThread(() -> exitSystemFloatingOverlay());
             if (AeroAccessibilityService.instance != null) {
@@ -462,6 +490,7 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void exitFloatingOverlay() {
             isBackgroundEngineRunning = false;
+            stopKeepAliveHeartbeat();
             AeroForegroundService.stop(MainActivity.this);
             runOnUiThread(() -> exitSystemFloatingOverlay());
             if (AeroAccessibilityService.instance != null) {

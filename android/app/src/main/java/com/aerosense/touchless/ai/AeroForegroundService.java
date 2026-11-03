@@ -80,7 +80,7 @@ public class AeroForegroundService extends Service {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 int serviceType = 0;
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                    serviceType = ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE;
+                    serviceType = ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA | ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE;
                 }
                 startForeground(NOTIFICATION_ID, notification, serviceType);
             } else {
@@ -97,16 +97,18 @@ public class AeroForegroundService extends Service {
     }
 
     private void acquireWakeLock() {
-        if (wakeLock == null) {
-            try {
+        try {
+            if (wakeLock == null) {
                 PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
                 if (pm != null) {
                     wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "AeroSense::KeepAliveLock");
                     wakeLock.setReferenceCounted(false);
-                    wakeLock.acquire(12 * 60 * 60 * 1000L); // 12 hours safety
                 }
-            } catch (Exception ignored) {}
-        }
+            }
+            if (wakeLock != null && !wakeLock.isHeld()) {
+                wakeLock.acquire(24 * 60 * 60 * 1000L); // 24 hours keep-alive safety
+            }
+        } catch (Exception ignored) {}
     }
 
     private void releaseWakeLock() {
