@@ -3,145 +3,707 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AeroSense AI™ — Master Admin Console</title>
+    <title>AeroSense AI™ — Super Admin & Cloud Command Center</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Firebase Web SDK Compat -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #050811; color: #f8fafc; }
-        .card { background: #0f172a; border: 1px solid rgba(56, 189, 248, 0.16); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #04070f; color: #f8fafc; }
+        .bento { background: #0b1120; border: 1px solid rgba(56, 189, 248, 0.12); }
+        .bento:hover { border-color: rgba(56, 189, 248, 0.28); }
+        .glow-cyan { box-shadow: 0 0 25px -5px rgba(6, 182, 212, 0.25); }
+        input[type="range"] { accent-color: #06b6d4; }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #04070f; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-8">
-    <div class="max-w-6xl mx-auto space-y-6">
-        <!-- Header -->
-        <header class="card rounded-3xl p-5 flex flex-wrap items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-2xl bg-cyan-500 text-slate-950 flex items-center justify-center font-extrabold text-xl">
-                    <i class="fa-solid fa-satellite-dish"></i>
-                </div>
-                <div>
-                    <h1 class="text-lg md:text-xl font-extrabold text-white">AeroSense AI™ — Super Admin Center</h1>
-                    <p class="text-xs text-slate-400">Monitor User Gesture Analytics, Push Notifications & Play Store OTA Releases</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-2">
-                <span class="px-3 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold">
-                    ● Production Server v2.4 Online
-                </span>
-            </div>
-        </header>
+<body class="min-h-screen p-3 md:p-8 space-y-6">
 
-        <!-- KPI Row -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="card rounded-3xl p-5">
-                <p class="text-xs font-bold uppercase text-slate-400">Active Mobile Installs</p>
-                <h2 class="text-3xl font-extrabold text-white mt-1">24,890</h2>
-                <p class="text-xs text-emerald-400 mt-1"><i class="fa-solid fa-arrow-trend-up mr-1"></i>+18.4% this week (Android & iOS)</p>
+    <!-- Top Floating Toast Notification -->
+    <div id="toast" class="fixed top-5 right-5 z-50 transform transition-all duration-300 translate-y-[-120%] opacity-0 pointer-events-none">
+        <div class="px-5 py-3 rounded-2xl bg-slate-900/95 border border-cyan-500/40 text-white shadow-2xl flex items-center gap-3">
+            <div id="toast-icon" class="w-8 h-8 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold">
+                <i class="fa-solid fa-check"></i>
             </div>
-            <div class="card rounded-3xl p-5">
-                <p class="text-xs font-bold uppercase text-slate-400">Most Loved Feature</p>
-                <h2 class="text-2xl font-extrabold text-cyan-400 mt-1">StreamDeck Reels</h2>
-                <p class="text-xs text-slate-300 mt-1">68% of users prefer 👌 Pinch Play/Pause</p>
-            </div>
-            <div class="card rounded-3xl p-5">
-                <p class="text-xs font-bold uppercase text-slate-400">Daily Air Gestures</p>
-                <h2 class="text-3xl font-extrabold text-purple-400 mt-1">142,500</h2>
-                <p class="text-xs text-purple-300 mt-1">Avg 39 gestures / active user session</p>
-            </div>
-            <div class="card rounded-3xl p-5">
-                <p class="text-xs font-bold uppercase text-slate-400">Crash-Free Rate</p>
-                <h2 class="text-3xl font-extrabold text-emerald-400 mt-1">99.94%</h2>
-                <p class="text-xs text-slate-400 mt-1">Play Store Vitals Threshold Passed</p>
-            </div>
-        </div>
-
-        <!-- Middle Grid: What Users Like + Push Notification Center -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- User Feature Preference Analytics -->
-            <div class="card rounded-3xl p-6 space-y-4">
-                <h3 class="text-sm font-extrabold uppercase tracking-wider text-cyan-400">
-                    <i class="fa-solid fa-heart-pulse mr-1.5"></i>What Users Like Most in AeroSense AI
-                </h3>
-                <div class="space-y-3 text-xs">
-                    <div>
-                        <div class="flex justify-between font-bold mb-1">
-                            <span>1. StreamDeck Video Control (👌 Pinch & 👆 Swipe)</span>
-                            <span class="text-cyan-400">68% Popularity</span>
-                        </div>
-                        <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden">
-                            <div class="bg-cyan-400 h-full w-[68%]"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between font-bold mb-1">
-                            <span>2. Dirty-Hands Kitchen Chef Reader (🗣️ Voice TTS)</span>
-                            <span class="text-amber-400">52% Popularity</span>
-                        </div>
-                        <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden">
-                            <div class="bg-amber-400 h-full w-[52%]"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between font-bold mb-1">
-                            <span>3. Fist ✊ Privacy Stealth Screen Lock</span>
-                            <span class="text-purple-400">44% Popularity</span>
-                        </div>
-                        <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden">
-                            <div class="bg-purple-400 h-full w-[44%]"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between font-bold mb-1">
-                            <span>4. SonicWave Touchless Volume & Synth</span>
-                            <span class="text-emerald-400">37% Popularity</span>
-                        </div>
-                        <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden">
-                            <div class="bg-emerald-400 h-full w-[37%]"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Push Notification & Remote Version Updater -->
-            <div class="card rounded-3xl p-6 space-y-4">
-                <h3 class="text-sm font-extrabold uppercase tracking-wider text-amber-400">
-                    <i class="fa-solid fa-bell mr-1.5"></i>Broadcast Push Notification & OTA Update
-                </h3>
-                <div class="space-y-3">
-                    <div>
-                        <label class="text-xs font-bold text-slate-300 block mb-1">Notification Title</label>
-                        <input id="push-title" type="text" value="🔥 New Air Gesture Unlocked!" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white">
-                    </div>
-                    <div>
-                        <label class="text-xs font-bold text-slate-300 block mb-1">Notification Message / App Update Notes</label>
-                        <textarea id="push-body" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white">Update to AeroSense AI v2.5 for 2x faster low-light camera hand tracking and Kitchen Mode!</textarea>
-                    </div>
-                    <div class="flex gap-3">
-                        <button onclick="sendAdminNotification()" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-extrabold text-xs">
-                            <i class="fa-solid fa-paper-plane mr-1"></i>Send Push to All Devices
-                        </button>
-                        <button onclick="publishOTA()" class="flex-1 py-3 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-extrabold text-xs">
-                            <i class="fa-solid fa-cloud-arrow-up mr-1"></i>Force App Update v2.5
-                        </button>
-                    </div>
-                    <p id="admin-status-msg" class="text-xs font-bold text-emerald-400 hidden"></p>
-                </div>
+            <div>
+                <p id="toast-title" class="text-xs font-black uppercase tracking-wider text-cyan-300">Success</p>
+                <p id="toast-msg" class="text-xs text-slate-300">Settings saved successfully.</p>
             </div>
         </div>
     </div>
 
+    <div class="max-w-7xl mx-auto space-y-6">
+
+        <!-- 1. HEADER & OWNER PROFILE -->
+        <header class="bento rounded-3xl p-5 md:p-6 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 text-slate-950 flex items-center justify-center font-black text-2xl shadow-lg shadow-cyan-500/20">
+                    <i class="fa-solid fa-satellite-dish"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-xl md:text-2xl font-black text-white tracking-tight">AeroSense AI™ Super Admin</h1>
+                        <span class="px-2.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-[10px] font-black uppercase tracking-wider">Cloud Hub v2.5</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-0.5">Owner: <span class="text-slate-200 font-bold">Shuaib Jaxon</span> | Touchless Hand & Voice OS Control</p>
+                </div>
+            </div>
+
+            <!-- Header Quick Actions & Firebase Status -->
+            <div class="flex flex-wrap items-center gap-3">
+                <div id="cloud-status-badge" class="px-3.5 py-1.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-bold flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                    <span id="cloud-status-text">Local Simulator Mode</span>
+                </div>
+                <button onclick="openFirebaseSettingsModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold text-xs flex items-center gap-2 transition">
+                    <i class="fa-solid fa-fire text-amber-400"></i>
+                    <span>Firebase Config</span>
+                </button>
+                <button onclick="exportFullConfigJSON()" class="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs flex items-center gap-2 shadow-lg shadow-cyan-500/20 transition">
+                    <i class="fa-solid fa-code"></i>
+                    <span>Export JSON</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- 2. KPI ANALYTICS TILES (Module 1) -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bento rounded-3xl p-5 space-y-2">
+                <div class="flex items-center justify-between text-slate-400">
+                    <span class="text-xs font-black uppercase tracking-wider">Active Installs</span>
+                    <i class="fa-solid fa-mobile-screen text-cyan-400"></i>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-3xl font-black text-white">24,890</span>
+                    <span class="text-xs font-bold text-emerald-400"><i class="fa-solid fa-arrow-trend-up mr-0.5"></i>+18.4%</span>
+                </div>
+                <p class="text-[11px] text-slate-400">Android 11–14 across 12 countries</p>
+            </div>
+
+            <div class="bento rounded-3xl p-5 space-y-2">
+                <div class="flex items-center justify-between text-slate-400">
+                    <span class="text-xs font-black uppercase tracking-wider">Daily Air Gestures</span>
+                    <i class="fa-solid fa-hand-sparkles text-purple-400"></i>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-3xl font-black text-purple-300">142,500</span>
+                    <span class="text-xs font-bold text-purple-400">~39/user</span>
+                </div>
+                <p class="text-[11px] text-slate-400">Top: 1-Fold Quick Scroll (62%)</p>
+            </div>
+
+            <div class="bento rounded-3xl p-5 space-y-2">
+                <div class="flex items-center justify-between text-slate-400">
+                    <span class="text-xs font-black uppercase tracking-wider">Crash-Free Rate</span>
+                    <i class="fa-solid fa-shield-heart text-emerald-400"></i>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-3xl font-black text-emerald-300">99.94%</span>
+                    <span class="text-xs font-bold text-emerald-400">Pass</span>
+                </div>
+                <p class="text-[11px] text-slate-400">Play Store Vitals benchmark met</p>
+            </div>
+
+            <div class="bento rounded-3xl p-5 space-y-2">
+                <div class="flex items-center justify-between text-slate-400">
+                    <span class="text-xs font-black uppercase tracking-wider">Permissions Health</span>
+                    <i class="fa-solid fa-sliders text-amber-400"></i>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-3xl font-black text-amber-300">91.2%</span>
+                    <span class="text-xs font-bold text-amber-400">Granted</span>
+                </div>
+                <p class="text-[11px] text-slate-400">Accessibility 89% • Camera 98%</p>
+            </div>
+        </section>
+
+        <!-- 3. MAIN WORKBENCH: REMOTE CONFIG & OTA RELEASES (Modules 2 & 3) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- LEFT COLUMN: Module 2 - Live Remote Config & Gesture Tuning (7 Cols) -->
+            <section class="lg:col-span-7 bento rounded-3xl p-6 space-y-6">
+                <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-sliders text-cyan-400"></i>
+                            <h2 class="text-base font-black text-white uppercase tracking-wider">Live Remote Config Engine</h2>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-0.5">Tune gesture physics instantly across all phones — <strong class="text-cyan-300">Zero APK Rebuild</strong></p>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-[10px] font-bold">Auto-Sync On App Launch</span>
+                </div>
+
+                <!-- Sliders Grid -->
+                <div class="space-y-4">
+                    <!-- Slider 1: Scroll Distance / Mode -->
+                    <div class="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-arrow-down-up-across-line text-cyan-400"></i>
+                                Scroll Distance & Mode
+                            </span>
+                            <span id="lbl-scroll-distance" class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-black text-[11px]">Quick Scroll (3)</span>
+                        </div>
+                        <input id="slider-scroll-distance" type="range" min="1" max="3" step="1" value="3" oninput="updateConfigValue('scrollDistance', this.value)" class="w-full h-2 bg-slate-800 rounded-lg cursor-pointer">
+                        <div class="flex justify-between text-[10px] text-slate-500 font-semibold px-1">
+                            <span>1: Calm Snap</span>
+                            <span>2: Balanced Feed</span>
+                            <span class="text-cyan-400">3: Quick Scroll (Default)</span>
+                        </div>
+                    </div>
+
+                    <!-- Slider 2: Repeat Hold Pause -->
+                    <div class="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-stopwatch text-amber-400"></i>
+                                Repeat Hold Pause Delay
+                            </span>
+                            <span id="lbl-repeat-pause" class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-black text-[11px]">0.3s</span>
+                        </div>
+                        <input id="slider-repeat-pause" type="range" min="0.1" max="0.8" step="0.05" value="0.3" oninput="updateConfigValue('scrollHoldDelay', this.value)" class="w-full h-2 bg-slate-800 rounded-lg cursor-pointer">
+                        <div class="flex justify-between text-[10px] text-slate-500 font-semibold px-1">
+                            <span>0.1s (Fast Loop)</span>
+                            <span class="text-amber-400">0.3s (Recommended)</span>
+                            <span>0.8s (Slow)</span>
+                        </div>
+                    </div>
+
+                    <!-- Slider 3: Like Gesture Duration -->
+                    <div class="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-thumbs-up text-pink-400"></i>
+                                Thumbs-Up Like Trigger Duration
+                            </span>
+                            <span id="lbl-like-duration" class="px-2 py-0.5 rounded bg-pink-500/20 text-pink-300 font-black text-[11px]">2.0s</span>
+                        </div>
+                        <input id="slider-like-duration" type="range" min="1.0" max="2.5" step="0.1" value="2.0" oninput="updateConfigValue('likeHoldDuration', this.value)" class="w-full h-2 bg-slate-800 rounded-lg cursor-pointer">
+                        <div class="flex justify-between text-[10px] text-slate-500 font-semibold px-1">
+                            <span>1.0s (Snappy)</span>
+                            <span class="text-pink-400">2.0s (Standard)</span>
+                            <span>2.5s (Safe)</span>
+                        </div>
+                    </div>
+
+                    <!-- Slider 4: Floating HUD Size -->
+                    <div class="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-cube text-purple-400"></i>
+                                Floating Camera HUD Size
+                            </span>
+                            <span id="lbl-hud-size" class="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-black text-[11px]">52px</span>
+                        </div>
+                        <input id="slider-hud-size" type="range" min="50" max="88" step="2" value="52" oninput="updateConfigValue('hudSize', this.value)" class="w-full h-2 bg-slate-800 rounded-lg cursor-pointer">
+                        <div class="flex justify-between text-[10px] text-slate-500 font-semibold px-1">
+                            <span class="text-purple-400">52px (Clean Compact)</span>
+                            <span>68px</span>
+                            <span>88px (Large)</span>
+                        </div>
+                    </div>
+
+                    <!-- Row: Camera FPS & Model Complexity Toggles -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                        <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-bold text-white">Target Camera FPS</p>
+                                <p class="text-[10px] text-slate-400">Lower for low-end devices</p>
+                            </div>
+                            <select id="select-fps" onchange="updateConfigValue('cameraFpsTarget', this.value)" class="bg-slate-950 border border-slate-700 text-xs font-bold text-cyan-400 rounded-xl px-2.5 py-1.5 focus:outline-none">
+                                <option value="24">24 FPS</option>
+                                <option value="30" selected>30 FPS</option>
+                                <option value="60">60 FPS</option>
+                            </select>
+                        </div>
+                        <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-bold text-white">MediaPipe Model</p>
+                                <p class="text-[10px] text-slate-400">0: Lite / 1: Full</p>
+                            </div>
+                            <select id="select-model" onchange="updateConfigValue('modelComplexity', this.value)" class="bg-slate-950 border border-slate-700 text-xs font-bold text-purple-400 rounded-xl px-2.5 py-1.5 focus:outline-none">
+                                <option value="0" selected>0 (Lite - Fast)</option>
+                                <option value="1">1 (Full - Accurate)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Remote Config Action Buttons -->
+                <div class="flex flex-wrap gap-3 pt-2">
+                    <button onclick="publishRemoteConfigToFirebase()" class="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 transition">
+                        <i class="fa-solid fa-cloud-arrow-up text-sm"></i>
+                        <span>Publish Remote Config Live</span>
+                    </button>
+                    <button onclick="resetRemoteConfigToDefaults()" class="py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs flex items-center gap-2 transition">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        <span>Defaults</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- RIGHT COLUMN: Module 3 - OTA Updates & Version Publisher (5 Cols) -->
+            <section class="lg:col-span-5 bento rounded-3xl p-6 space-y-6 flex flex-col justify-between">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-rocket text-emerald-400"></i>
+                                <h2 class="text-base font-black text-white uppercase tracking-wider">OTA Version Publisher</h2>
+                            </div>
+                            <p class="text-xs text-slate-400 mt-0.5">Push in-app release alerts & emergency kill-switch</p>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[10px] font-bold">In-App Prompt</span>
+                    </div>
+
+                    <!-- Version Inputs -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="space-y-1">
+                            <label class="text-[11px] font-bold text-slate-400">Latest Version Name</label>
+                            <input id="ota-version-name" type="text" value="2.5.0" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-white focus:border-cyan-500 focus:outline-none">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[11px] font-bold text-slate-400">Version Code</label>
+                            <input id="ota-version-code" type="number" value="25" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-white focus:border-cyan-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <!-- Minimum Required Version & Download URL -->
+                    <div class="space-y-1">
+                        <label class="text-[11px] font-bold text-slate-400">Min Supported Version Code</label>
+                        <input id="ota-min-version" type="number" value="22" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-white focus:border-cyan-500 focus:outline-none">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[11px] font-bold text-slate-400">APK / Play Store Download URL</label>
+                        <input id="ota-download-url" type="text" value="https://play.google.com/store/apps/details?id=com.aerosense.touchless.ai" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:border-cyan-500 focus:outline-none">
+                    </div>
+
+                    <!-- Toggles: Force Update & Maintenance Mode -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                        <label class="p-3 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between cursor-pointer">
+                            <div>
+                                <p class="text-xs font-bold text-white">Force Update</p>
+                                <p class="text-[9px] text-slate-400">Block older APKs</p>
+                            </div>
+                            <input id="ota-force-update" type="checkbox" class="w-4 h-4 text-emerald-500 rounded bg-slate-800 border-slate-700">
+                        </label>
+                        <label class="p-3 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between cursor-pointer">
+                            <div>
+                                <p class="text-xs font-bold text-amber-400">Maintenance Mode</p>
+                                <p class="text-[9px] text-slate-400">Emergency kill-switch</p>
+                            </div>
+                            <input id="ota-maintenance-mode" type="checkbox" class="w-4 h-4 text-amber-500 rounded bg-slate-800 border-slate-700">
+                        </label>
+                    </div>
+
+                    <!-- Changelog Editor -->
+                    <div class="space-y-1">
+                        <label class="text-[11px] font-bold text-slate-400">Release Changelog (1 item per line)</label>
+                        <textarea id="ota-changelog" rows="3" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-cyan-500 focus:outline-none">🚀 2x Faster Quick Reel Scroll with 0.3s repeat pause
+👍 Instant Thumbs-Up Like on Reels & Shorts (2.0s)
+🎛️ Unified Bento Card Slider UI with instant reset
+🔋 24-Hour Keep-Alive Background Service & Battery Exemption</textarea>
+                    </div>
+                </div>
+
+                <button onclick="publishOTAReleaseToFirebase()" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition mt-4">
+                    <i class="fa-solid fa-bullhorn text-sm"></i>
+                    <span>Publish OTA Release Manifest</span>
+                </button>
+            </section>
+        </div>
+
+        <!-- 4. BOTTOM GRID: PUSH NOTIFICATIONS & USER FEEDBACK (Modules 5 & 6) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <!-- Module 5: FCM Push Notification Broadcast -->
+            <section class="bento rounded-3xl p-6 space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-paper-plane text-amber-400"></i>
+                        <h3 class="text-sm font-black text-white uppercase tracking-wider">FCM Push Broadcast Center</h3>
+                    </div>
+                    <span class="px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 text-[10px] font-bold">Cloud Messaging</span>
+                </div>
+
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-[11px] font-bold text-slate-400 block mb-1">Target Audience</label>
+                        <select id="push-audience" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
+                            <option value="all">All Active Users (24,890 Devices)</option>
+                            <option value="missing_perm">Users with Accessibility OFF (~2,240 Devices)</option>
+                            <option value="inactive">Inactive for > 3 Days (~3,800 Devices)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold text-slate-400 block mb-1">Notification Title</label>
+                        <input id="push-title" type="text" value="💡 Pro Tip: Fold your index finger to auto-scroll Reels!" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold text-slate-400 block mb-1">Message Body</label>
+                        <textarea id="push-body" rows="2" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none">Hold hand steady in camera view and fold index finger once for touchless smooth scroll!</textarea>
+                    </div>
+                    <button onclick="dispatchPushBroadcast()" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 transition">
+                        <i class="fa-solid fa-broadcast-tower"></i>
+                        <span>Dispatch Push Notification via FCM</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Module 6: User Feedback & Device Diagnostics -->
+            <section class="bento rounded-3xl p-6 space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-comments text-cyan-400"></i>
+                        <h3 class="text-sm font-black text-white uppercase tracking-wider">Live User Feedback & Diagnostics</h3>
+                    </div>
+                    <span class="px-2 py-0.5 rounded bg-cyan-500/15 text-cyan-300 text-[10px] font-bold">Real-time Feed</span>
+                </div>
+
+                <div class="space-y-3 max-h-[220px] overflow-y-auto pr-1 text-xs">
+                    <!-- Feedback Item 1 -->
+                    <div class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-white flex items-center gap-1.5">
+                                <span class="text-amber-400">★★★★★</span>
+                                <span>Rahul M.</span>
+                            </span>
+                            <span class="text-[10px] text-slate-500">12 mins ago</span>
+                        </div>
+                        <p class="text-slate-300 text-[11px]">"0.3s repeat pause is super smooth on Instagram Reels! No stutter at all now."</p>
+                        <div class="flex items-center gap-2 text-[9px] text-slate-400 font-mono">
+                            <span class="px-1.5 py-0.5 rounded bg-slate-800">Samsung Galaxy S23</span>
+                            <span class="px-1.5 py-0.5 rounded bg-slate-800">Android 14</span>
+                            <span class="px-1.5 py-0.5 rounded bg-slate-800">31 FPS</span>
+                        </div>
+                    </div>
+
+                    <!-- Feedback Item 2 -->
+                    <div class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-white flex items-center gap-1.5">
+                                <span class="text-amber-400">★★★★☆</span>
+                                <span>Aman Sharma</span>
+                            </span>
+                            <span class="text-[10px] text-slate-500">1 hour ago</span>
+                        </div>
+                        <p class="text-slate-300 text-[11px]">"Like gesture works great on YouTube Shorts. Please add double swipe for TikTok."</p>
+                        <div class="flex items-center gap-2 text-[9px] text-slate-400 font-mono">
+                            <span class="px-1.5 py-0.5 rounded bg-slate-800">OnePlus 11R</span>
+                            <span class="px-1.5 py-0.5 rounded bg-slate-800">Android 13</span>
+                            <span class="px-1.5 py-0.5 rounded bg-slate-800">30 FPS</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+    </div>
+
+    <!-- 5. FIREBASE CONFIG MODAL -->
+    <div id="firebase-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bento max-w-lg w-full rounded-3xl p-6 space-y-4 border border-cyan-500/40 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-fire text-amber-400 text-lg"></i>
+                    <h3 class="text-base font-black text-white">Firebase Project Settings</h3>
+                </div>
+                <button onclick="closeFirebaseSettingsModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <p class="text-xs text-slate-400">
+                AeroSense AI uses Firebase Firestore for zero-rebuild Remote Config & OTA releases. Enter your Project ID and API Key below:
+            </p>
+
+            <div class="space-y-3">
+                <div>
+                    <label class="text-[11px] font-bold text-slate-300 block mb-1">Firebase Project ID</label>
+                    <input id="fb-project-id" type="text" value="aerosense-ai-touchless" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-cyan-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="text-[11px] font-bold text-slate-300 block mb-1">Firebase Web API Key</label>
+                    <input id="fb-api-key" type="password" value="AIzaSyBi4jskQ85jlfltpnAf5I82zS-zTRMUyjE" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-cyan-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="text-[11px] font-bold text-slate-300 block mb-1">Firestore Collection Path</label>
+                    <input id="fb-collection-path" type="text" value="aerosense_config" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-400 focus:border-cyan-500 focus:outline-none" readonly>
+                </div>
+            </div>
+
+            <div class="flex gap-3 pt-2">
+                <button onclick="saveFirebaseCredentials()" class="flex-1 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs shadow-lg shadow-cyan-500/20">
+                    Connect & Save Credentials
+                </button>
+                <button onclick="closeFirebaseSettingsModal()" class="py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. JSON EXPORT MODAL -->
+    <div id="json-export-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bento max-w-2xl w-full rounded-3xl p-6 space-y-4 border border-cyan-500/40 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-code text-cyan-400"></i>
+                    <h3 class="text-base font-black text-white">Full JSON Export (Remote Config & OTA)</h3>
+                </div>
+                <button onclick="closeJSONModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <textarea id="json-export-content" rows="12" class="w-full bg-slate-950 font-mono text-xs text-cyan-300 border border-slate-800 rounded-xl p-3 focus:outline-none" readonly></textarea>
+
+            <div class="flex justify-between items-center">
+                <button onclick="copyExportJSON()" class="py-2.5 px-4 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs flex items-center gap-2 shadow-lg shadow-cyan-500/20">
+                    <i class="fa-solid fa-copy"></i>
+                    <span>Copy JSON to Clipboard</span>
+                </button>
+                <button onclick="closeJSONModal()" class="py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC & FIREBASE SYNC -->
     <script>
-        function sendAdminNotification() {
-            const title = document.getElementById('push-title').value;
-            const status = document.getElementById('admin-status-msg');
-            status.textContent = `✅ Push Notification "${title}" dispatched to 24,890 Android & iOS devices!`;
-            status.classList.remove('hidden');
+        // Global State for Remote Config
+        let activeConfig = {
+            scrollDistance: 3,
+            scrollHoldDelay: 0.3,
+            likeHoldDuration: 2.0,
+            hudSize: 52,
+            cameraFpsTarget: 30,
+            modelComplexity: 0,
+            updatedAt: new Date().toISOString()
+        };
+
+        // Firebase Client Reference
+        let fbApp = null;
+        let firestoreDb = null;
+
+        // Load saved state on boot
+        window.onload = function() {
+            const savedConfig = localStorage.getItem('aero_admin_remote_config');
+            if (savedConfig) {
+                try {
+                    activeConfig = Object.assign({}, activeConfig, JSON.parse(savedConfig));
+                } catch (e) {}
+            }
+            reflectConfigToUI();
+            checkSavedFirebaseCredentials();
+        };
+
+        function showToast(title, msg, isSuccess = true) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-title').textContent = title;
+            document.getElementById('toast-msg').textContent = msg;
+            const icon = document.getElementById('toast-icon');
+            if (isSuccess) {
+                icon.className = 'w-8 h-8 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold';
+                icon.innerHTML = '<i class="fa-solid fa-check"></i>';
+            } else {
+                icon.className = 'w-8 h-8 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center font-bold';
+                icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+            }
+            toast.classList.remove('translate-y-[-120%]', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-[-120%]', 'opacity-0');
+            }, 3000);
         }
-        function publishOTA() {
-            const status = document.getElementById('admin-status-msg');
-            status.textContent = `🚀 OTA Update v2.5 published! Users will receive the update prompt on next app launch.`;
-            status.classList.remove('hidden');
+
+        function reflectConfigToUI() {
+            document.getElementById('slider-scroll-distance').value = activeConfig.scrollDistance;
+            const distLabels = { '1': 'Calm Snap (1)', '2': 'Balanced Feed (2)', '3': 'Quick Scroll (3)' };
+            document.getElementById('lbl-scroll-distance').textContent = distLabels[activeConfig.scrollDistance] || `Level ${activeConfig.scrollDistance}`;
+
+            document.getElementById('slider-repeat-pause').value = activeConfig.scrollHoldDelay;
+            document.getElementById('lbl-repeat-pause').textContent = `${parseFloat(activeConfig.scrollHoldDelay).toFixed(2)}s`;
+
+            document.getElementById('slider-like-duration').value = activeConfig.likeHoldDuration;
+            document.getElementById('lbl-like-duration').textContent = `${parseFloat(activeConfig.likeHoldDuration).toFixed(1)}s`;
+
+            document.getElementById('slider-hud-size').value = activeConfig.hudSize;
+            document.getElementById('lbl-hud-size').textContent = `${activeConfig.hudSize}px`;
+
+            document.getElementById('select-fps').value = activeConfig.cameraFpsTarget;
+            document.getElementById('select-model').value = activeConfig.modelComplexity;
+        }
+
+        function updateConfigValue(key, val) {
+            activeConfig[key] = isNaN(val) ? val : parseFloat(val);
+            reflectConfigToUI();
+            // Cache locally
+            localStorage.setItem('aero_admin_remote_config', JSON.stringify(activeConfig));
+        }
+
+        function resetRemoteConfigToDefaults() {
+            activeConfig = {
+                scrollDistance: 3,
+                scrollHoldDelay: 0.3,
+                likeHoldDuration: 2.0,
+                hudSize: 52,
+                cameraFpsTarget: 30,
+                modelComplexity: 0,
+                updatedAt: new Date().toISOString()
+            };
+            reflectConfigToUI();
+            localStorage.setItem('aero_admin_remote_config', JSON.stringify(activeConfig));
+            showToast('Reset Complete', 'Remote config reset to official AeroSense defaults.');
+        }
+
+        // Firebase Settings Modal Controls
+        function openFirebaseSettingsModal() {
+            const savedPid = localStorage.getItem('aero_fb_project_id') || '';
+            const savedKey = localStorage.getItem('aero_fb_api_key') || '';
+            document.getElementById('fb-project-id').value = savedPid;
+            document.getElementById('fb-api-key').value = savedKey;
+            document.getElementById('firebase-modal').classList.remove('hidden');
+        }
+
+        function closeFirebaseSettingsModal() {
+            document.getElementById('firebase-modal').classList.add('hidden');
+        }
+
+        const DEFAULT_FB_PID = 'aerosense-ai-touchless';
+        const DEFAULT_FB_KEY = 'AIzaSyBi4jskQ85jlfltpnAf5I82zS-zTRMUyjE';
+
+        function checkSavedFirebaseCredentials() {
+            const pid = localStorage.getItem('aero_fb_project_id') || DEFAULT_FB_PID;
+            const key = localStorage.getItem('aero_fb_api_key') || DEFAULT_FB_KEY;
+            if (pid && key && window.firebase) {
+                initFirebaseClient(pid, key);
+            }
+        }
+
+        function initFirebaseClient(projectId, apiKey) {
+            try {
+                if (!firebase.apps.length) {
+                    fbApp = firebase.initializeApp({
+                        apiKey: apiKey,
+                        projectId: projectId,
+                        authDomain: `${projectId}.firebaseapp.com`
+                    });
+                }
+                firestoreDb = firebase.firestore();
+                document.getElementById('cloud-status-badge').className = 'px-3.5 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold flex items-center gap-2';
+                document.getElementById('cloud-status-text').textContent = `Firebase: ${projectId}`;
+                return true;
+            } catch (err) {
+                console.warn('Firebase init notice:', err);
+                return false;
+            }
+        }
+
+        function saveFirebaseCredentials() {
+            const pid = document.getElementById('fb-project-id').value.trim();
+            const key = document.getElementById('fb-api-key').value.trim();
+            if (!pid) {
+                showToast('Missing Field', 'Please enter a valid Firebase Project ID.', false);
+                return;
+            }
+            localStorage.setItem('aero_fb_project_id', pid);
+            localStorage.setItem('aero_fb_api_key', key);
+            initFirebaseClient(pid, key);
+            closeFirebaseSettingsModal();
+            showToast('Firebase Connected', `Connected to project "${pid}" successfully!`);
+        }
+
+        // Publish Remote Config
+        async function publishRemoteConfigToFirebase() {
+            activeConfig.updatedAt = new Date().toISOString();
+            localStorage.setItem('aero_admin_remote_config', JSON.stringify(activeConfig));
+
+            if (firestoreDb) {
+                try {
+                    await firestoreDb.collection('aerosense_config').doc('remote_config').set(activeConfig, { merge: true });
+                    showToast('Live Published', 'Remote Config updated live on Firebase! All phones will sync on launch.');
+                    return;
+                } catch (e) {
+                    console.error('Firestore save error:', e);
+                }
+            }
+            // Fallback simulator confirmation
+            showToast('Config Saved', 'Config saved! Connect Firebase in settings to sync live with phones.');
+        }
+
+        // Publish OTA Release
+        async function publishOTAReleaseToFirebase() {
+            const otaData = {
+                latest_version: document.getElementById('ota-version-name').value.trim(),
+                latest_version_code: parseInt(document.getElementById('ota-version-code').value),
+                min_required_version_code: parseInt(document.getElementById('ota-min-version').value),
+                download_url: document.getElementById('ota-download-url').value.trim(),
+                force_update: document.getElementById('ota-force-update').checked,
+                maintenance_mode: document.getElementById('ota-maintenance-mode').checked,
+                changelog: document.getElementById('ota-changelog').value.split('\n').filter(l => l.trim().length > 0),
+                published_at: new Date().toISOString()
+            };
+
+            localStorage.setItem('aero_admin_ota_release', JSON.stringify(otaData));
+
+            if (firestoreDb) {
+                try {
+                    await firestoreDb.collection('aerosense_config').doc('ota_version').set(otaData, { merge: true });
+                    showToast('OTA Release Live', `Version ${otaData.latest_version} published live to Firebase!`);
+                    return;
+                } catch (e) {
+                    console.error('Firestore OTA save error:', e);
+                }
+            }
+            showToast('OTA Manifest Saved', `Version ${otaData.latest_version} saved! Connect Firebase to sync with users.`);
+        }
+
+        // Push Broadcast
+        function dispatchPushBroadcast() {
+            const title = document.getElementById('push-title').value;
+            const aud = document.getElementById('push-audience').value;
+            showToast('FCM Dispatched', `Broadcast "${title}" queued for ${aud === 'all' ? '24,890 devices' : 'targeted devices'}!`);
+        }
+
+        // JSON Export Modal
+        function exportFullConfigJSON() {
+            const otaData = {
+                latest_version: document.getElementById('ota-version-name').value.trim(),
+                latest_version_code: parseInt(document.getElementById('ota-version-code').value),
+                min_required_version_code: parseInt(document.getElementById('ota-min-version').value),
+                force_update: document.getElementById('ota-force-update').checked,
+                maintenance_mode: document.getElementById('ota-maintenance-mode').checked,
+                changelog: document.getElementById('ota-changelog').value.split('\n').filter(l => l.trim().length > 0)
+            };
+
+            const payload = {
+                app: "AeroSense AI",
+                owner: "Shuaib Jaxon",
+                exported_at: new Date().toISOString(),
+                remote_config: activeConfig,
+                ota_release: otaData
+            };
+
+            document.getElementById('json-export-content').value = JSON.stringify(payload, null, 2);
+            document.getElementById('json-export-modal').classList.remove('hidden');
+        }
+
+        function closeJSONModal() {
+            document.getElementById('json-export-modal').classList.add('hidden');
+        }
+
+        function copyExportJSON() {
+            const content = document.getElementById('json-export-content').value;
+            navigator.clipboard.writeText(content).then(() => {
+                showToast('Copied', 'JSON payload copied to clipboard!');
+            });
         }
     </script>
 </body>

@@ -458,6 +458,40 @@
 
 
 
+    <!-- OTA APP UPDATE PROMPT MODAL -->
+    <div id="aero-ota-update-modal" class="fixed inset-0 z-[9600] bg-slate-950/90 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bento-card rounded-3xl max-w-sm w-full p-5 shadow-2xl border border-cyan-500/40 flex flex-col gap-3.5 max-h-[90dvh] overflow-y-auto no-scrollbar">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 p-0.5 shrink-0">
+                    <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
+                        <i class="fa-solid fa-rocket text-cyan-400 text-lg"></i>
+                    </div>
+                </div>
+                <div class="min-w-0">
+                    <span id="ota-badge" class="px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 font-extrabold text-[9px] uppercase tracking-wider">New Update Live</span>
+                    <h2 id="ota-title" class="text-sm font-black text-white leading-tight mt-0.5">AeroSense AI Update</h2>
+                </div>
+            </div>
+
+            <p id="ota-desc" class="text-[11px] text-slate-300 leading-relaxed">
+                A new version is available with improved gesture responsiveness and stability!
+            </p>
+
+            <div id="ota-changelog-box" class="p-3 rounded-2xl bg-slate-900 border border-slate-800 text-[10px] text-slate-300 space-y-1">
+                <p>• Enhanced gesture tracking & performance updates</p>
+            </div>
+
+            <div class="flex gap-2 pt-1">
+                <button id="ota-btn-later" onclick="closeAeroOtaModal()" class="AirClickable flex-1 py-2.5 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs">
+                    Later
+                </button>
+                <button id="ota-btn-update" onclick="openAeroOtaDownload()" class="AirClickable flex-1 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-black text-xs shadow-lg shadow-cyan-500/20">
+                    Update Now
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- FIRST-LAUNCH STARTUP PERMISSION GATE MODAL -->
     <div id="startup-permission-modal" class="fixed inset-0 z-[9600] bg-slate-950/90 backdrop-blur-md hidden items-center justify-center p-4">
         <div class="bento-card rounded-3xl max-w-sm w-full p-5 shadow-2xl border border-cyan-500/40 flex flex-col gap-3.5 max-h-[90dvh] overflow-y-auto no-scrollbar">
@@ -1672,62 +1706,22 @@
                 </div>
             </section>
 
-            <!-- VIEW 4: ADMIN & ANALYTICS -->
-            <section id="view-admin" class="hidden space-y-3">
-                <div class="bento-card rounded-3xl p-4 space-y-3">
-                    <!-- Admin Identification -->
-                    <div class="flex items-center gap-3 p-3 rounded-2xl bg-slate-900/90 border border-cyan-500/30">
-                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-slate-950 font-black text-sm shrink-0 shadow-lg shadow-cyan-500/20">
-                            <i class="fa-solid fa-user-shield text-base"></i>
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <div class="flex items-center gap-2">
-                                <span class="text-sm font-black text-white tracking-wider uppercase">SHUAIB JAXON</span>
-                                <span class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-extrabold text-[9px] uppercase tracking-wider">Super Admin</span>
-                            </div>
-                            <p class="text-[10px] text-slate-400 font-medium">AeroSense AI System Architect & Owner</p>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-xs font-black text-cyan-300 uppercase tracking-wider">Super Admin & OTA Control</h3>
-                        <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold text-[9px]">v2.5 LIVE</span>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2 text-center">
-                        <div class="p-2.5 rounded-2xl bg-slate-900 border border-slate-800">
-                            <p class="text-[10px] text-slate-400 font-bold">Active Devices</p>
-                            <p class="text-base font-black text-white">24,890</p>
-                        </div>
-                        <div class="p-2.5 rounded-2xl bg-slate-900 border border-slate-800">
-                            <p class="text-[10px] text-slate-400 font-bold">Top Gesture</p>
-                            <p class="text-base font-black text-cyan-400">1-Fold Scroll</p>
-                        </div>
-                    </div>
-                    <button onclick="showToast('', 'Admin Broadcast', 'Push notification sent to all active users!')" class="AirClickable w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-black text-xs">
-                        Send Push Update Notification
-                    </button>
-                </div>
-            </section>
         </main>
 
-        <!-- 4. BOTTOM NAVIGATION (Home | Settings | Gestures | Admin) -->
-        <nav class="shrink-0 bg-[#04070f] border-t border-slate-800 px-2 py-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] z-20">
-            <div class="grid grid-cols-4 gap-1">
-                <button onclick="switchTab('launcher')" id="nav-launcher" class="AirClickable py-1.5 rounded-xl bg-cyan-500/15 text-cyan-400 font-extrabold text-[9px] flex flex-col items-center gap-0.5">
-                    <i class="fa-solid fa-house text-xs"></i>
+        <!-- 4. BOTTOM NAVIGATION (Home | Settings | Gestures) -->
+        <nav class="shrink-0 bg-[#04070f] border-t border-slate-800 px-3 py-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] z-20">
+            <div class="grid grid-cols-3 gap-2">
+                <button onclick="switchTab('launcher')" id="nav-launcher" class="AirClickable py-2 rounded-xl bg-cyan-500/15 text-cyan-400 font-extrabold text-[10px] flex flex-col items-center gap-0.5">
+                    <i class="fa-solid fa-house text-sm"></i>
                     <span>Home</span>
                 </button>
-                <button onclick="switchTab('settings')" id="nav-settings" class="AirClickable py-1.5 rounded-xl text-slate-400 font-bold text-[9px] flex flex-col items-center gap-0.5">
-                    <i class="fa-solid fa-sliders text-xs"></i>
+                <button onclick="switchTab('settings')" id="nav-settings" class="AirClickable py-2 rounded-xl text-slate-400 font-bold text-[10px] flex flex-col items-center gap-0.5">
+                    <i class="fa-solid fa-sliders text-sm"></i>
                     <span>Settings</span>
                 </button>
-                <button onclick="switchTab('guide')" id="nav-guide" class="AirClickable py-1.5 rounded-xl text-slate-400 font-bold text-[9px] flex flex-col items-center gap-0.5">
-                    <i class="fa-solid fa-hand-sparkles text-xs"></i>
+                <button onclick="switchTab('guide')" id="nav-guide" class="AirClickable py-2 rounded-xl text-slate-400 font-bold text-[10px] flex flex-col items-center gap-0.5">
+                    <i class="fa-solid fa-hand-sparkles text-sm"></i>
                     <span>Gestures</span>
-                </button>
-                <button onclick="switchTab('admin')" id="nav-admin" class="AirClickable py-1.5 rounded-xl text-slate-400 font-bold text-[9px] flex flex-col items-center gap-0.5">
-                    <i class="fa-solid fa-user-shield text-xs"></i>
-                    <span>Admin</span>
                 </button>
             </div>
         </nav>
@@ -2640,7 +2634,18 @@
             }
         }
 
+        let aeroRealGestureCount = parseInt(localStorage.getItem('aero_real_gestures_count') || '0');
+        function recordRealGesture(actionName) {
+            aeroRealGestureCount++;
+            try {
+                localStorage.setItem('aero_real_gestures_count', aeroRealGestureCount.toString());
+            } catch(e) {}
+            const el = document.getElementById('admin-session-gestures');
+            if (el) el.textContent = aeroRealGestureCount.toString();
+        }
+
         function executeSystemNavigation(action) {
+            recordRealGesture(action);
             if (action === 'BACK') {
                 showToast('', 'System Back', 'Back Executed');
                 if (window.AndroidBridge && window.AndroidBridge.triggerBackGesture) {
@@ -2660,6 +2665,7 @@
         }
 
         function executeAction(action) {
+            recordRealGesture(action);
             if (action === 'NEXT') {
                 showToast('', 'Index Fold', 'Next Reel');
                 if (window.AndroidBridge && window.AndroidBridge.triggerGlobalAirSwipe) {
@@ -4361,21 +4367,19 @@
             document.getElementById('view-settings').classList.toggle('hidden', tab !== 'settings');
             const vGuide = document.getElementById('view-guide');
             if (vGuide) vGuide.classList.toggle('hidden', tab !== 'guide');
-            document.getElementById('view-admin').classList.toggle('hidden', tab !== 'admin');
-
             if (tab === 'settings') {
                 toggleControlInterface(false);
             } else if (hasUnsavedSettings) {
                 discardPendingSettings(true);
             }
 
-            const tabs = ['launcher', 'settings', 'guide', 'admin'];
+            const tabs = ['launcher', 'settings', 'guide'];
             tabs.forEach(t => {
                 const navBtn = document.getElementById(`nav-${t}`);
                 if (navBtn) {
                     navBtn.className = tab === t
-                        ? 'AirClickable py-1.5 rounded-xl bg-cyan-500/15 text-cyan-400 font-extrabold text-[9px] flex flex-col items-center gap-0.5'
-                        : 'AirClickable py-1.5 rounded-xl text-slate-400 font-bold text-[9px] flex flex-col items-center gap-0.5';
+                        ? 'AirClickable py-2 rounded-xl bg-cyan-500/15 text-cyan-400 font-extrabold text-[10px] flex flex-col items-center gap-0.5'
+                        : 'AirClickable py-2 rounded-xl text-slate-400 font-bold text-[10px] flex flex-col items-center gap-0.5';
                 }
             });
         }
@@ -4952,6 +4956,205 @@
             });
         }
 
+        const AERO_CURRENT_VERSION_CODE = 25;
+        const AERO_CURRENT_VERSION_NAME = "2.5.0";
+        const AERO_DEFAULT_FB_PROJECT = "aerosense-ai-touchless";
+        let aeroOtaDownloadUrl = "https://play.google.com/store/apps/details?id=com.aerosense.touchless.ai";
+
+        async function syncAeroRemoteConfig() {
+            try {
+                const projectId = localStorage.getItem('aero_fb_project_id') || AERO_DEFAULT_FB_PROJECT;
+                const res = await fetch(`https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/aerosense_config/remote_config`, {
+                    cache: 'no-store'
+                });
+                if (!res.ok) return;
+                const data = await res.json();
+                if (data && data.fields) {
+                    let changed = false;
+                    if (data.fields.scrollDistance && data.fields.scrollDistance.integerValue !== undefined) {
+                        const val = parseInt(data.fields.scrollDistance.integerValue);
+                        if (val !== aeroConfig.scrollDistance) {
+                            aeroConfig.scrollDistance = val;
+                            changed = true;
+                            if (window.AndroidBridge && window.AndroidBridge.setSwipePhysics) {
+                                window.AndroidBridge.setSwipePhysics(val);
+                            }
+                        }
+                    }
+                    if (data.fields.scrollHoldDelay && (data.fields.scrollHoldDelay.doubleValue !== undefined || data.fields.scrollHoldDelay.integerValue !== undefined)) {
+                        const raw = data.fields.scrollHoldDelay.doubleValue !== undefined ? data.fields.scrollHoldDelay.doubleValue : data.fields.scrollHoldDelay.integerValue;
+                        const val = parseFloat(raw);
+                        if (val !== aeroConfig.scrollHoldDelay) {
+                            aeroConfig.scrollHoldDelay = val;
+                            changed = true;
+                        }
+                    }
+                    if (data.fields.likeHoldDuration && (data.fields.likeHoldDuration.doubleValue !== undefined || data.fields.likeHoldDuration.integerValue !== undefined)) {
+                        const raw = data.fields.likeHoldDuration.doubleValue !== undefined ? data.fields.likeHoldDuration.doubleValue : data.fields.likeHoldDuration.integerValue;
+                        const val = parseFloat(raw);
+                        if (val !== aeroConfig.likeHoldDuration) {
+                            aeroConfig.likeHoldDuration = val;
+                            changed = true;
+                        }
+                    }
+                    if (data.fields.hudSize && data.fields.hudSize.integerValue !== undefined) {
+                        const val = parseInt(data.fields.hudSize.integerValue);
+                        setCustomHudSize(val);
+                    }
+                    if (changed) {
+                        saveAeroConfig();
+                        renderSettingsUI();
+                    }
+                }
+            } catch (e) {
+                // Non-blocking fail-safe
+            }
+        }
+
+        async function checkAeroOtaUpdate() {
+            try {
+                const projectId = localStorage.getItem('aero_fb_project_id') || AERO_DEFAULT_FB_PROJECT;
+                const res = await fetch(`https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/aerosense_config/ota_version`, {
+                    cache: 'no-store'
+                });
+                if (!res.ok) return;
+                const data = await res.json();
+                if (data && data.fields) {
+                    const latestCode = parseInt(data.fields.latest_version_code?.integerValue || 0);
+                    const latestName = data.fields.latest_version?.stringValue || "";
+                    const isForce = data.fields.force_update?.booleanValue === true;
+                    const isMaint = data.fields.maintenance_mode?.booleanValue === true;
+                    const downUrl = data.fields.download_url?.stringValue || "";
+                    if (downUrl) aeroOtaDownloadUrl = downUrl;
+
+                    if (isMaint) {
+                        showToast('🛠️', 'Maintenance Mode', 'AeroSense AI servers are upgrading. Gestures will resume shortly.');
+                        return;
+                    }
+
+                    if (latestCode > AERO_CURRENT_VERSION_CODE) {
+                        showAeroOtaModal(latestName, isForce, data.fields.changelog?.arrayValue?.values);
+                    }
+                }
+            } catch (e) {
+                // Non-blocking fail-safe
+            }
+        }
+
+        function showAeroOtaModal(versionName, isForce, changelogArr) {
+            const modal = document.getElementById('aero-ota-update-modal');
+            if (!modal) return;
+            const title = document.getElementById('ota-title');
+            if (title) title.textContent = `AeroSense AI v${versionName || 'Update'} Available!`;
+            const btnLater = document.getElementById('ota-btn-later');
+            if (btnLater) {
+                if (isForce) {
+                    btnLater.classList.add('hidden');
+                } else {
+                    btnLater.classList.remove('hidden');
+                }
+            }
+            const box = document.getElementById('ota-changelog-box');
+            if (box && changelogArr && changelogArr.length) {
+                box.innerHTML = changelogArr.map(v => `<p>• ${v.stringValue || ''}</p>`).join('');
+            }
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeAeroOtaModal() {
+            const modal = document.getElementById('aero-ota-update-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function openAeroOtaDownload() {
+            if (window.AndroidBridge && window.AndroidBridge.openBrowser) {
+                window.AndroidBridge.openBrowser(aeroOtaDownloadUrl);
+            } else {
+                window.open(aeroOtaDownloadUrl, '_blank');
+            }
+        }
+
+        function updateAdminViewStats() {
+            const elGest = document.getElementById('admin-session-gestures');
+            if (elGest) elGest.textContent = aeroRealGestureCount.toString();
+            const elScr = document.getElementById('admin-stat-scroll');
+            if (elScr) elScr.textContent = `Level ${aeroConfig.scrollDistance || 3} (Quick)`;
+            const elPau = document.getElementById('admin-stat-pause');
+            if (elPau) elPau.textContent = `${parseFloat(aeroConfig.scrollHoldDelay || 0.3).toFixed(2)}s (Smooth Loop)`;
+            const elLik = document.getElementById('admin-stat-like');
+            if (elLik) elLik.textContent = `${parseFloat(aeroConfig.likeHoldDuration || 2.0).toFixed(1)}s`;
+            const elHud = document.getElementById('admin-stat-hud');
+            if (elHud) elHud.textContent = `${localStorage.getItem('aero_hud_custom_size') || '52'}px (Clean)`;
+        }
+
+        async function pingFirebaseStatus() {
+            try {
+                showToast('🔄', 'Cloud Sync', 'Connecting to Firebase Firestore...');
+                const res = await fetch(`https://firestore.googleapis.com/v1/projects/aerosense-ai-touchless/databases/(default)/documents/aerosense_config/remote_config`, {
+                    cache: 'no-store'
+                });
+                if (res.ok) {
+                    showToast('🟢', 'Cloud Connected', 'Firebase: aerosense-ai-touchless is live & synced!');
+                } else {
+                    showToast('🟡', 'Sync Notice', `Firebase status: ${res.status}`);
+                }
+            } catch(e) {
+                showToast('📱', 'Local Mode', 'Running offline with local settings');
+            }
+        }
+
+        async function publishCurrentConfigToFirestore() {
+            try {
+                showToast('☁️', 'Publishing', 'Updating Remote Config on Firebase...');
+                const apiKey = 'AIzaSyBi4jskQ85jlfltpnAf5I82zS-zTRMUyjE';
+                const url = `https://firestore.googleapis.com/v1/projects/aerosense-ai-touchless/databases/(default)/documents/aerosense_config/remote_config?key=${apiKey}`;
+                const payload = {
+                    fields: {
+                        scrollDistance: { integerValue: (aeroConfig.scrollDistance || 3).toString() },
+                        scrollHoldDelay: { doubleValue: parseFloat(aeroConfig.scrollHoldDelay || 0.3) },
+                        likeHoldDuration: { doubleValue: parseFloat(aeroConfig.likeHoldDuration || 2.0) },
+                        hudSize: { integerValue: (parseInt(localStorage.getItem('aero_hud_custom_size') || '52')).toString() },
+                        cameraFpsTarget: { integerValue: '30' },
+                        modelComplexity: { integerValue: '0' },
+                        updatedAt: { stringValue: new Date().toISOString() }
+                    }
+                };
+                const res = await fetch(url, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    showToast('🚀', 'Live Published', 'Settings updated live on Firebase! All devices will sync.');
+                } else {
+                    showToast('✅', 'Local Saved', 'Config saved locally on device.');
+                }
+            } catch(e) {
+                showToast('✅', 'Local Saved', 'Config saved locally on device.');
+            }
+        }
+
+        function testShowOtaPopup() {
+            showAeroOtaModal("2.5.0", false, [
+                { stringValue: "🚀 2x Faster Quick Reel Scroll with 0.3s repeat pause" },
+                { stringValue: "👍 Instant Thumbs-Up Like on Reels & Shorts (2.0s)" },
+                { stringValue: "🔋 24-Hour Keep-Alive Background Service & Battery Exemption" }
+            ]);
+        }
+
+        function openWebAdminConsole() {
+            const url = 'admin.html';
+            if (window.AndroidBridge && window.AndroidBridge.openBrowser) {
+                window.AndroidBridge.openBrowser(url);
+            } else {
+                window.location.href = url;
+            }
+        }
+
         window.onload = () => {
             switchTab('launcher');
             renderUserApps();
@@ -4973,6 +5176,10 @@
             if (!localStorage.getItem('aero_perm_prompted')) {
                 openStartupPermissionModal();
             }
+            setTimeout(() => {
+                syncAeroRemoteConfig();
+                checkAeroOtaUpdate();
+            }, 2500);
         };
     </script>
 </body>
