@@ -72,54 +72,54 @@
             </div>
         </header>
 
-        <!-- 2. KPI ANALYTICS TILES (Module 1) -->
+        <!-- 2. KPI ANALYTICS TILES (Module 1 - Live Telemetry) -->
         <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bento rounded-3xl p-5 space-y-2">
                 <div class="flex items-center justify-between text-slate-400">
-                    <span class="text-xs font-black uppercase tracking-wider">Active Installs</span>
+                    <span class="text-xs font-black uppercase tracking-wider">Connected Devices</span>
                     <i class="fa-solid fa-mobile-screen text-cyan-400"></i>
                 </div>
                 <div class="flex items-baseline gap-2">
-                    <span class="text-3xl font-black text-white">24,890</span>
-                    <span class="text-xs font-bold text-emerald-400"><i class="fa-solid fa-arrow-trend-up mr-0.5"></i>+18.4%</span>
+                    <span id="kpi-devices" class="text-3xl font-black text-white">0</span>
+                    <span id="kpi-devices-status" class="text-xs font-bold text-amber-400"><i class="fa-solid fa-satellite-dish mr-1"></i>Awaiting Ping</span>
                 </div>
-                <p class="text-[11px] text-slate-400">Android 11–14 across 12 countries</p>
+                <p id="kpi-devices-sub" class="text-[11px] text-slate-400">No active client sessions recorded</p>
             </div>
 
             <div class="bento rounded-3xl p-5 space-y-2">
                 <div class="flex items-center justify-between text-slate-400">
-                    <span class="text-xs font-black uppercase tracking-wider">Daily Air Gestures</span>
+                    <span class="text-xs font-black uppercase tracking-wider">Synced Air Gestures</span>
                     <i class="fa-solid fa-hand-sparkles text-purple-400"></i>
                 </div>
                 <div class="flex items-baseline gap-2">
-                    <span class="text-3xl font-black text-purple-300">142,500</span>
-                    <span class="text-xs font-bold text-purple-400">~39/user</span>
+                    <span id="kpi-gestures" class="text-3xl font-black text-purple-300">0</span>
+                    <span class="text-xs font-bold text-slate-400">Live</span>
                 </div>
-                <p class="text-[11px] text-slate-400">Top: 1-Fold Quick Scroll (62%)</p>
+                <p class="text-[11px] text-slate-400">Recorded from user gesture sessions</p>
             </div>
 
             <div class="bento rounded-3xl p-5 space-y-2">
                 <div class="flex items-center justify-between text-slate-400">
-                    <span class="text-xs font-black uppercase tracking-wider">Crash-Free Rate</span>
+                    <span class="text-xs font-black uppercase tracking-wider">Crash & Vitals Monitor</span>
                     <i class="fa-solid fa-shield-heart text-emerald-400"></i>
                 </div>
                 <div class="flex items-baseline gap-2">
-                    <span class="text-3xl font-black text-emerald-300">99.94%</span>
-                    <span class="text-xs font-bold text-emerald-400">Pass</span>
+                    <span id="kpi-crashes" class="text-2xl font-black text-emerald-300">0 Crashes</span>
+                    <span class="text-xs font-bold text-emerald-400"><i class="fa-solid fa-check mr-0.5"></i>Clean</span>
                 </div>
-                <p class="text-[11px] text-slate-400">Play Store Vitals benchmark met</p>
+                <p class="text-[11px] text-slate-400">No crash logs reported to Firebase</p>
             </div>
 
             <div class="bento rounded-3xl p-5 space-y-2">
                 <div class="flex items-center justify-between text-slate-400">
-                    <span class="text-xs font-black uppercase tracking-wider">Permissions Health</span>
-                    <i class="fa-solid fa-sliders text-amber-400"></i>
+                    <span class="text-xs font-black uppercase tracking-wider">Cloud Engine Status</span>
+                    <i class="fa-solid fa-cloud text-cyan-400"></i>
                 </div>
                 <div class="flex items-baseline gap-2">
-                    <span class="text-3xl font-black text-amber-300">91.2%</span>
-                    <span class="text-xs font-bold text-amber-400">Granted</span>
+                    <span id="kpi-cloud-status" class="text-2xl font-black text-cyan-300">Online</span>
+                    <span class="text-xs font-bold text-cyan-400">Firestore</span>
                 </div>
-                <p class="text-[11px] text-slate-400">Accessibility 89% • Camera 98%</p>
+                <p class="text-[11px] text-slate-400">aerosense-ai-touchless (nam5)</p>
             </div>
         </section>
 
@@ -336,9 +336,9 @@
                     <div>
                         <label class="text-[11px] font-bold text-slate-400 block mb-1">Target Audience</label>
                         <select id="push-audience" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
-                            <option value="all">All Active Users (24,890 Devices)</option>
-                            <option value="missing_perm">Users with Accessibility OFF (~2,240 Devices)</option>
-                            <option value="inactive">Inactive for > 3 Days (~3,800 Devices)</option>
+                            <option value="all">All Registered Devices</option>
+                            <option value="missing_perm">Users with Accessibility OFF</option>
+                            <option value="inactive">Inactive Devices (> 3 Days)</option>
                         </select>
                     </div>
                     <div>
@@ -366,39 +366,11 @@
                     <span class="px-2 py-0.5 rounded bg-cyan-500/15 text-cyan-300 text-[10px] font-bold">Real-time Feed</span>
                 </div>
 
-                <div class="space-y-3 max-h-[220px] overflow-y-auto pr-1 text-xs">
-                    <!-- Feedback Item 1 -->
-                    <div class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-1.5">
-                        <div class="flex items-center justify-between">
-                            <span class="font-bold text-white flex items-center gap-1.5">
-                                <span class="text-amber-400">★★★★★</span>
-                                <span>Rahul M.</span>
-                            </span>
-                            <span class="text-[10px] text-slate-500">12 mins ago</span>
-                        </div>
-                        <p class="text-slate-300 text-[11px]">"0.3s repeat pause is super smooth on Instagram Reels! No stutter at all now."</p>
-                        <div class="flex items-center gap-2 text-[9px] text-slate-400 font-mono">
-                            <span class="px-1.5 py-0.5 rounded bg-slate-800">Samsung Galaxy S23</span>
-                            <span class="px-1.5 py-0.5 rounded bg-slate-800">Android 14</span>
-                            <span class="px-1.5 py-0.5 rounded bg-slate-800">31 FPS</span>
-                        </div>
-                    </div>
-
-                    <!-- Feedback Item 2 -->
-                    <div class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-1.5">
-                        <div class="flex items-center justify-between">
-                            <span class="font-bold text-white flex items-center gap-1.5">
-                                <span class="text-amber-400">★★★★☆</span>
-                                <span>Aman Sharma</span>
-                            </span>
-                            <span class="text-[10px] text-slate-500">1 hour ago</span>
-                        </div>
-                        <p class="text-slate-300 text-[11px]">"Like gesture works great on YouTube Shorts. Please add double swipe for TikTok."</p>
-                        <div class="flex items-center gap-2 text-[9px] text-slate-400 font-mono">
-                            <span class="px-1.5 py-0.5 rounded bg-slate-800">OnePlus 11R</span>
-                            <span class="px-1.5 py-0.5 rounded bg-slate-800">Android 13</span>
-                            <span class="px-1.5 py-0.5 rounded bg-slate-800">30 FPS</span>
-                        </div>
+                <div id="feedback-container" class="space-y-3 max-h-[220px] overflow-y-auto pr-1 text-xs">
+                    <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 text-center space-y-2">
+                        <i class="fa-solid fa-inbox text-slate-600 text-3xl"></i>
+                        <p class="text-slate-300 font-bold text-xs">No Feedback Submitted Yet</p>
+                        <p class="text-[11px] text-slate-500">Real-time user bug reports and gesture ratings sent from the mobile app will automatically appear here.</p>
                     </div>
                 </div>
             </section>
@@ -430,7 +402,7 @@
                 </div>
                 <div>
                     <label class="text-[11px] font-bold text-slate-300 block mb-1">Firebase Web API Key</label>
-                    <input id="fb-api-key" type="password" value="AIzaSyBi4jskQ85jlfltpnAf5I82zS-zTRMUyjE" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-cyan-500 focus:outline-none">
+                    <input id="fb-api-key" type="password" placeholder="AIzaSy..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-cyan-500 focus:outline-none">
                 </div>
                 <div>
                     <label class="text-[11px] font-bold text-slate-300 block mb-1">Firestore Collection Path</label>
@@ -577,11 +549,11 @@
         }
 
         const DEFAULT_FB_PID = 'aerosense-ai-touchless';
-        const DEFAULT_FB_KEY = 'AIzaSyBi4jskQ85jlfltpnAf5I82zS-zTRMUyjE';
+        // API key loaded securely from localStorage
 
         function checkSavedFirebaseCredentials() {
             const pid = localStorage.getItem('aero_fb_project_id') || DEFAULT_FB_PID;
-            const key = localStorage.getItem('aero_fb_api_key') || DEFAULT_FB_KEY;
+            const key = localStorage.getItem('aero_fb_api_key');
             if (pid && key && window.firebase) {
                 initFirebaseClient(pid, key);
             }
@@ -669,7 +641,7 @@
         function dispatchPushBroadcast() {
             const title = document.getElementById('push-title').value;
             const aud = document.getElementById('push-audience').value;
-            showToast('FCM Dispatched', `Broadcast "${title}" queued for ${aud === 'all' ? '24,890 devices' : 'targeted devices'}!`);
+            showToast('FCM Dispatched', `Broadcast "${title}" queued for ${aud === 'all' ? 'all registered devices' : 'targeted audience'}!`);
         }
 
         // JSON Export Modal

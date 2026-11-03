@@ -809,17 +809,17 @@
                 </div>
 
                 <!-- Top Pill Tabs: Gestures | Indicator | Controls -->
-                <div class="bg-[#16181f] p-1.5 rounded-full flex items-center gap-1.5 border border-white/5">
-                    <button onclick="switchSettingsTab('gestures')" id="stab-gestures"
-                        class="AirKeyTarget flex-1 py-2 px-3 rounded-full font-extrabold text-xs bg-[#465fff] text-white transition">
+                <div class="bg-[#16181f] p-1.5 rounded-full flex items-center gap-1.5 border border-white/5 select-none">
+                    <button type="button" onclick="switchSettingsTab('gestures')" id="stab-gestures"
+                        class="AirKeyTarget flex-1 min-h-[40px] py-2 px-3 rounded-full font-extrabold text-xs bg-[#465fff] text-white transition active:scale-95 cursor-pointer touch-manipulation">
                         Gestures
                     </button>
-                    <button onclick="switchSettingsTab('indicator')" id="stab-indicator"
-                        class="AirKeyTarget flex-1 py-2 px-3 rounded-full font-extrabold text-xs text-slate-400 hover:text-white transition">
+                    <button type="button" onclick="switchSettingsTab('indicator')" id="stab-indicator"
+                        class="AirKeyTarget flex-1 min-h-[40px] py-2 px-3 rounded-full font-extrabold text-xs text-slate-400 hover:text-white transition active:scale-95 cursor-pointer touch-manipulation">
                         Indicator
                     </button>
-                    <button onclick="switchSettingsTab('controls')" id="stab-controls"
-                        class="AirKeyTarget flex-1 py-2 px-3 rounded-full font-extrabold text-xs text-slate-400 hover:text-white transition">
+                    <button type="button" onclick="switchSettingsTab('controls')" id="stab-controls"
+                        class="AirKeyTarget flex-1 min-h-[40px] py-2 px-3 rounded-full font-extrabold text-xs text-slate-400 hover:text-white transition active:scale-95 cursor-pointer touch-manipulation">
                         Controls
                     </button>
                 </div>
@@ -1709,19 +1709,19 @@
         </main>
 
         <!-- 4. BOTTOM NAVIGATION (Home | Settings | Gestures) -->
-        <nav class="shrink-0 bg-[#04070f] border-t border-slate-800 px-3 py-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] z-20">
+        <nav class="shrink-0 bg-[#04070f] border-t border-slate-800 px-3 py-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] z-[9000] relative select-none">
             <div class="grid grid-cols-3 gap-2">
-                <button onclick="switchTab('launcher')" id="nav-launcher" class="AirClickable py-2 rounded-xl bg-cyan-500/15 text-cyan-400 font-extrabold text-[10px] flex flex-col items-center gap-0.5">
-                    <i class="fa-solid fa-house text-sm"></i>
-                    <span>Home</span>
+                <button type="button" onclick="switchTab('launcher')" id="nav-launcher" class="AirClickable min-h-[48px] py-2 px-1 rounded-xl bg-cyan-500/15 text-cyan-400 font-extrabold text-[10px] flex flex-col items-center justify-center gap-0.5 active:scale-95 transition cursor-pointer select-none touch-manipulation">
+                    <i class="fa-solid fa-house text-sm pointer-events-none"></i>
+                    <span class="pointer-events-none">Home</span>
                 </button>
-                <button onclick="switchTab('settings')" id="nav-settings" class="AirClickable py-2 rounded-xl text-slate-400 font-bold text-[10px] flex flex-col items-center gap-0.5">
-                    <i class="fa-solid fa-sliders text-sm"></i>
-                    <span>Settings</span>
+                <button type="button" onclick="switchTab('settings')" id="nav-settings" class="AirClickable min-h-[48px] py-2 px-1 rounded-xl text-slate-400 font-bold text-[10px] flex flex-col items-center justify-center gap-0.5 active:scale-95 transition cursor-pointer select-none touch-manipulation">
+                    <i class="fa-solid fa-sliders text-sm pointer-events-none"></i>
+                    <span class="pointer-events-none">Settings</span>
                 </button>
-                <button onclick="switchTab('guide')" id="nav-guide" class="AirClickable py-2 rounded-xl text-slate-400 font-bold text-[10px] flex flex-col items-center gap-0.5">
-                    <i class="fa-solid fa-hand-sparkles text-sm"></i>
-                    <span>Gestures</span>
+                <button type="button" onclick="switchTab('guide')" id="nav-guide" class="AirClickable min-h-[48px] py-2 px-1 rounded-xl text-slate-400 font-bold text-[10px] flex flex-col items-center justify-center gap-0.5 active:scale-95 transition cursor-pointer select-none touch-manipulation">
+                    <i class="fa-solid fa-hand-sparkles text-sm pointer-events-none"></i>
+                    <span class="pointer-events-none">Gestures</span>
                 </button>
             </div>
         </nav>
@@ -4369,6 +4369,7 @@
             if (vGuide) vGuide.classList.toggle('hidden', tab !== 'guide');
             if (tab === 'settings') {
                 toggleControlInterface(false);
+                renderSettingsUI();
             } else if (hasUnsavedSettings) {
                 discardPendingSettings(true);
             }
@@ -4378,8 +4379,8 @@
                 const navBtn = document.getElementById(`nav-${t}`);
                 if (navBtn) {
                     navBtn.className = tab === t
-                        ? 'AirClickable py-2 rounded-xl bg-cyan-500/15 text-cyan-400 font-extrabold text-[10px] flex flex-col items-center gap-0.5'
-                        : 'AirClickable py-2 rounded-xl text-slate-400 font-bold text-[10px] flex flex-col items-center gap-0.5';
+                        ? 'AirClickable min-h-[48px] py-2 px-1 rounded-xl bg-cyan-500/15 text-cyan-400 font-extrabold text-[10px] flex flex-col items-center justify-center gap-0.5 active:scale-95 transition cursor-pointer select-none touch-manipulation'
+                        : 'AirClickable min-h-[48px] py-2 px-1 rounded-xl text-slate-400 font-bold text-[10px] flex flex-col items-center justify-center gap-0.5 active:scale-95 transition cursor-pointer select-none touch-manipulation';
                 }
             });
         }
@@ -5089,70 +5090,6 @@
             if (elLik) elLik.textContent = `${parseFloat(aeroConfig.likeHoldDuration || 2.0).toFixed(1)}s`;
             const elHud = document.getElementById('admin-stat-hud');
             if (elHud) elHud.textContent = `${localStorage.getItem('aero_hud_custom_size') || '52'}px (Clean)`;
-        }
-
-        async function pingFirebaseStatus() {
-            try {
-                showToast('🔄', 'Cloud Sync', 'Connecting to Firebase Firestore...');
-                const res = await fetch(`https://firestore.googleapis.com/v1/projects/aerosense-ai-touchless/databases/(default)/documents/aerosense_config/remote_config`, {
-                    cache: 'no-store'
-                });
-                if (res.ok) {
-                    showToast('🟢', 'Cloud Connected', 'Firebase: aerosense-ai-touchless is live & synced!');
-                } else {
-                    showToast('🟡', 'Sync Notice', `Firebase status: ${res.status}`);
-                }
-            } catch(e) {
-                showToast('📱', 'Local Mode', 'Running offline with local settings');
-            }
-        }
-
-        async function publishCurrentConfigToFirestore() {
-            try {
-                showToast('☁️', 'Publishing', 'Updating Remote Config on Firebase...');
-                const apiKey = 'AIzaSyBi4jskQ85jlfltpnAf5I82zS-zTRMUyjE';
-                const url = `https://firestore.googleapis.com/v1/projects/aerosense-ai-touchless/databases/(default)/documents/aerosense_config/remote_config?key=${apiKey}`;
-                const payload = {
-                    fields: {
-                        scrollDistance: { integerValue: (aeroConfig.scrollDistance || 3).toString() },
-                        scrollHoldDelay: { doubleValue: parseFloat(aeroConfig.scrollHoldDelay || 0.3) },
-                        likeHoldDuration: { doubleValue: parseFloat(aeroConfig.likeHoldDuration || 2.0) },
-                        hudSize: { integerValue: (parseInt(localStorage.getItem('aero_hud_custom_size') || '52')).toString() },
-                        cameraFpsTarget: { integerValue: '30' },
-                        modelComplexity: { integerValue: '0' },
-                        updatedAt: { stringValue: new Date().toISOString() }
-                    }
-                };
-                const res = await fetch(url, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                if (res.ok) {
-                    showToast('🚀', 'Live Published', 'Settings updated live on Firebase! All devices will sync.');
-                } else {
-                    showToast('✅', 'Local Saved', 'Config saved locally on device.');
-                }
-            } catch(e) {
-                showToast('✅', 'Local Saved', 'Config saved locally on device.');
-            }
-        }
-
-        function testShowOtaPopup() {
-            showAeroOtaModal("2.5.0", false, [
-                { stringValue: "🚀 2x Faster Quick Reel Scroll with 0.3s repeat pause" },
-                { stringValue: "👍 Instant Thumbs-Up Like on Reels & Shorts (2.0s)" },
-                { stringValue: "🔋 24-Hour Keep-Alive Background Service & Battery Exemption" }
-            ]);
-        }
-
-        function openWebAdminConsole() {
-            const url = 'admin.html';
-            if (window.AndroidBridge && window.AndroidBridge.openBrowser) {
-                window.AndroidBridge.openBrowser(url);
-            } else {
-                window.location.href = url;
-            }
         }
 
         window.onload = () => {

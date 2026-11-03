@@ -266,7 +266,7 @@ flowchart TD
 - **Project ID**: `aerosense-ai-touchless`
 - **Project Number**: `876494618360`
 - **Web App ID**: `1:876494618360:web:95b014d820d06560a6850d`
-- **Web API Key**: `AIzaSyBi4jskQ85jlfltpnAf5I82zS-zTRMUyjE`
+- **Web API Key**: `[STORED_IN_FIREBASE_CONSOLE]` (Never commit API keys to public Git repositories)
 - **Android Package**: `com.aerosense.touchless.ai` (Registered with [google-services.json](file:///c:/Aero%20sense%20ai/android/app/google-services.json))
 - **Firestore Database**: `(default)` deployed in region `nam5` with security rules.
 - **Active Collections & Documents**:
