@@ -1706,11 +1706,136 @@
                 </div>
             </section>
 
+            <!-- VIEW 4: MORE PANEL (Privacy Policy, App Version 1, About & Legal) -->
+            <section id="view-more" class="hidden space-y-4">
+                <!-- Header -->
+                <div class="flex items-center justify-between gap-2">
+                    <div>
+                        <span class="px-2.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-[9px] font-extrabold uppercase">
+                            About &amp; Legal
+                        </span>
+                        <h2 class="text-xl font-black text-white mt-0.5">More Options</h2>
+                    </div>
+                    <span class="px-3 py-1 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-extrabold text-[11px] flex items-center gap-1.5 shadow-sm">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span>Version 1</span>
+                    </span>
+                </div>
+
+                <!-- 1. App Identity Card -->
+                <div class="bento-card rounded-3xl p-5 space-y-3 relative overflow-hidden border border-cyan-500/30">
+                    <div class="flex items-center gap-3.5">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center text-white text-2xl shadow-lg shadow-cyan-500/30 shrink-0">
+                            <i class="fa-solid fa-hand-sparkles"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-base font-black text-white tracking-wide truncate">AeroSense AI</h3>
+                                <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-black text-[9px] uppercase tracking-wider">v1.0 Live</span>
+                            </div>
+                            <p class="text-[11px] text-cyan-300 font-bold mt-0.5">Touchless Hand &amp; Voice OS</p>
+                            <p class="text-[10px] text-slate-400 font-medium mt-0.5">Next-generation touchless spatial interaction for Android</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800/80 text-[10px]">
+                        <div class="p-2.5 rounded-2xl bg-slate-900/80 border border-slate-800">
+                            <span class="text-slate-400 font-medium block">App Version</span>
+                            <span class="font-extrabold text-white text-xs mt-0.5 block">Version 1 (v1.0.0)</span>
+                        </div>
+                        <div class="p-2.5 rounded-2xl bg-slate-900/80 border border-slate-800">
+                            <span class="text-slate-400 font-medium block">AI Architecture</span>
+                            <span class="font-extrabold text-emerald-300 text-xs mt-0.5 block">100% On-Device</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Privacy Policy Bento Card -->
+                <div class="bento-card rounded-3xl p-4 sm:p-5 space-y-3 border border-indigo-500/30">
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-xl bg-indigo-500/15 border border-indigo-500/40 flex items-center justify-center text-indigo-400 shrink-0">
+                                <i class="fa-solid fa-shield-halved text-sm"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-black text-white">Privacy Policy</h3>
+                                <p class="text-[10px] text-slate-400 font-medium">Your data stays strictly on your phone</p>
+                            </div>
+                        </div>
+                        <button type="button" onclick="openPrivacyPolicyModal()"
+                            class="AirClickable px-3 py-1.5 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/40 text-indigo-300 text-[11px] font-black active:scale-95 transition flex items-center gap-1.5 shrink-0">
+                            <span>Read Full</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </button>
+                    </div>
+
+                    <!-- Privacy Quick Highlights -->
+                    <div class="space-y-2 text-xs">
+                        <div class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-start gap-2.5">
+                            <span class="text-base leading-none">🛡️</span>
+                            <div>
+                                <span class="font-bold text-white text-[11px] block">100% On-Device AI Vision</span>
+                                <span class="text-slate-400 text-[10px] leading-tight block mt-0.5">Camera feed is processed in local device RAM. No images, video, or data leave your phone.</span>
+                            </div>
+                        </div>
+                        <div class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-start gap-2.5">
+                            <span class="text-base leading-none">🚫</span>
+                            <div>
+                                <span class="font-bold text-white text-[11px] block">Zero Media Storage</span>
+                                <span class="text-slate-400 text-[10px] leading-tight block mt-0.5">Hand landmarks are computed in real time and discarded instantly. Nothing is ever saved or recorded.</span>
+                            </div>
+                        </div>
+                        <div class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-start gap-2.5">
+                            <span class="text-base leading-none">🔒</span>
+                            <div>
+                                <span class="font-bold text-white text-[11px] block">No Personal Data Collection</span>
+                                <span class="text-slate-400 text-[10px] leading-tight block mt-0.5">No accounts required, no tracking analytics, no telemetry, and zero third-party data sharing.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. System Permissions Overview Card -->
+                <div class="bento-card rounded-3xl p-4 space-y-2.5">
+                    <h3 class="text-xs font-black uppercase tracking-wider text-slate-400">Permissions Required</h3>
+                    <div class="space-y-1.5 text-[11px]">
+                        <div class="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-camera text-cyan-400 text-xs w-4"></i>
+                                <span class="font-bold text-white">Camera</span>
+                            </div>
+                            <span class="text-[10px] text-slate-400">Hand tracking only (local RAM)</span>
+                        </div>
+                        <div class="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-universal-access text-purple-400 text-xs w-4"></i>
+                                <span class="font-bold text-white">Accessibility</span>
+                            </div>
+                            <span class="text-[10px] text-slate-400">System Back, Home &amp; Swipes</span>
+                        </div>
+                        <div class="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-layer-group text-emerald-400 text-xs w-4"></i>
+                                <span class="font-bold text-white">Display Over Apps</span>
+                            </div>
+                            <span class="text-[10px] text-slate-400">Touchless Air Cursor HUD</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Version & Developer Footer -->
+                <div class="p-4 rounded-3xl bg-slate-900/40 border border-slate-800/60 text-center space-y-1">
+                    <p class="text-xs font-black text-white">AeroSense AI™ OS • App Version 1</p>
+                    <p class="text-[10px] text-slate-400 font-medium">Engineered for Next-Generation Touchless Interaction</p>
+                    <p class="text-[9px] text-slate-500 font-bold tracking-wider pt-1">© 2026 AeroSense AI. All rights reserved.</p>
+                </div>
+            </section>
+
         </main>
 
-        <!-- 4. BOTTOM NAVIGATION (Home | Settings | Gestures) -->
+        <!-- 4. BOTTOM NAVIGATION (Home | Settings | Gestures | More) -->
         <nav class="shrink-0 bg-[#04070f] border-t border-slate-800 px-3 py-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] z-[9000] relative select-none">
-            <div class="grid grid-cols-3 gap-2">
+            <div class="grid grid-cols-4 gap-1.5 sm:gap-2">
                 <button type="button" onclick="switchTab('launcher')" id="nav-launcher" class="AirClickable min-h-[48px] py-2 px-1 rounded-xl bg-cyan-500/15 text-cyan-400 font-extrabold text-[10px] flex flex-col items-center justify-center gap-0.5 active:scale-95 transition cursor-pointer select-none touch-manipulation">
                     <i class="fa-solid fa-house text-sm pointer-events-none"></i>
                     <span class="pointer-events-none">Home</span>
@@ -1722,6 +1847,10 @@
                 <button type="button" onclick="switchTab('guide')" id="nav-guide" class="AirClickable min-h-[48px] py-2 px-1 rounded-xl text-slate-400 font-bold text-[10px] flex flex-col items-center justify-center gap-0.5 active:scale-95 transition cursor-pointer select-none touch-manipulation">
                     <i class="fa-solid fa-hand-sparkles text-sm pointer-events-none"></i>
                     <span class="pointer-events-none">Gestures</span>
+                </button>
+                <button type="button" onclick="switchTab('more')" id="nav-more" class="AirClickable min-h-[48px] py-2 px-1 rounded-xl text-slate-400 font-bold text-[10px] flex flex-col items-center justify-center gap-0.5 active:scale-95 transition cursor-pointer select-none touch-manipulation">
+                    <i class="fa-solid fa-circle-info text-sm pointer-events-none"></i>
+                    <span class="pointer-events-none">More</span>
                 </button>
             </div>
         </nav>
@@ -1765,6 +1894,62 @@
                 </div>
             </div>
             <button onclick="closeGestureGuideModal()" class="w-full py-2.5 rounded-xl bg-cyan-500 text-slate-950 font-black text-xs active:scale-95 transition">Got It</button>
+        </div>
+    </div>
+
+    <!-- PRIVACY POLICY MODAL -->
+    <div id="privacy-policy-modal" onclick="if(event.target === this) closePrivacyPolicyModal()" class="fixed inset-0 z-[9600] bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bento-card rounded-3xl max-w-sm w-full p-4 sm:p-5 space-y-3.5 border border-cyan-500/40 max-h-[85vh] flex flex-col">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 shrink-0">
+                <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded-lg bg-cyan-500/20 text-cyan-300 flex items-center justify-center text-xs">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-black text-white">Privacy Policy</h3>
+                        <p class="text-[9px] text-cyan-300 font-extrabold uppercase tracking-wide">AeroSense AI Version 1</p>
+                    </div>
+                </div>
+                <button onclick="closePrivacyPolicyModal()" class="text-slate-400 hover:text-white text-sm p-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3 text-xs overflow-y-auto pr-1 flex-1 text-slate-300 leading-relaxed no-scrollbar">
+                <div>
+                    <h4 class="font-black text-white text-xs mb-1">1. Summary</h4>
+                    <p class="text-[11px] text-slate-400">AeroSense AI is designed with strict on-device privacy. Your physical movements, camera video, and voice commands remain 100% private to your phone.</p>
+                </div>
+
+                <div>
+                    <h4 class="font-black text-white text-xs mb-1">2. Camera &amp; Vision Data</h4>
+                    <p class="text-[11px] text-slate-400">AeroSense AI accesses your front camera solely to compute real-time hand skeleton landmarks. <strong>No video frames, photographs, or recordings are ever saved, stored, or sent to any cloud server.</strong> All processing occurs strictly in volatile device memory (RAM) and is discarded immediately.</p>
+                </div>
+
+                <div>
+                    <h4 class="font-black text-white text-xs mb-1">3. Accessibility Service</h4>
+                    <p class="text-[11px] text-slate-400">The Android Accessibility Service is used strictly to simulate physical touches and system navigation (Back, Home, Reel Swiping) based on your air gestures. <strong>We do not read, log, or inspect screen text, passwords, or personal data.</strong></p>
+                </div>
+
+                <div>
+                    <h4 class="font-black text-white text-xs mb-1">4. Voice Recognition</h4>
+                    <p class="text-[11px] text-slate-400">Voice control triggers (e.g. "Next", "Back", "Home") use Android's native speech recognition. Audio transcripts are parsed in real time and are never stored or shared.</p>
+                </div>
+
+                <div>
+                    <h4 class="font-black text-white text-xs mb-1">5. Zero Personal Data Collection</h4>
+                    <p class="text-[11px] text-slate-400">AeroSense AI does not collect names, emails, phone numbers, location, device IDs, or usage history. No third-party ad networks or tracking trackers are embedded.</p>
+                </div>
+
+                <div>
+                    <h4 class="font-black text-white text-xs mb-1">6. App Version &amp; Contact</h4>
+                    <p class="text-[11px] text-slate-400">This policy applies to AeroSense AI Version 1 (v1.0.0). For inquiries or questions, contact us via official project channels.</p>
+                </div>
+            </div>
+
+            <button onclick="closePrivacyPolicyModal()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-black text-xs active:scale-95 transition shadow-lg shrink-0">
+                Close &amp; Accept
+            </button>
         </div>
     </div>
 
@@ -2589,8 +2774,29 @@
             showToast('🗑️', 'App Removed', 'Removed from gesture list');
         }
 
+        function openPrivacyPolicyModal() {
+            const modal = document.getElementById('privacy-policy-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
+
+        function closePrivacyPolicyModal() {
+            const modal = document.getElementById('privacy-policy-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
         window.closeAllModals = function() {
             let handled = false;
+            const privModal = document.getElementById('privacy-policy-modal');
+            if (privModal && !privModal.classList.contains('hidden')) {
+                closePrivacyPolicyModal();
+                handled = true;
+            }
             const deviceAppModal = document.getElementById('device-app-modal');
             if (deviceAppModal && !deviceAppModal.classList.contains('hidden')) {
                 closeDeviceAppPickerModal();
@@ -4095,14 +4301,9 @@
                 if (statusHeading) statusHeading.textContent = 'Camera Hand Control Active';
                 dot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping shrink-0';
 
-                // Automatically request battery optimization exemption and start foreground service
-                if (window.AndroidBridge) {
-                    if (window.AndroidBridge.requestBatteryExemption) {
-                        try { window.AndroidBridge.requestBatteryExemption(); } catch (e) {}
-                    }
-                    if (window.AndroidBridge.startBackgroundService) {
-                        window.AndroidBridge.startBackgroundService();
-                    }
+                // Start foreground service
+                if (window.AndroidBridge && window.AndroidBridge.startBackgroundService) {
+                    window.AndroidBridge.startBackgroundService();
                 }
                 showToast('', 'AeroSense Active', 'Show hand to control apps, Back & Home');
             } catch (err) {
@@ -4318,12 +4519,6 @@
             }
         }
 
-        function requestNativeBatteryExemption() {
-            if (window.AndroidBridge && window.AndroidBridge.requestBatteryExemption) {
-                window.AndroidBridge.requestBatteryExemption();
-            }
-        }
-
         document.addEventListener('visibilitychange', () => {
             if (engineRunning) {
                 const videoEl = document.getElementById('webcam-video');
@@ -4367,6 +4562,8 @@
             document.getElementById('view-settings').classList.toggle('hidden', tab !== 'settings');
             const vGuide = document.getElementById('view-guide');
             if (vGuide) vGuide.classList.toggle('hidden', tab !== 'guide');
+            const vMore = document.getElementById('view-more');
+            if (vMore) vMore.classList.toggle('hidden', tab !== 'more');
             if (tab === 'settings') {
                 toggleControlInterface(false);
                 renderSettingsUI();
@@ -4374,7 +4571,7 @@
                 discardPendingSettings(true);
             }
 
-            const tabs = ['launcher', 'settings', 'guide'];
+            const tabs = ['launcher', 'settings', 'guide', 'more'];
             tabs.forEach(t => {
                 const navBtn = document.getElementById(`nav-${t}`);
                 if (navBtn) {

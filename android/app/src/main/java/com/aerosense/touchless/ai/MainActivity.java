@@ -470,7 +470,6 @@ public class MainActivity extends Activity {
             isBackgroundEngineRunning = true;
             AeroForegroundService.start(MainActivity.this);
             startKeepAliveHeartbeat();
-            requestBatteryExemption();
             if (AeroAccessibilityService.instance != null) {
                 AeroAccessibilityService.instance.setCursorVisibility(true);
             }
@@ -711,43 +710,12 @@ public class MainActivity extends Activity {
                         checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
                 boolean micEnabled = Build.VERSION.SDK_INT < Build.VERSION_CODES.M ||
                         checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
-                boolean batteryIgnored = Build.VERSION.SDK_INT < Build.VERSION_CODES.M;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-                    if (pm != null) batteryIgnored = pm.isIgnoringBatteryOptimizations(getPackageName());
-                }
                 obj.put("accessibility", accEnabled);
                 obj.put("overlay", overlayEnabled);
                 obj.put("camera", camEnabled);
                 obj.put("microphone", micEnabled);
-                obj.put("battery", batteryIgnored);
             } catch (Exception ignored) {}
             return obj.toString();
-        }
-
-        @JavascriptInterface
-        public void requestBatteryExemption() {
-            runOnUiThread(() -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    try {
-                        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-                        if (pm != null && !pm.isIgnoringBatteryOptimizations(getPackageName())) {
-                            Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
-                            intent.setData(Uri.parse("package:" + getPackageName()));
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            startActivity(intent);
-                        } else {
-                            Toast.makeText(MainActivity.this, "Battery optimization already disabled!", Toast.LENGTH_SHORT).show();
-                        }
-                    } catch (Exception e) {
-                        try {
-                            Intent intent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            startActivity(intent);
-                        } catch (Exception ignored) {}
-                    }
-                }
-            });
         }
 
         @JavascriptInterface
