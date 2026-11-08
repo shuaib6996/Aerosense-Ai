@@ -372,6 +372,23 @@
                         </div>
                     </div>
 
+                    <!-- Slider 3b: Long Pinch Menu Duration -->
+                    <div class="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-hand-holding-hand text-indigo-400"></i>
+                                Long Pinch Menu Timing
+                            </span>
+                            <span id="lbl-long-pinch-duration" class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-black text-[11px]">1.8s</span>
+                        </div>
+                        <input id="slider-long-pinch-duration" type="range" min="0.5" max="3.5" step="0.1" value="1.8" oninput="updateConfigValue('longPinchDuration', this.value)" class="w-full h-2 bg-slate-800 rounded-lg cursor-pointer">
+                        <div class="flex justify-between text-[10px] text-slate-500 font-semibold px-1">
+                            <span>0.5s (Fast)</span>
+                            <span class="text-indigo-400">1.8s (Default)</span>
+                            <span>3.5s (Safe)</span>
+                        </div>
+                    </div>
+
                     <!-- Slider 4: Floating HUD Size -->
                     <div class="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2">
                         <div class="flex justify-between items-center text-xs">
@@ -635,6 +652,7 @@
             scrollDistance: 3,
             scrollHoldDelay: 0.3,
             likeHoldDuration: 2.0,
+            longPinchDuration: 1.8,
             hudSize: 52,
             cameraFpsTarget: 30,
             modelComplexity: 0,
@@ -1061,6 +1079,11 @@
             document.getElementById('slider-like-duration').value = activeConfig.likeHoldDuration;
             document.getElementById('lbl-like-duration').textContent = `${parseFloat(activeConfig.likeHoldDuration).toFixed(1)}s`;
 
+            if (document.getElementById('slider-long-pinch-duration')) {
+                document.getElementById('slider-long-pinch-duration').value = activeConfig.longPinchDuration || 1.8;
+                document.getElementById('lbl-long-pinch-duration').textContent = `${parseFloat(activeConfig.longPinchDuration || 1.8).toFixed(1)}s`;
+            }
+
             document.getElementById('slider-hud-size').value = activeConfig.hudSize;
             document.getElementById('lbl-hud-size').textContent = `${activeConfig.hudSize}px`;
 
@@ -1080,6 +1103,7 @@
                 scrollDistance: 3,
                 scrollHoldDelay: 0.3,
                 likeHoldDuration: 2.0,
+                longPinchDuration: 1.8,
                 hudSize: 52,
                 cameraFpsTarget: 30,
                 modelComplexity: 0,

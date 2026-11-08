@@ -132,16 +132,28 @@ public class MainActivity extends Activity {
         settings.setMediaPlaybackRequiresUserGesture(false);
         settings.setAllowFileAccess(true);
         settings.setDatabaseEnabled(true);
+        settings.setCacheMode(WebSettings.LOAD_DEFAULT);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+        }
+        webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
 
         webView.addJavascriptInterface(new AeroNativeBridge(), "AndroidBridge");
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
-                if (webView != null) {
-                    try {
-                        webView.loadUrl("file:///android_asset/index.html");
-                    } catch (Exception ignored) {}
+                activeWebView = null;
+                if (systemWindowManager != null && isFloatingOverlayAttached && webView != null) {
+                    try { systemWindowManager.removeView(webView); } catch (Exception ignored) {}
+                    isFloatingOverlayAttached = false;
                 }
+                runOnUiThread(() -> {
+                    try {
+                        if (instance != null) {
+                            instance.recreate();
+                        }
+                    } catch (Exception ignored) {}
+                });
                 return true;
             }
         });
@@ -600,6 +612,7 @@ public class MainActivity extends Activity {
                 if (isFloatingOverlayAttached && webView != null && floatingOverlayParams != null && systemWindowManager != null) {
                     try {
                         float density = getResources().getDisplayMetrics().density;
+                        DisplayMetrics dm = getResources().getDisplayMetrics();
                         if (show) {
                             if (savedOverlayX == -1) {
                                 savedOverlayX = floatingOverlayParams.x;
@@ -607,15 +620,14 @@ public class MainActivity extends Activity {
                             }
                             floatingOverlayParams.width = (int) (340 * density);
                             floatingOverlayParams.height = (int) (360 * density);
-                            floatingOverlayParams.gravity = Gravity.CENTER;
-                            floatingOverlayParams.x = 0;
-                            floatingOverlayParams.y = 0;
+                            floatingOverlayParams.gravity = Gravity.TOP | Gravity.START;
+                            floatingOverlayParams.x = Math.max(0, (dm.widthPixels - floatingOverlayParams.width) / 2);
+                            floatingOverlayParams.y = Math.max(0, (dm.heightPixels - floatingOverlayParams.height) / 2);
                         } else {
                             int[] dims = getHudDimensionsDp(currentHudSize);
                             floatingOverlayParams.width = (int) (dims[0] * density);
                             floatingOverlayParams.height = (int) (dims[1] * density);
                             floatingOverlayParams.gravity = Gravity.TOP | Gravity.START;
-                            DisplayMetrics dm = getResources().getDisplayMetrics();
                             int defX = dm.widthPixels - floatingOverlayParams.width - (int) (16 * density);
                             int defY = dm.heightPixels - floatingOverlayParams.height - (int) (64 * density);
                             floatingOverlayParams.x = (savedOverlayX >= 0) ? savedOverlayX : defX;

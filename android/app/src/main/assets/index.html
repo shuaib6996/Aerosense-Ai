@@ -419,8 +419,8 @@
 
     
 
-    <!-- Hidden Raw Webcam Video Elements -->
-    <video id="webcam-video" class="hidden" playsinline muted></video>
+    <!-- Hidden Raw Webcam Video Elements (Active offscreen texture so Android Camera HAL & Chromium never freeze) -->
+    <video id="webcam-video" style="position:fixed;top:0;left:0;width:2px;height:2px;opacity:0.001;pointer-events:none;z-index:-9999;" playsinline muted autoplay></video>
     
 
     <!-- FLOATING HAND INDICATOR (Live Controlled by 'Indicator' Settings Tab) -->
@@ -724,16 +724,16 @@
                 <div class="bento-card rounded-3xl p-4 sm:p-5 flex-1 flex flex-col items-center justify-center text-center gap-2.5 relative">
                     <!-- Live Status Pill -->
                     <div class="flex items-center gap-2">
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[10px] font-extrabold uppercase tracking-wider">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                            <span>AI Vision Standby</span>
+                        <span id="hero-standby-pill" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[10px] font-extrabold uppercase tracking-wider">
+                            <span id="hero-standby-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <span id="hero-standby-text">AI Vision Standby</span>
                         </span>
                     </div>
 
                     <!-- Prominent START/STOP Centerpiece Button (Fully Round, Never Cut Off) -->
                     <button id="hero-start-btn" onclick="toggleBackgroundEngine()" 
                         class="AirClickable w-24 h-24 sm:w-26 sm:h-26 rounded-full bg-gradient-to-tr from-emerald-400 via-cyan-400 to-blue-500 text-slate-950 flex flex-col items-center justify-center shadow-xl shadow-cyan-500/30 transition-all duration-300 active:scale-95 hover:scale-105 border-4 border-slate-900/80 my-1 shrink-0">
-                        <i class="fa-solid fa-power-off text-3xl"></i>
+                        <i id="hero-start-icon" class="fa-solid fa-power-off text-3xl"></i>
                         <span id="hero-start-label" class="text-[11px] font-black uppercase tracking-widest mt-1">START</span>
                     </button>
 
@@ -1078,20 +1078,20 @@
                                     <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-semibold">Hold</span>
                                 </span>
                                 <div class="flex items-center gap-1.5">
-                                    <span id="lbl-long-pinch-duration" class="text-xs font-extrabold text-cyan-400">2.5s</span>
-                                    <button onclick="resetSingleSlider('longPinchDuration', 2.5)" class="AirClickable p-1 text-[11px] text-slate-400 hover:text-cyan-300 active:scale-90 transition" title="Reset to 2.5s">
+                                    <span id="lbl-long-pinch-duration" class="text-xs font-extrabold text-cyan-400">1.8s</span>
+                                    <button onclick="resetSingleSlider('longPinchDuration', 1.8)" class="AirClickable p-1 text-[11px] text-slate-400 hover:text-cyan-300 active:scale-90 transition" title="Reset to 1.8s">
                                         <i class="fa-solid fa-rotate-left"></i>
                                     </button>
                                 </div>
                             </div>
                             <div class="aero-slider-wrap">
-                                <input id="sl-long-pinch-duration" type="range" min="0.0" max="5.0" step="0.5" value="2.5"
+                                <input id="sl-long-pinch-duration" type="range" min="0.0" max="5.0" step="0.1" value="1.8"
                                     oninput="updateSetting('longPinchDuration', this.value)" class="aero-slider">
                                 <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span><span></span></div>
                             </div>
                             <div class="flex justify-between text-[10px] font-bold text-slate-400">
                                 <span>0.0s (Instant)</span>
-                                <span class="text-indigo-400">2.5s (Default)</span>
+                                <span class="text-indigo-400">1.8s (Default)</span>
                                 <span>5.0s</span>
                             </div>
                         </div>
@@ -2014,13 +2014,22 @@
         // 1. ENGINE & GESTURE CORE STATE
         // =====================================================================
         let engineRunning = false;
+        let isEngineTransitioning = false;
         let fullMobileControl = false;
         let handsInstance = null;
         let cameraInstance = null;
+        let isTrackingFrameProcessing = false;
+        let lastTrackingFrameTime = 0;
+        let lastSuccessfulFrameTime = 0;
+        let consecutiveModelErrors = 0;
+        let isRecoveringEngine = false;
+        let handsPrewarmPromise = null;
         let hudSizes = ['sm', 'md', 'lg'];
         let hudSizeIdx = 0;
         let userAddedApps = JSON.parse(localStorage.getItem('aero_user_apps') || '[]');
 
+        let smoothNormX = 0.5;
+        let smoothNormY = 0.5;
         let smoothX = window.innerWidth / 2;
         let smoothY = window.innerHeight / 2;
         let foldState = 0;
@@ -2084,7 +2093,7 @@
             pointerSpeed: 3,
             handScale: 1.0,
             likeHoldDuration: 2.0,
-            longPinchDuration: 2.5,
+            longPinchDuration: 1.8,
             holdDuration: 1.5,
             activationDelay: 1.0,
             signSensitivity: 3,
@@ -2122,6 +2131,13 @@
             aeroConfig.scrollDistance = 3;
             aeroConfig.scrollHoldDelay = 0.3;
             try { localStorage.setItem('aero_quick_scroll_v4', 'true'); } catch(e) {}
+            localStorage.setItem('aero_spatial_settings', JSON.stringify(aeroConfig));
+        }
+        if (localStorage.getItem('aero_long_pinch_v1_8') !== 'true') {
+            if (aeroConfig.longPinchDuration === 2.5 || aeroConfig.longPinchDuration === undefined) {
+                aeroConfig.longPinchDuration = 1.8;
+            }
+            try { localStorage.setItem('aero_long_pinch_v1_8', 'true'); } catch(e) {}
             localStorage.setItem('aero_spatial_settings', JSON.stringify(aeroConfig));
         }
 
@@ -2560,9 +2576,9 @@
             if (lblLike) lblLike.textContent = `${(aeroConfig.likeHoldDuration !== undefined ? aeroConfig.likeHoldDuration : 2.0).toFixed(1)}s`;
 
             const slLongPinch = document.getElementById('sl-long-pinch-duration');
-            if (slLongPinch) slLongPinch.value = aeroConfig.longPinchDuration !== undefined ? aeroConfig.longPinchDuration : 2.5;
+            if (slLongPinch) slLongPinch.value = aeroConfig.longPinchDuration !== undefined ? aeroConfig.longPinchDuration : 1.8;
             const lblLongPinch = document.getElementById('lbl-long-pinch-duration');
-            if (lblLongPinch) lblLongPinch.textContent = `${(aeroConfig.longPinchDuration !== undefined ? aeroConfig.longPinchDuration : 2.5).toFixed(1)}s`;
+            if (lblLongPinch) lblLongPinch.textContent = `${(aeroConfig.longPinchDuration !== undefined ? aeroConfig.longPinchDuration : 1.8).toFixed(1)}s`;
 
             const slHold = document.getElementById('sl-hold-duration');
             if (slHold) slHold.value = aeroConfig.holdDuration;
@@ -2924,6 +2940,8 @@
             document.body.classList.add('menu-open');
             const menu = document.getElementById('fold-hold-menu');
             if (menu) menu.classList.add('active');
+            smoothX = smoothNormX * window.innerWidth;
+            smoothY = smoothNormY * window.innerHeight;
             if (window.AndroidBridge && window.AndroidBridge.showSystemHoldMenu) {
                 window.AndroidBridge.showSystemHoldMenu(true);
             }
@@ -2936,6 +2954,8 @@
             isRapidVolumeHolding = false;
             rapidVolumeTargetAction = null;
             clearRapidVolumeHighlight();
+            smoothX = smoothNormX * window.innerWidth;
+            smoothY = smoothNormY * window.innerHeight;
             if (window.AndroidBridge && window.AndroidBridge.showSystemHoldMenu) {
                 window.AndroidBridge.showSystemHoldMenu(false);
             }
@@ -3609,118 +3629,134 @@
             return lm[tipIdx].y > lm[pipIdx].y;
         }
 
-        async function toggleBackgroundEngine() {
+        function updateEngineUI(state) {
             const hud = document.getElementById('spatial-floating-hud');
             const cursor = document.getElementById('aero-cursor');
             const pill = document.getElementById('header-bg-pill');
+            const heroBtn = document.getElementById('hero-start-btn');
+            const heroIcon = document.getElementById('hero-start-icon');
             const heroLabel = document.getElementById('hero-start-label');
+            const heroHeading = document.getElementById('hero-status-heading');
             const dot = document.getElementById('cam-live-dot');
+            const standbyPill = document.getElementById('hero-standby-pill');
+            const standbyDot = document.getElementById('hero-standby-dot');
+            const standbyText = document.getElementById('hero-standby-text');
 
-            if (engineRunning) {
-                engineRunning = false;
-                if (window.aeroKeepAliveInterval) {
-                    clearInterval(window.aeroKeepAliveInterval);
-                    window.aeroKeepAliveInterval = null;
+            if (state === 'STARTING') {
+                if (pill) {
+                    pill.textContent = 'STARTING...';
+                    pill.className = 'px-2 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 font-extrabold text-[9px] uppercase tracking-wider whitespace-nowrap animate-pulse';
                 }
-
-                // 1. Fully release webcam stream and camera hardware
-                try {
-                    const videoEl = document.getElementById('webcam-video');
-                    if (videoEl) {
-                        if (videoEl.srcObject) {
-                            const stream = videoEl.srcObject;
-                            if (stream && stream.getTracks) {
-                                stream.getTracks().forEach(t => {
-                                    try { t.stop(); } catch (e) {}
-                                });
-                            }
-                            videoEl.srcObject = null;
-                        }
-                        try { videoEl.pause(); } catch (e) {}
-                    }
-                } catch (e) {}
-
-                // 2. Stop cameraInstance
-                if (cameraInstance) {
-                    try {
-                        await cameraInstance.stop();
-                    } catch (e) {}
-                    cameraInstance = null;
+                if (dot) {
+                    dot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0';
                 }
-
-                // 3. Keep handsInstance warm & ready (0% CPU/GPU when stopped)
-                // MediaPipe Hands WASM/WebGL context is preserved so the app restarts instantly on next tap
-                isTrackingFrameProcessing = false;
-
-                // Clear skeleton canvas & tracking state
-                const canvasEl = document.getElementById('skeleton-canvas');
-                if (canvasEl) {
-                    const ctx = canvasEl.getContext('2d');
-                    if (ctx) ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+                if (standbyPill) {
+                    standbyPill.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/50 text-amber-300 text-[10px] font-extrabold uppercase tracking-wider animate-pulse';
                 }
-                smoothX = window.innerWidth / 2;
-                smoothY = window.innerHeight / 2;
-                wasPinching = false;
-                homeGestureStep = 0;
-                backGestureStep = 0;
-
-                // 4. Update UI to OFF / START
+                if (standbyDot) {
+                    standbyDot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping';
+                }
+                if (standbyText) {
+                    standbyText.textContent = 'INITIALIZING AI ENGINE...';
+                }
+                if (heroBtn) {
+                    heroBtn.className = 'AirClickable w-24 h-24 sm:w-26 sm:h-26 rounded-full bg-gradient-to-tr from-amber-400 via-yellow-400 to-orange-500 text-slate-950 flex flex-col items-center justify-center shadow-xl shadow-amber-500/40 transition-all duration-300 border-4 border-amber-300/40 my-1 shrink-0 animate-pulse cursor-wait';
+                }
+                if (heroIcon) {
+                    heroIcon.className = 'fa-solid fa-circle-notch fa-spin text-3xl text-slate-950';
+                }
+                if (heroLabel) {
+                    heroLabel.textContent = 'STARTING...';
+                }
+                if (heroHeading) {
+                    heroHeading.textContent = 'Initializing Camera & AI Hand Engine...';
+                }
+            } else if (state === 'LIVE') {
+                if (pill) {
+                    pill.textContent = 'LIVE';
+                    pill.className = 'px-2 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-extrabold text-[9px] uppercase tracking-wider whitespace-nowrap';
+                }
+                if (dot) {
+                    dot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping shrink-0';
+                }
+                if (standbyPill) {
+                    standbyPill.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[10px] font-extrabold uppercase tracking-wider';
+                }
+                if (standbyDot) {
+                    standbyDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse';
+                }
+                if (standbyText) {
+                    standbyText.textContent = 'AI Vision Live';
+                }
+                if (heroBtn) {
+                    heroBtn.className = 'AirClickable w-24 h-24 sm:w-26 sm:h-26 rounded-full bg-gradient-to-tr from-rose-500 via-red-500 to-pink-600 text-white flex flex-col items-center justify-center shadow-xl shadow-rose-500/30 transition-all duration-300 active:scale-95 hover:scale-105 border-4 border-slate-900/80 my-1 shrink-0';
+                }
+                if (heroIcon) {
+                    heroIcon.className = 'fa-solid fa-stop text-3xl text-white';
+                }
+                if (heroLabel) {
+                    heroLabel.textContent = 'STOP';
+                }
+                if (heroHeading) {
+                    heroHeading.textContent = 'Camera Hand Control Active';
+                }
+            } else { // 'OFF'
                 if (hud) hud.classList.remove('hud-visible');
                 if (cursor) cursor.style.display = 'none';
                 if (pill) {
                     pill.textContent = 'OFF';
                     pill.className = 'px-2 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-400 font-extrabold text-[9px] uppercase tracking-wider whitespace-nowrap';
                 }
-                if (heroLabel) heroLabel.textContent = 'START';
-                const statusHeading = document.getElementById('hero-status-heading');
-                if (statusHeading) statusHeading.textContent = 'Tap START to Activate Camera Hand Control';
-                if (dot) dot.className = 'w-1.5 h-1.5 rounded-full bg-slate-600 shrink-0';
-
-                // 5. Notify Android native bridge to stop foreground service and overlay
-                if (window.AndroidBridge && window.AndroidBridge.setHandVisible) {
-                    try { window.AndroidBridge.setHandVisible(false); } catch (e) {}
+                if (dot) {
+                    dot.className = 'w-1.5 h-1.5 rounded-full bg-slate-600 shrink-0';
                 }
-                if (window.AndroidBridge && window.AndroidBridge.stopBackgroundService) {
-                    try { window.AndroidBridge.stopBackgroundService(); } catch (e) {}
+                if (standbyPill) {
+                    standbyPill.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[10px] font-extrabold uppercase tracking-wider';
                 }
-                if (window.AndroidBridge && window.AndroidBridge.exitFloatingOverlay) {
-                    try { window.AndroidBridge.exitFloatingOverlay(); } catch (e) {}
+                if (standbyDot) {
+                    standbyDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse';
                 }
-
-                if (window.AeroAnalytics) {
-                    window.AeroAnalytics.logEvent('ENGINE_STOP', { status: 'OFF' });
+                if (standbyText) {
+                    standbyText.textContent = 'AI Vision Standby';
                 }
-
-                showToast('⏹️', 'Engine Stopped', 'Hand tracking paused');
-                return;
+                if (heroBtn) {
+                    heroBtn.className = 'AirClickable w-24 h-24 sm:w-26 sm:h-26 rounded-full bg-gradient-to-tr from-emerald-400 via-cyan-400 to-blue-500 text-slate-950 flex flex-col items-center justify-center shadow-xl shadow-cyan-500/30 transition-all duration-300 active:scale-95 hover:scale-105 border-4 border-slate-900/80 my-1 shrink-0';
+                }
+                if (heroIcon) {
+                    heroIcon.className = 'fa-solid fa-power-off text-3xl text-slate-950';
+                }
+                if (heroLabel) {
+                    heroLabel.textContent = 'START';
+                }
+                if (heroHeading) {
+                    heroHeading.textContent = 'Tap START to Activate Camera Hand Control';
+                }
             }
+        }
 
-            try {
-                const videoEl = document.getElementById('webcam-video');
-                const canvasEl = document.getElementById('skeleton-canvas');
-                const ctx = canvasEl.getContext('2d');
+        function setupHandsResults(h) {
+            if (!h) return;
+            const canvasEl = document.getElementById('skeleton-canvas');
+            const hud = document.getElementById('spatial-floating-hud');
+            const cursor = document.getElementById('aero-cursor');
 
-                if (!handsInstance) {
-                    handsInstance = new Hands({
-                        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
-                    });
-                    handsInstance.setOptions({
-                        maxNumHands: 1,
-                        modelComplexity: 0,
-                        minDetectionConfidence: 0.70,
-                        minTrackingConfidence: 0.70
-                    });
+            h.onResults((results) => {
+                if (!engineRunning) return;
+                consecutiveModelErrors = 0;
+                lastSuccessfulFrameTime = Date.now();
 
-                    handsInstance.onResults((results) => {
-                        const dpr = window.devicePixelRatio || 1;
-                        const displayW = Math.max(50, canvasEl.clientWidth || 52);
-                        const displayH = Math.max(60, canvasEl.clientHeight || 64);
-                        if (canvasEl.width !== Math.round(displayW * dpr) || canvasEl.height !== Math.round(displayH * dpr)) {
-                            canvasEl.width = Math.round(displayW * dpr);
-                            canvasEl.height = Math.round(displayH * dpr);
-                        }
-                        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-                        ctx.clearRect(0, 0, displayW, displayH);
+                const ctx = canvasEl ? canvasEl.getContext('2d') : null;
+                const dpr = window.devicePixelRatio || 1;
+                const displayW = Math.max(50, (canvasEl && canvasEl.clientWidth) || 52);
+                const displayH = Math.max(60, (canvasEl && canvasEl.clientHeight) || 64);
+                if (canvasEl && (canvasEl.width !== Math.round(displayW * dpr) || canvasEl.height !== Math.round(displayH * dpr))) {
+                    canvasEl.width = Math.round(displayW * dpr);
+                    canvasEl.height = Math.round(displayH * dpr);
+                }
+                if (ctx) {
+                    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                    ctx.clearRect(0, 0, displayW, displayH);
+                }
 
                         const now = Date.now();
 
@@ -3757,8 +3793,18 @@
                             const normY = Math.max(0, Math.min(1, (targetRawY - 0.16) / 0.64));
 
                             const lerp = 0.20 + ((aeroConfig.pointerSpeed || 3) * 0.08);
-                            smoothX += (normX * window.innerWidth - smoothX) * lerp;
-                            smoothY += (normY * window.innerHeight - smoothY) * lerp;
+
+                            if (typeof smoothNormX !== 'number' || isNaN(smoothNormX)) smoothNormX = normX;
+                            if (typeof smoothNormY !== 'number' || isNaN(smoothNormY)) smoothNormY = normY;
+
+                            smoothNormX += (normX - smoothNormX) * lerp;
+                            smoothNormY += (normY - smoothNormY) * lerp;
+
+                            smoothNormX = Math.max(0, Math.min(1, smoothNormX));
+                            smoothNormY = Math.max(0, Math.min(1, smoothNormY));
+
+                            smoothX = smoothNormX * window.innerWidth;
+                            smoothY = smoothNormY * window.innerHeight;
 
                             const f = analyzeHandFingers(lm);
                             const isPinching = f.isPinching;
@@ -3770,15 +3816,12 @@
                                 cursor.classList.toggle('pinching', isCleanPinch);
                             }
 
-                            const smoothNormX = Math.max(0, Math.min(1, smoothX / window.innerWidth));
-                            const smoothNormY = Math.max(0, Math.min(1, smoothY / window.innerHeight));
-
                             if (window.AndroidBridge && window.AndroidBridge.updateGlobalAirCursor) {
                                 window.AndroidBridge.updateGlobalAirCursor(smoothNormX, smoothNormY, isCleanPinch);
                             }
 
                             // Long Pinch Menu & Air Tap Handling
-                            const longPinchTargetSec = (typeof aeroConfig.longPinchDuration === 'number') ? aeroConfig.longPinchDuration : 2.5;
+                            const longPinchTargetSec = (typeof aeroConfig.longPinchDuration === 'number') ? aeroConfig.longPinchDuration : 1.8;
                             const longPinchTargetMs = longPinchTargetSec * 1000;
 
                             if (isCleanPinch) {
@@ -4221,142 +4264,328 @@
                             }
                         }
                     });
-                }
+        }
 
-                let isTrackingFrameProcessing = false;
-                let lastTrackingFrameTime = Date.now();
-                let isRecoveringCamera = false;
+        async function ensureHandsInstance() {
+            if (handsInstance) return handsInstance;
+            if (handsPrewarmPromise) return handsPrewarmPromise;
 
-                function setupStreamWatchdog(stream) {
-                    if (!stream) return;
-                    const tracks = stream.getVideoTracks();
-                    if (tracks && tracks.length > 0) {
-                        tracks[0].onended = () => {
-                            if (engineRunning) {
-                                console.warn('[AeroSense] Camera track ended by OS. Auto-recovering...');
-                                recoverCameraStream();
-                            }
-                        };
-                        tracks[0].onmute = () => {
-                            console.warn('[AeroSense] Camera track muted by OS');
-                        };
-                        tracks[0].onunmute = () => {
-                            console.log('[AeroSense] Camera track unmuted by OS');
-                        };
+            handsPrewarmPromise = (async () => {
+                try {
+                    console.log('[AeroSense] Initializing MediaPipe Hands instance...');
+                    const h = new Hands({
+                        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+                    });
+                    h.setOptions({
+                        maxNumHands: 1,
+                        modelComplexity: 0,
+                        minDetectionConfidence: 0.70,
+                        minTrackingConfidence: 0.70
+                    });
+                    setupHandsResults(h);
+                    if (typeof h.initialize === 'function') {
+                        await h.initialize();
                     }
+                    handsInstance = h;
+                    console.log('[AeroSense] MediaPipe Hands ready.');
+                    return handsInstance;
+                } catch (err) {
+                    console.error('[AeroSense] Error initializing MediaPipe Hands:', err);
+                    handsInstance = null;
+                    throw err;
+                } finally {
+                    handsPrewarmPromise = null;
                 }
+            })();
 
-                async function recoverCameraStream() {
-                    if (!engineRunning || isRecoveringCamera) return;
-                    isRecoveringCamera = true;
-                    try {
-                        const v = document.getElementById('webcam-video');
-                        if (v) {
-                            if (cameraInstance) {
-                                try { await cameraInstance.stop(); } catch (e) {}
-                                cameraInstance = null;
-                            }
-                            if (v.srcObject) {
-                                try { v.srcObject.getTracks().forEach(t => t.stop()); } catch (e) {}
-                                v.srcObject = null;
-                            }
-                            cameraInstance = new Camera(v, {
-                                onFrame: async () => {
-                                    if (!engineRunning || !handsInstance) return;
-                                    const now = Date.now();
-                                    if (now - lastTrackingFrameTime < 32) return;
-                                    if (isTrackingFrameProcessing) {
-                                        if (now - lastTrackingFrameTime > 2000) isTrackingFrameProcessing = false;
-                                        return;
-                                    }
-                                    isTrackingFrameProcessing = true;
-                                    lastTrackingFrameTime = now;
-                                    try {
-                                        if (v.readyState >= 2) {
-                                            await handsInstance.send({ image: v });
-                                        }
-                                    } catch (frameErr) {
-                                    } finally {
-                                        isTrackingFrameProcessing = false;
-                                    }
-                                },
-                                width: 320,
-                                height: 240,
-                                facingMode: 'user'
-                            });
-                            await cameraInstance.start();
-                            if (v.srcObject) {
-                                setupStreamWatchdog(v.srcObject);
-                            }
-                            lastTrackingFrameTime = Date.now();
-                            isTrackingFrameProcessing = false;
-                            console.log('[AeroSense] Camera stream successfully recovered.');
-                        }
-                    } catch (err) {
-                        console.error('[AeroSense] Camera recovery failed:', err);
-                    } finally {
-                        isRecoveringCamera = false;
-                    }
+            return handsPrewarmPromise;
+        }
+
+        async function recreateHandsInstance() {
+            console.warn('[AeroSense] Re-creating MediaPipe Hands instance...');
+            try {
+                if (handsInstance && typeof handsInstance.close === 'function') {
+                    await handsInstance.close();
                 }
+            } catch (e) {}
+            handsInstance = null;
+            handsPrewarmPromise = null;
+            return await ensureHandsInstance();
+        }
 
-                // Global keep-alive pulse: can be triggered by native Android Handler and local timer
-                window.aeroKeepAlivePulse = function() {
-                    if (!engineRunning) return;
-                    const now = Date.now();
-                    const v = document.getElementById('webcam-video');
-                    if (v) {
-                        if (v.paused && v.srcObject) {
-                            v.play().catch(() => {});
-                        }
-                        // Active frame pump if Chromium rAF throttled in background (>2000ms) and no frame currently in flight
-                        if (now - lastTrackingFrameTime > 2000 && !isTrackingFrameProcessing) {
-                            if (handsInstance && v.readyState >= 2) {
-                                isTrackingFrameProcessing = true;
-                                handsInstance.send({ image: v })
-                                    .then(() => { lastTrackingFrameTime = Date.now(); })
-                                    .catch(() => {})
-                                    .finally(() => { isTrackingFrameProcessing = false; });
-                            }
-                        }
+        function setupStreamWatchdog(stream) {
+            if (!stream) return;
+            const tracks = stream.getVideoTracks();
+            if (tracks && tracks.length > 0) {
+                tracks[0].onended = () => {
+                    if (engineRunning) {
+                        console.warn('[AeroSense] Camera track ended by OS. Auto-recovering...');
+                        recoverEngineAndCamera();
                     }
                 };
+                tracks[0].onmute = () => {
+                    console.warn('[AeroSense] Camera track muted by OS');
+                };
+                tracks[0].onunmute = () => {
+                    console.log('[AeroSense] Camera track unmuted by OS');
+                };
+            }
+        }
 
-                cameraInstance = new Camera(videoEl, {
-                    onFrame: async () => {
-                        if (!engineRunning || !handsInstance) return;
-                        const now = Date.now();
-                        // 1. Throttle to steady 30-33 FPS to prevent mobile CPU/GPU overheating and battery drain
-                        if (now - lastTrackingFrameTime < 32) return;
-                        // 2. Concurrency Lock: Never send frame if previous frame is still being processed
-                        if (isTrackingFrameProcessing) {
-                            // If locked for >2500ms, unlock
-                            if (now - lastTrackingFrameTime > 2500) isTrackingFrameProcessing = false;
-                            return;
-                        }
-
-                        isTrackingFrameProcessing = true;
-                        lastTrackingFrameTime = now;
-                        try {
-                            await handsInstance.send({ image: videoEl });
-                        } catch (frameErr) {
-                            // Silently catch dropped frames/transient WebGL errors so camera loop never breaks
-                        } finally {
+        function createAeroCamera(videoEl) {
+            if (!videoEl) return null;
+            return new Camera(videoEl, {
+                onFrame: async () => {
+                    if (!engineRunning || !handsInstance) return;
+                    const now = Date.now();
+                    // Throttle to steady ~30 FPS (32ms) to prevent mobile CPU/GPU overheating & frame queues
+                    if (now - lastTrackingFrameTime < 32) return;
+                    // Concurrency Lock: Never send frame if previous frame is still being processed
+                    if (isTrackingFrameProcessing) {
+                        if (now - lastTrackingFrameTime > 2500) {
                             isTrackingFrameProcessing = false;
                         }
-                    },
-                    width: 320,
-                    height: 240,
-                    facingMode: 'user'
-                });
+                        return;
+                    }
+                    if (!videoEl || videoEl.readyState < 2 || videoEl.videoWidth === 0 || videoEl.videoHeight === 0) {
+                        return;
+                    }
 
+                    isTrackingFrameProcessing = true;
+                    lastTrackingFrameTime = now;
+                    try {
+                        await handsInstance.send({ image: videoEl });
+                        consecutiveModelErrors = 0;
+                        lastSuccessfulFrameTime = Date.now();
+                    } catch (frameErr) {
+                        consecutiveModelErrors++;
+                        console.warn('[AeroSense] Frame error count:', consecutiveModelErrors, frameErr);
+                        if (consecutiveModelErrors >= 4) {
+                            console.error('[AeroSense] Consecutive frame errors exceeded threshold. Re-creating Hands...');
+                            try {
+                                await recreateHandsInstance();
+                                consecutiveModelErrors = 0;
+                            } catch (e) {}
+                        }
+                    } finally {
+                        isTrackingFrameProcessing = false;
+                    }
+                },
+                width: 320,
+                height: 240,
+                facingMode: 'user'
+            });
+        }
+
+        async function recoverEngineAndCamera() {
+            if (!engineRunning || isRecoveringEngine) return;
+            isRecoveringEngine = true;
+            console.warn('[AeroSense] Starting Engine & Camera auto-recovery...');
+            try {
+                const videoEl = document.getElementById('webcam-video');
+                if (cameraInstance) {
+                    try { await cameraInstance.stop(); } catch (e) {}
+                    cameraInstance = null;
+                }
+                if (videoEl && videoEl.srcObject) {
+                    try {
+                        videoEl.srcObject.getTracks().forEach(t => {
+                            try { t.stop(); } catch (e) {}
+                        });
+                    } catch (e) {}
+                    videoEl.srcObject = null;
+                }
+
+                if (consecutiveModelErrors > 0 || !handsInstance) {
+                    await recreateHandsInstance();
+                }
+
+                if (videoEl && engineRunning) {
+                    videoEl.playsInline = true;
+                    videoEl.muted = true;
+                    videoEl.autoplay = true;
+                    cameraInstance = createAeroCamera(videoEl);
+                    await cameraInstance.start();
+                    if (videoEl.srcObject) {
+                        setupStreamWatchdog(videoEl.srcObject);
+                    }
+                    lastSuccessfulFrameTime = Date.now();
+                    lastTrackingFrameTime = Date.now();
+                    isTrackingFrameProcessing = false;
+                    consecutiveModelErrors = 0;
+                    console.log('[AeroSense] Engine & Camera recovery complete.');
+                }
+            } catch (err) {
+                console.error('[AeroSense] Recovery failed:', err);
+            } finally {
+                isRecoveringEngine = false;
+            }
+        }
+
+        // Global keep-alive pulse: can be triggered by native Android Handler and local timer
+        window.aeroKeepAlivePulse = function() {
+            if (!engineRunning || isEngineTransitioning) return;
+            const now = Date.now();
+            const v = document.getElementById('webcam-video');
+            if (!v) return;
+
+            if (v.paused && v.srcObject) {
+                v.play().catch(() => {});
+            }
+
+            // Auto-detect engine freeze (>4.5s without any successful frame)
+            if (now - lastSuccessfulFrameTime > 4500) {
+                console.warn('[AeroSense] Keep-alive watchdog detected engine freeze. Auto-recovering...');
+                recoverEngineAndCamera();
+                return;
+            }
+
+            // Frame pump if Chromium rAF throttled in background (>2000ms)
+            if (now - lastTrackingFrameTime > 2000 && !isTrackingFrameProcessing) {
+                if (handsInstance && v.readyState >= 2 && v.videoWidth > 0 && v.videoHeight > 0) {
+                    isTrackingFrameProcessing = true;
+                    handsInstance.send({ image: v })
+                        .then(() => {
+                            lastTrackingFrameTime = Date.now();
+                            lastSuccessfulFrameTime = Date.now();
+                            consecutiveModelErrors = 0;
+                        })
+                        .catch(() => {
+                            consecutiveModelErrors++;
+                        })
+                        .finally(() => {
+                            isTrackingFrameProcessing = false;
+                        });
+                }
+            }
+        };
+
+        async function toggleBackgroundEngine() {
+            if (isEngineTransitioning) return;
+
+            if (engineRunning) {
+                // --- STOPPING ENGINE ---
+                isEngineTransitioning = true;
+                engineRunning = false;
+                if (window.aeroKeepAliveInterval) {
+                    clearInterval(window.aeroKeepAliveInterval);
+                    window.aeroKeepAliveInterval = null;
+                }
+
+                // 1. Fully release webcam stream and camera hardware
+                try {
+                    const videoEl = document.getElementById('webcam-video');
+                    if (videoEl) {
+                        if (videoEl.srcObject) {
+                            const stream = videoEl.srcObject;
+                            if (stream && stream.getTracks) {
+                                stream.getTracks().forEach(t => {
+                                    try { t.stop(); } catch (e) {}
+                                });
+                            }
+                            videoEl.srcObject = null;
+                        }
+                        try { videoEl.pause(); } catch (e) {}
+                    }
+                } catch (e) {}
+
+                // 2. Stop cameraInstance
+                if (cameraInstance) {
+                    try {
+                        await cameraInstance.stop();
+                    } catch (e) {}
+                    cameraInstance = null;
+                }
+
+                // 3. Clean up MediaPipe Hands instance if there was any glitch or error
+                // If consecutiveModelErrors > 0 or engine was stalled, completely dispose handsInstance
+                // so that the next START creates a clean new instance without requiring an app kill!
+                if (consecutiveModelErrors > 0 || (Date.now() - lastSuccessfulFrameTime > 3000)) {
+                    console.log('[AeroSense] Stalled or errored state detected on STOP. Disposing Hands instance...');
+                    try {
+                        if (handsInstance && typeof handsInstance.close === 'function') {
+                            await handsInstance.close();
+                        }
+                    } catch (e) {}
+                    handsInstance = null;
+                    handsPrewarmPromise = null;
+                }
+
+                isTrackingFrameProcessing = false;
+                consecutiveModelErrors = 0;
+
+                // Clear skeleton canvas & tracking state
+                const canvasEl = document.getElementById('skeleton-canvas');
+                if (canvasEl) {
+                    const ctx = canvasEl.getContext('2d');
+                    if (ctx) ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+                }
+                smoothNormX = 0.5;
+                smoothNormY = 0.5;
+                smoothX = window.innerWidth / 2;
+                smoothY = window.innerHeight / 2;
+                wasPinching = false;
+                homeGestureStep = 0;
+                backGestureStep = 0;
+
+                // 4. Update UI to OFF
+                updateEngineUI('OFF');
+
+                // 5. Notify Android native bridge
+                if (window.AndroidBridge && window.AndroidBridge.setHandVisible) {
+                    try { window.AndroidBridge.setHandVisible(false); } catch (e) {}
+                }
+                if (window.AndroidBridge && window.AndroidBridge.stopBackgroundService) {
+                    try { window.AndroidBridge.stopBackgroundService(); } catch (e) {}
+                }
+                if (window.AndroidBridge && window.AndroidBridge.exitFloatingOverlay) {
+                    try { window.AndroidBridge.exitFloatingOverlay(); } catch (e) {}
+                }
+
+                if (window.AeroAnalytics) {
+                    window.AeroAnalytics.logEvent('ENGINE_STOP', { status: 'OFF' });
+                }
+
+                showToast('⏹️', 'Engine Stopped', 'Hand tracking paused');
+                isEngineTransitioning = false;
+                return;
+            }
+
+            // --- STARTING ENGINE ---
+            isEngineTransitioning = true;
+            updateEngineUI('STARTING');
+
+            try {
+                const videoEl = document.getElementById('webcam-video');
+                if (!videoEl) throw new Error('Video element not found');
+
+                videoEl.playsInline = true;
+                videoEl.muted = true;
+                videoEl.autoplay = true;
+
+                // 1. Ensure MediaPipe Hands is loaded and initialized
+                await ensureHandsInstance();
+
+                // 2. Stop any lingering camera instance
+                if (cameraInstance) {
+                    try { await cameraInstance.stop(); } catch (e) {}
+                    cameraInstance = null;
+                }
+
+                // 3. Create Camera and start capture
+                cameraInstance = createAeroCamera(videoEl);
                 await cameraInstance.start();
+
                 if (videoEl.srcObject) {
                     setupStreamWatchdog(videoEl.srcObject);
                 }
+
                 engineRunning = true;
                 lastTrackingFrameTime = Date.now();
+                lastSuccessfulFrameTime = Date.now();
+                consecutiveModelErrors = 0;
 
-                // Auto-Recovery & Keep-Alive Watchdog: Checks every 2s
+                // Keep-Alive & Freeze Watchdog: Checks every 2 seconds
                 if (window.aeroKeepAliveInterval) clearInterval(window.aeroKeepAliveInterval);
                 window.aeroKeepAliveInterval = setInterval(() => {
                     if (!engineRunning) {
@@ -4367,23 +4596,23 @@
                     window.aeroKeepAlivePulse();
                 }, 2000);
 
-                pill.textContent = 'LIVE';
-                pill.className = 'px-2 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-extrabold text-[9px] uppercase tracking-wider whitespace-nowrap';
-                heroLabel.textContent = 'STOP';
-                const statusHeading = document.getElementById('hero-status-heading');
-                if (statusHeading) statusHeading.textContent = 'Camera Hand Control Active';
-                dot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping shrink-0';
+                updateEngineUI('LIVE');
 
-                // Start foreground service
+                // Start native foreground service
                 if (window.AndroidBridge && window.AndroidBridge.startBackgroundService) {
                     window.AndroidBridge.startBackgroundService();
                 }
                 if (window.AeroAnalytics) {
                     window.AeroAnalytics.logEvent('ENGINE_START', { status: 'LIVE', mode: 'Camera Hand Control' });
                 }
-                showToast('', 'AeroSense Active', 'Show hand to control apps, Back & Home');
+                showToast('✨', 'AeroSense Live', 'Hand tracking active');
             } catch (err) {
+                console.error('[AeroSense] Error starting engine:', err);
+                engineRunning = false;
+                updateEngineUI('OFF');
                 showToast('⚠️', 'Camera Permission', 'Allow camera access to start hand tracking');
+            } finally {
+                isEngineTransitioning = false;
             }
         }
 
@@ -5398,6 +5627,14 @@
                             changed = true;
                         }
                     }
+                    if (data.fields.longPinchDuration && (data.fields.longPinchDuration.doubleValue !== undefined || data.fields.longPinchDuration.integerValue !== undefined)) {
+                        const raw = data.fields.longPinchDuration.doubleValue !== undefined ? data.fields.longPinchDuration.doubleValue : data.fields.longPinchDuration.integerValue;
+                        const val = parseFloat(raw);
+                        if (val !== aeroConfig.longPinchDuration) {
+                            aeroConfig.longPinchDuration = val;
+                            changed = true;
+                        }
+                    }
                     if (data.fields.hudSize && data.fields.hudSize.integerValue !== undefined) {
                         const val = parseInt(data.fields.hudSize.integerValue);
                         setCustomHudSize(val);
@@ -5516,6 +5753,12 @@
             if (!localStorage.getItem('aero_perm_prompted')) {
                 openStartupPermissionModal();
             }
+            // Background pre-warm: pre-instantiate and compile MediaPipe Hands WASM so engine starts instantly
+            setTimeout(() => {
+                try {
+                    ensureHandsInstance().catch(() => {});
+                } catch (e) {}
+            }, 600);
             setTimeout(() => {
                 syncAeroRemoteConfig();
                 checkAeroOtaUpdate();

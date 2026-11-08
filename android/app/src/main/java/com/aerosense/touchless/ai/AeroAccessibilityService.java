@@ -269,8 +269,9 @@ public class AeroAccessibilityService extends AccessibilityService {
 
     public void updateCursorPosition(float normX, float normY, boolean isPinching) {
         if (!isCursorEnabled) return;
-        latestNormX1 = normX;
-        latestNormY1 = normY;
+        if (Float.isNaN(normX) || Float.isNaN(normY)) return;
+        latestNormX1 = Math.max(0f, Math.min(1f, normX));
+        latestNormY1 = Math.max(0f, Math.min(1f, normY));
         latestIsPinching1 = isPinching;
         if (isCursor1UpdatePending.compareAndSet(false, true)) {
             mainHandler.post(cursor1UpdateRunnable);
@@ -279,8 +280,9 @@ public class AeroAccessibilityService extends AccessibilityService {
 
     public void updateCursorPosition2(float normX, float normY, boolean isPinching) {
         if (!isCursorEnabled || !isTwoHandModeEnabled) return;
-        latestNormX2 = normX;
-        latestNormY2 = normY;
+        if (Float.isNaN(normX) || Float.isNaN(normY)) return;
+        latestNormX2 = Math.max(0f, Math.min(1f, normX));
+        latestNormY2 = Math.max(0f, Math.min(1f, normY));
         latestIsPinching2 = isPinching;
         if (isCursor2UpdatePending.compareAndSet(false, true)) {
             mainHandler.post(cursor2UpdateRunnable);
