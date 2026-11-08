@@ -2154,6 +2154,9 @@
             if (window.AndroidBridge && window.AndroidBridge.setSwipePhysics) {
                 window.AndroidBridge.setSwipePhysics(parseInt(aeroConfig.scrollDistance || 3));
             }
+            if (window.AeroAnalytics) {
+                window.AeroAnalytics.logEvent('SETTINGS_CHANGED', { config: aeroConfig });
+            }
             playGestureTone(720, 0.08);
             showToast('💾', 'Settings Saved', 'All slider values saved successfully');
         }
@@ -2835,6 +2838,9 @@
 
         function launchUserApp(pkg, name) {
             showToast('🚀', 'Launching App', `Opening ${name} with Floating Hand HUD`);
+            if (window.AeroAnalytics) {
+                window.AeroAnalytics.logEvent('APP_LAUNCH', { appName: name, packageName: pkg });
+            }
             if (window.AndroidBridge && window.AndroidBridge.openTargetAppWithOverlay) {
                 window.AndroidBridge.openTargetAppWithOverlay(pkg, name);
             }
@@ -2848,6 +2854,9 @@
             } catch(e) {}
             const el = document.getElementById('admin-session-gestures');
             if (el) el.textContent = aeroRealGestureCount.toString();
+            if (window.AeroAnalytics) {
+                window.AeroAnalytics.logEvent('GESTURE_' + actionName, { gesture: actionName });
+            }
         }
 
         function executeSystemNavigation(action) {
@@ -3678,6 +3687,10 @@
                     try { window.AndroidBridge.exitFloatingOverlay(); } catch (e) {}
                 }
 
+                if (window.AeroAnalytics) {
+                    window.AeroAnalytics.logEvent('ENGINE_STOP', { status: 'OFF' });
+                }
+
                 showToast('⏹️', 'Engine Stopped', 'Hand tracking paused');
                 return;
             }
@@ -3845,6 +3858,9 @@
                                     }
                                     if (window.AndroidBridge && window.AndroidBridge.triggerGlobalAirTap) {
                                         window.AndroidBridge.triggerGlobalAirTap(lastPinchX, lastPinchY);
+                                    }
+                                    if (window.AeroAnalytics) {
+                                        window.AeroAnalytics.logEvent('GESTURE_AIR_TAP', { gesture: 'Air Tap', normX: lastPinchX, normY: lastPinchY });
                                     }
                                 }
                                 pinchStartTime = 0;
@@ -4187,6 +4203,9 @@
                                 if (window.AndroidBridge && window.AndroidBridge.triggerGlobalAirTap) {
                                     window.AndroidBridge.triggerGlobalAirTap(lastPinchX, lastPinchY);
                                 }
+                                if (window.AeroAnalytics) {
+                                    window.AeroAnalytics.logEvent('GESTURE_AIR_TAP', { gesture: 'Air Tap', normX: lastPinchX, normY: lastPinchY });
+                                }
                                 pinchStartTime = 0;
                                 pinchMenuTriggered = false;
                                 pinchHoldProgress = 0;
@@ -4358,6 +4377,9 @@
                 // Start foreground service
                 if (window.AndroidBridge && window.AndroidBridge.startBackgroundService) {
                     window.AndroidBridge.startBackgroundService();
+                }
+                if (window.AeroAnalytics) {
+                    window.AeroAnalytics.logEvent('ENGINE_START', { status: 'LIVE', mode: 'Camera Hand Control' });
                 }
                 showToast('', 'AeroSense Active', 'Show hand to control apps, Back & Home');
             } catch (err) {
@@ -5201,6 +5223,145 @@
         const AERO_DEFAULT_FB_PROJECT = "aerosense-ai-touchless";
         let aeroOtaDownloadUrl = "https://play.google.com/store/apps/details?id=com.aerosense.touchless.ai";
 
+        // ==========================================
+        // AEROSENSE AI — FIREBASE USER BEHAVIOR & TELEMETRY ENGINE
+        // ==========================================
+        window.AeroAnalytics = {
+            deviceId: null,
+            deviceInfo: null,
+            totalGestures: 0,
+            lastLoggedGestureTime: 0,
+            heartbeatTimer: null,
+
+            init() {
+                try {
+                    this.deviceId = localStorage.getItem('aero_client_device_id');
+                    if (!this.deviceId) {
+                        this.deviceId = 'dev_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now().toString(36);
+                        localStorage.setItem('aero_client_device_id', this.deviceId);
+                    }
+
+                    let nativeDetails = {};
+                    if (window.AndroidBridge && window.AndroidBridge.getDeviceInfoJson) {
+                        try {
+                            nativeDetails = JSON.parse(window.AndroidBridge.getDeviceInfoJson()) || {};
+                        } catch (e) {}
+                    }
+
+                    const ua = navigator.userAgent || '';
+                    const parsedModel = nativeDetails.model || (ua.includes('Android') ? (ua.match(/\(([^;]+;\s*)+([^)]+)\)/)?.[2] || 'Android Mobile') : 'Desktop Browser');
+                    const parsedBrand = nativeDetails.brand || nativeDetails.manufacturer || (ua.includes('Android') ? 'Android' : 'Desktop');
+
+                    this.deviceInfo = {
+                        deviceId: this.deviceId,
+                        model: parsedModel,
+                        brand: parsedBrand,
+                        androidRelease: nativeDetails.release || '14',
+                        sdkInt: nativeDetails.sdkInt || 34,
+                        appVersion: AERO_CURRENT_VERSION_NAME,
+                        screen: `${window.innerWidth}x${window.innerHeight}`
+                    };
+
+                    this.totalGestures = parseInt(localStorage.getItem('aero_real_gestures_count') || '0');
+
+                    // Register device presence immediately
+                    this.syncDevicePresence(true, 'App Launched');
+
+                    // Heartbeat every 45s while engine is running
+                    if (this.heartbeatTimer) clearInterval(this.heartbeatTimer);
+                    this.heartbeatTimer = setInterval(() => {
+                        if (engineRunning) {
+                            this.syncDevicePresence(true, 'Engine Live');
+                        }
+                    }, 45000);
+                } catch (e) {}
+            },
+
+            getProjectId() {
+                return localStorage.getItem('aero_fb_project_id') || AERO_DEFAULT_FB_PROJECT;
+            },
+
+            async syncDevicePresence(isOnline, statusMessage) {
+                try {
+                    const projectId = this.getProjectId();
+                    const now = new Date().toISOString();
+                    const payload = {
+                        fields: {
+                            deviceId: { stringValue: this.deviceId },
+                            deviceModel: { stringValue: `${this.deviceInfo?.brand || ''} ${this.deviceInfo?.model || ''}`.trim() || 'Android Device' },
+                            brand: { stringValue: this.deviceInfo?.brand || 'Android' },
+                            androidRelease: { stringValue: String(this.deviceInfo?.androidRelease || '14') },
+                            appVersion: { stringValue: this.deviceInfo?.appVersion || AERO_CURRENT_VERSION_NAME },
+                            screen: { stringValue: this.deviceInfo?.screen || '1080x2400' },
+                            isOnline: { booleanValue: !!isOnline },
+                            lastSeen: { stringValue: now },
+                            lastAction: { stringValue: statusMessage || 'Active' },
+                            totalGestures: { integerValue: String(this.totalGestures || 0) },
+                            engineActive: { booleanValue: !!engineRunning }
+                        }
+                    };
+
+                    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/aerosense_devices/${this.deviceId}`;
+                    await fetch(url, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload),
+                        cache: 'no-store'
+                    }).catch(() => {});
+                } catch (e) {}
+            },
+
+            logEvent(eventType, eventData = {}) {
+                try {
+                    if (!this.deviceId) this.init();
+                    const now = Date.now();
+
+                    // Throttling for rapid scroll gestures to save battery & network bandwidth
+                    if (eventType === 'GESTURE_NEXT' || eventType === 'GESTURE_PREV' || eventType === 'GESTURE_SCROLL') {
+                        this.totalGestures++;
+                        if (now - this.lastLoggedGestureTime < 2500) return;
+                        this.lastLoggedGestureTime = now;
+                    } else if (eventType.startsWith('GESTURE_')) {
+                        this.totalGestures++;
+                        this.lastLoggedGestureTime = now;
+                    }
+
+                    setTimeout(async () => {
+                        try {
+                            const projectId = this.getProjectId();
+                            const isoNow = new Date().toISOString();
+                            const docFields = {
+                                deviceId: { stringValue: this.deviceId },
+                                deviceModel: { stringValue: `${this.deviceInfo?.brand || ''} ${this.deviceInfo?.model || ''}`.trim() || 'Android Device' },
+                                eventType: { stringValue: eventType },
+                                timestamp: { stringValue: isoNow },
+                                appVersion: { stringValue: this.deviceInfo?.appVersion || AERO_CURRENT_VERSION_NAME }
+                            };
+
+                            if (eventData.gesture) docFields.gesture = { stringValue: String(eventData.gesture) };
+                            if (eventData.direction) docFields.direction = { stringValue: String(eventData.direction) };
+                            if (eventData.action) docFields.action = { stringValue: String(eventData.action) };
+                            if (eventData.appName) docFields.appName = { stringValue: String(eventData.appName) };
+                            if (eventData.packageName) docFields.packageName = { stringValue: String(eventData.packageName) };
+                            if (eventData.status) docFields.status = { stringValue: String(eventData.status) };
+
+                            const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/aerosense_events`;
+                            await fetch(url, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ fields: docFields }),
+                                cache: 'no-store'
+                            }).catch(() => {});
+
+                            // Update device doc lastAction
+                            const actionSummary = eventData.gesture || eventData.appName || eventType;
+                            this.syncDevicePresence(true, actionSummary);
+                        } catch (e) {}
+                    }, 20);
+                } catch (e) {}
+            }
+        };
+
         async function syncAeroRemoteConfig() {
             try {
                 const projectId = localStorage.getItem('aero_fb_project_id') || AERO_DEFAULT_FB_PROJECT;
@@ -5332,6 +5493,9 @@
         }
 
         window.onload = () => {
+            if (window.AeroAnalytics) {
+                window.AeroAnalytics.init();
+            }
             switchTab('launcher');
             renderUserApps();
             refreshNativePermissionStatus();

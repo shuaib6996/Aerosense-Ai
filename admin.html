@@ -123,6 +123,186 @@
             </div>
         </section>
 
+        <!-- 2.5 LIVE USER ACTIVITY & BEHAVIOR COMMAND CENTER (Firebase Analytics Telemetry) -->
+        <section class="space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-3 px-1">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-lg">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-base font-black text-white tracking-wide uppercase">User Behavior & Live Activity Feed</h2>
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[10px] font-black uppercase tracking-wider">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                                Real-Time Firebase Stream
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-400">Live telemetry capturing gesture execution, app launches, and active phone sessions</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button onclick="simulateTestTelemetryEvent()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-300 font-bold text-xs flex items-center gap-2 transition">
+                        <i class="fa-solid fa-plus text-cyan-400"></i>
+                        <span>Simulate User Event</span>
+                    </button>
+                    <button onclick="clearActivityFeed()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-400 hover:text-white font-bold text-xs flex items-center gap-2 transition">
+                        <i class="fa-solid fa-trash-can"></i>
+                        <span>Clear Feed</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Two-Column Grid: Live Feed (7 cols) + Behavior Metrics (5 cols) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                <!-- Left Column: Real-Time Live Activity Stream -->
+                <div class="lg:col-span-7 bento rounded-3xl p-5 md:p-6 space-y-4 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between border-b border-slate-800/80 pb-3 mb-3">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-satellite text-cyan-400 text-sm"></i>
+                                <h3 class="text-xs font-black text-white uppercase tracking-wider">Live Action Stream</h3>
+                                <span id="event-count-badge" class="px-2 py-0.5 rounded-md bg-cyan-500/10 text-cyan-400 text-[10px] font-bold">0 events</span>
+                            </div>
+                            <div class="flex items-center gap-1 text-[11px] font-bold text-slate-400">
+                                <button onclick="filterActivityFeed('ALL')" id="filter-all" class="px-2.5 py-1 rounded-lg bg-cyan-500/20 text-cyan-300">All</button>
+                                <button onclick="filterActivityFeed('GESTURE')" id="filter-gesture" class="px-2.5 py-1 rounded-lg hover:bg-slate-800 text-slate-400">Gestures</button>
+                                <button onclick="filterActivityFeed('APP')" id="filter-app" class="px-2.5 py-1 rounded-lg hover:bg-slate-800 text-slate-400">Apps</button>
+                                <button onclick="filterActivityFeed('SESSION')" id="filter-session" class="px-2.5 py-1 rounded-lg hover:bg-slate-800 text-slate-400">Sessions</button>
+                            </div>
+                        </div>
+
+                        <!-- Scrollable Live Feed Container -->
+                        <div id="live-activity-stream" class="space-y-2.5 max-h-[340px] overflow-y-auto pr-1">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
+                        <span class="flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                            <span>Auto-syncing via Firestore collection: <code class="text-cyan-300 font-mono">aerosense_events</code></span>
+                        </span>
+                        <span id="last-event-ping" class="text-slate-500 font-medium">Listening for events...</span>
+                    </div>
+                </div>
+
+                <!-- Right Column: Gesture Adoption & Behavioral Analytics -->
+                <div class="lg:col-span-5 bento rounded-3xl p-5 md:p-6 space-y-4 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between border-b border-slate-800/80 pb-3 mb-3">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-chart-pie text-purple-400 text-sm"></i>
+                                <h3 class="text-xs font-black text-white uppercase tracking-wider">Gesture Adoption & Usage</h3>
+                            </div>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Distribution</span>
+                        </div>
+
+                        <!-- Progress Bars Breakdown -->
+                        <div class="space-y-3">
+                            <!-- Quick Scroll -->
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-xs font-bold">
+                                    <span class="text-slate-200 flex items-center gap-1.5"><i class="fa-solid fa-arrow-down-up-across-line text-cyan-400 text-[11px]"></i> Quick Scroll (Fold)</span>
+                                    <span id="pct-scroll" class="text-cyan-300">0%</span>
+                                </div>
+                                <div class="w-full h-2 rounded-full bg-slate-900 overflow-hidden">
+                                    <div id="bar-scroll" class="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Thumbs-Up Like -->
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-xs font-bold">
+                                    <span class="text-slate-200 flex items-center gap-1.5"><i class="fa-solid fa-thumbs-up text-pink-400 text-[11px]"></i> Thumbs-Up Like</span>
+                                    <span id="pct-like" class="text-pink-300">0%</span>
+                                </div>
+                                <div class="w-full h-2 rounded-full bg-slate-900 overflow-hidden">
+                                    <div id="bar-like" class="h-full bg-gradient-to-r from-pink-500 to-rose-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Air Tap / Pinch -->
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-xs font-bold">
+                                    <span class="text-slate-200 flex items-center gap-1.5"><i class="fa-solid fa-hand-pointer text-purple-400 text-[11px]"></i> Air Tap / Pinch</span>
+                                    <span id="pct-tap" class="text-purple-300">0%</span>
+                                </div>
+                                <div class="w-full h-2 rounded-full bg-slate-900 overflow-hidden">
+                                    <div id="bar-tap" class="h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <!-- System Nav (Back / Home) -->
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-xs font-bold">
+                                    <span class="text-slate-200 flex items-center gap-1.5"><i class="fa-solid fa-compass text-amber-400 text-[11px]"></i> Navigation (Home / Back)</span>
+                                    <span id="pct-nav" class="text-amber-300">0%</span>
+                                </div>
+                                <div class="w-full h-2 rounded-full bg-slate-900 overflow-hidden">
+                                    <div id="bar-nav" class="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Air Volume -->
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-xs font-bold">
+                                    <span class="text-slate-200 flex items-center gap-1.5"><i class="fa-solid fa-volume-high text-emerald-400 text-[11px]"></i> Air Volume</span>
+                                    <span id="pct-volume" class="text-emerald-300">0%</span>
+                                </div>
+                                <div class="w-full h-2 rounded-full bg-slate-900 overflow-hidden">
+                                    <div id="bar-volume" class="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Top Apps Controlled -->
+                        <div class="mt-4 pt-3 border-t border-slate-800/80">
+                            <p class="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-2">Top Apps Controlled</p>
+                            <div id="top-apps-list" class="flex flex-wrap gap-1.5">
+                                <span class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-bold text-slate-300 flex items-center gap-1.5"><i class="fa-brands fa-instagram text-pink-400"></i> Instagram</span>
+                                <span class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-bold text-slate-300 flex items-center gap-1.5"><i class="fa-brands fa-youtube text-red-500"></i> YouTube</span>
+                                <span class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-bold text-slate-300 flex items-center gap-1.5"><i class="fa-brands fa-tiktok text-cyan-400"></i> TikTok</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Connected User Devices Directory Table -->
+            <div class="bento rounded-3xl p-5 md:p-6 space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-mobile-screen-button text-cyan-400"></i>
+                        <h3 class="text-xs font-black text-white uppercase tracking-wider">Connected Devices & Telemetry Directory</h3>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span id="table-device-count" class="px-2.5 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-cyan-300 text-[11px] font-bold">0 phones synced</span>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="text-slate-400 border-b border-slate-800 text-[11px] uppercase tracking-wider font-extrabold">
+                                <th class="pb-3 px-3">Device & Hardware</th>
+                                <th class="pb-3 px-3">Status</th>
+                                <th class="pb-3 px-3">OS / App Version</th>
+                                <th class="pb-3 px-3">Total Gestures</th>
+                                <th class="pb-3 px-3">Last Action</th>
+                                <th class="pb-3 px-3">Last Seen</th>
+                            </tr>
+                        </thead>
+                        <tbody id="devices-table-body" class="divide-y divide-slate-800/60 font-medium">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
         <!-- 3. MAIN WORKBENCH: REMOTE CONFIG & OTA RELEASES (Modules 2 & 3) -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
@@ -465,6 +645,380 @@
         let fbApp = null;
         let firestoreDb = null;
 
+        // ==========================================
+        // REAL-TIME USER TELEMETRY & BEHAVIOR TRACKING
+        // ==========================================
+        let liveDevicesList = [];
+        let liveEventsList = [];
+        let currentFeedFilter = 'ALL';
+        let devicesUnsubscribe = null;
+        let eventsUnsubscribe = null;
+
+        function timeAgo(dateInput) {
+            if (!dateInput) return 'Recently';
+            const past = new Date(dateInput).getTime();
+            const now = Date.now();
+            const diffSec = Math.max(0, Math.floor((now - past) / 1000));
+            if (diffSec < 10) return 'Just now';
+            if (diffSec < 60) return `${diffSec}s ago`;
+            const diffMin = Math.floor(diffSec / 60);
+            if (diffMin < 60) return `${diffMin}m ago`;
+            const diffHr = Math.floor(diffMin / 60);
+            if (diffHr < 24) return `${diffHr}h ago`;
+            return `${Math.floor(diffHr / 24)}d ago`;
+        }
+
+        function filterActivityFeed(filterType) {
+            currentFeedFilter = filterType;
+            ['all', 'gesture', 'app', 'session'].forEach(f => {
+                const btn = document.getElementById(`filter-${f}`);
+                if (btn) {
+                    if (f === filterType.toLowerCase()) {
+                        btn.className = 'px-2.5 py-1 rounded-lg bg-cyan-500/20 text-cyan-300 font-bold';
+                    } else {
+                        btn.className = 'px-2.5 py-1 rounded-lg hover:bg-slate-800 text-slate-400 font-bold';
+                    }
+                }
+            });
+            renderActivityStream();
+        }
+
+        function renderActivityStream() {
+            const container = document.getElementById('live-activity-stream');
+            if (!container) return;
+
+            let filtered = liveEventsList;
+            if (currentFeedFilter === 'GESTURE') {
+                filtered = liveEventsList.filter(e => (e.eventType || '').startsWith('GESTURE'));
+            } else if (currentFeedFilter === 'APP') {
+                filtered = liveEventsList.filter(e => e.eventType === 'APP_LAUNCH');
+            } else if (currentFeedFilter === 'SESSION') {
+                filtered = liveEventsList.filter(e => (e.eventType || '').startsWith('ENGINE'));
+            }
+
+            const countBadge = document.getElementById('event-count-badge');
+            if (countBadge) countBadge.textContent = `${filtered.length} events`;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 text-center space-y-2">
+                        <i class="fa-solid fa-radar text-slate-600 text-2xl animate-pulse"></i>
+                        <p class="text-slate-300 font-bold text-xs">Waiting for live user interactions</p>
+                        <p class="text-[11px] text-slate-500">Gestures, app launches and sessions will stream here in real time as users interact with the app.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const iconMap = {
+                'GESTURE_NEXT': { icon: 'fa-arrow-down-up-across-line', color: 'text-cyan-400', bg: 'bg-cyan-500/15', title: 'Quick Scroll (Fold)' },
+                'GESTURE_PREV': { icon: 'fa-arrow-up', color: 'text-blue-400', bg: 'bg-blue-500/15', title: 'Quick Scroll UP' },
+                'GESTURE_SCROLL': { icon: 'fa-arrow-down-up-across-line', color: 'text-cyan-400', bg: 'bg-cyan-500/15', title: 'Quick Scroll' },
+                'GESTURE_LIKE': { icon: 'fa-thumbs-up', color: 'text-pink-400', bg: 'bg-pink-500/15', title: 'Thumbs-Up Like' },
+                'GESTURE_AIR_TAP': { icon: 'fa-hand-pointer', color: 'text-purple-400', bg: 'bg-purple-500/15', title: 'Air Tap Pinch' },
+                'GESTURE_BACK': { icon: 'fa-chevron-left', color: 'text-amber-400', bg: 'bg-amber-500/15', title: 'System Back' },
+                'GESTURE_HOME': { icon: 'fa-house', color: 'text-amber-400', bg: 'bg-amber-500/15', title: 'System Home' },
+                'GESTURE_NAV': { icon: 'fa-compass', color: 'text-amber-400', bg: 'bg-amber-500/15', title: 'Navigation' },
+                'GESTURE_VOLUME': { icon: 'fa-volume-high', color: 'text-emerald-400', bg: 'bg-emerald-500/15', title: 'Air Volume' },
+                'APP_LAUNCH': { icon: 'fa-rocket', color: 'text-emerald-400', bg: 'bg-emerald-500/15', title: 'App Launched' },
+                'ENGINE_START': { icon: 'fa-circle-play', color: 'text-emerald-400', bg: 'bg-emerald-500/15', title: 'Camera Engine Started' },
+                'ENGINE_STOP': { icon: 'fa-circle-stop', color: 'text-rose-400', bg: 'bg-rose-500/15', title: 'Engine Paused' },
+                'SETTINGS_CHANGED': { icon: 'fa-sliders', color: 'text-indigo-400', bg: 'bg-indigo-500/15', title: 'Settings Tweaked' }
+            };
+
+            container.innerHTML = filtered.map(item => {
+                const cfg = iconMap[item.eventType] || { icon: 'fa-bolt', color: 'text-slate-300', bg: 'bg-slate-800', title: item.eventType };
+                const label = item.appName ? `Opened <strong>${item.appName}</strong>` : (item.gesture || item.action || item.status || cfg.title);
+                const dev = item.deviceModel || item.deviceId || 'Android Device';
+                const timeText = timeAgo(item.timestamp);
+
+                return `
+                    <div class="p-3 rounded-2xl bg-slate-900/80 border border-slate-800/80 flex items-center justify-between gap-3 hover:border-slate-700 transition">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-8 h-8 rounded-xl ${cfg.bg} ${cfg.color} flex items-center justify-center font-bold text-xs shrink-0">
+                                <i class="fa-solid ${cfg.icon}"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-xs font-bold text-white truncate">${label}</p>
+                                <p class="text-[10px] text-slate-400 truncate"><span class="text-cyan-300 font-semibold">${dev}</span> • ${item.eventType}</p>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-bold text-slate-500 shrink-0 whitespace-nowrap">${timeText}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderDevicesTable() {
+            const tbody = document.getElementById('devices-table-body');
+            const countEl = document.getElementById('table-device-count');
+            if (!tbody) return;
+
+            if (countEl) countEl.textContent = `${liveDevicesList.length} phones synced`;
+
+            if (liveDevicesList.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="p-6 text-center text-slate-500 text-xs font-medium">
+                            No devices registered yet. Open the AeroSense mobile app to automatically pair.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            const now = Date.now();
+            tbody.innerHTML = liveDevicesList.map(dev => {
+                const lastTime = dev.lastSeen ? new Date(dev.lastSeen).getTime() : 0;
+                const isRecentlyActive = (now - lastTime) < 5 * 60 * 1000;
+                const isOnline = dev.isOnline && isRecentlyActive;
+
+                const statusBadge = isOnline
+                    ? '<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[10px] font-black"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> ONLINE</span>'
+                    : '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 text-[10px] font-bold"><span class="w-1.5 h-1.5 rounded-full bg-slate-600"></span> IDLE</span>';
+
+                return `
+                    <tr class="hover:bg-slate-900/50 transition">
+                        <td class="py-3 px-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-7 h-7 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-xs font-bold shrink-0">
+                                    <i class="fa-solid fa-mobile-screen"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="font-bold text-white text-xs truncate">${dev.deviceModel || 'Android Device'}</p>
+                                    <p class="text-[10px] font-mono text-slate-400 truncate">${dev.deviceId || 'unknown'}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-3 px-3 whitespace-nowrap">${statusBadge}</td>
+                        <td class="py-3 px-3 text-slate-300 font-semibold whitespace-nowrap">
+                            Android ${dev.androidRelease || '14'} • <span class="text-cyan-300 font-mono">v${dev.appVersion || '2.5.0'}</span>
+                        </td>
+                        <td class="py-3 px-3 font-black text-purple-300 whitespace-nowrap">
+                            ${parseInt(dev.totalGestures || 0).toLocaleString()} gestures
+                        </td>
+                        <td class="py-3 px-3 text-slate-300 font-medium whitespace-nowrap truncate max-w-[140px]">
+                            ${dev.lastAction || 'Active'}
+                        </td>
+                        <td class="py-3 px-3 text-slate-400 text-[11px] whitespace-nowrap">
+                            ${timeAgo(dev.lastSeen)}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateAnalyticsMetrics() {
+            let totalGestures = 0;
+            let scrollCount = 0;
+            let likeCount = 0;
+            let tapCount = 0;
+            let navCount = 0;
+            let volumeCount = 0;
+            const appCounts = {};
+
+            liveEventsList.forEach(e => {
+                const t = e.eventType || '';
+                if (t === 'GESTURE_NEXT' || t === 'GESTURE_PREV' || t === 'GESTURE_SCROLL') scrollCount++;
+                else if (t === 'GESTURE_LIKE') likeCount++;
+                else if (t === 'GESTURE_AIR_TAP') tapCount++;
+                else if (t === 'GESTURE_BACK' || t === 'GESTURE_HOME' || t === 'GESTURE_NAV') navCount++;
+                else if (t === 'GESTURE_VOLUME') volumeCount++;
+
+                if (e.appName) {
+                    appCounts[e.appName] = (appCounts[e.appName] || 0) + 1;
+                }
+            });
+
+            liveDevicesList.forEach(d => {
+                totalGestures += parseInt(d.totalGestures || 0);
+            });
+            if (totalGestures === 0) {
+                totalGestures = scrollCount + likeCount + tapCount + navCount + volumeCount;
+            }
+
+            const totalGestureEvents = Math.max(1, scrollCount + likeCount + tapCount + navCount + volumeCount);
+            const pScroll = Math.round((scrollCount / totalGestureEvents) * 100);
+            const pLike = Math.round((likeCount / totalGestureEvents) * 100);
+            const pTap = Math.round((tapCount / totalGestureEvents) * 100);
+            const pNav = Math.round((navCount / totalGestureEvents) * 100);
+            const pVol = Math.round((volumeCount / totalGestureEvents) * 100);
+
+            // Progress Bars
+            setMetricBar('scroll', pScroll);
+            setMetricBar('like', pLike);
+            setMetricBar('tap', pTap);
+            setMetricBar('nav', pNav);
+            setMetricBar('volume', pVol);
+
+            // KPI Tiles
+            const now = Date.now();
+            const onlineCount = liveDevicesList.filter(d => d.isOnline && ((now - new Date(d.lastSeen).getTime()) < 5 * 60 * 1000)).length;
+            const kpiDev = document.getElementById('kpi-devices');
+            const kpiStatus = document.getElementById('kpi-devices-status');
+            const kpiSub = document.getElementById('kpi-devices-sub');
+            if (kpiDev) kpiDev.textContent = `${onlineCount} Online`;
+            if (kpiStatus) kpiStatus.innerHTML = `<i class="fa-solid fa-circle text-emerald-400 mr-1 text-[8px]"></i>${liveDevicesList.length} Registered`;
+            if (kpiSub) kpiSub.textContent = onlineCount > 0 ? `${onlineCount} active now in camera session` : 'Awaiting mobile device ping';
+
+            const kpiGest = document.getElementById('kpi-gestures');
+            if (kpiGest) kpiGest.textContent = totalGestures.toLocaleString();
+
+            // Top Apps List
+            const topAppsContainer = document.getElementById('top-apps-list');
+            if (topAppsContainer && Object.keys(appCounts).length > 0) {
+                const sortedApps = Object.entries(appCounts).sort((a,b) => b[1] - a[1]).slice(0, 4);
+                topAppsContainer.innerHTML = sortedApps.map(([name, count]) => {
+                    return `<span class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-bold text-slate-300 flex items-center gap-1.5"><i class="fa-solid fa-fire text-amber-400"></i> ${name} (${count})</span>`;
+                }).join('');
+            }
+        }
+
+        function setMetricBar(type, pct) {
+            const valPct = isNaN(pct) ? 0 : pct;
+            const lbl = document.getElementById(`pct-${type}`);
+            const bar = document.getElementById(`bar-${type}`);
+            if (lbl) lbl.textContent = `${valPct}%`;
+            if (bar) bar.style.width = `${valPct}%`;
+        }
+
+        function subscribeToLiveTelemetry() {
+            if (!firestoreDb) return;
+
+            // 1. Devices Listener
+            if (devicesUnsubscribe) devicesUnsubscribe();
+            devicesUnsubscribe = firestoreDb.collection('aerosense_devices')
+                .onSnapshot((snapshot) => {
+                    const devices = [];
+                    snapshot.forEach(doc => {
+                        devices.push(doc.data());
+                    });
+                    liveDevicesList = devices;
+                    renderDevicesTable();
+                    updateAnalyticsMetrics();
+                }, (err) => {
+                    console.warn('Devices listener notice:', err);
+                });
+
+            // 2. Events Stream Listener
+            if (eventsUnsubscribe) eventsUnsubscribe();
+            eventsUnsubscribe = firestoreDb.collection('aerosense_events')
+                .orderBy('timestamp', 'desc')
+                .limit(50)
+                .onSnapshot((snapshot) => {
+                    const events = [];
+                    snapshot.forEach(doc => {
+                        events.push(doc.data());
+                    });
+                    liveEventsList = events;
+                    renderActivityStream();
+                    updateAnalyticsMetrics();
+                    const ping = document.getElementById('last-event-ping');
+                    if (ping) ping.textContent = `Last event: ${new Date().toLocaleTimeString()}`;
+                }, (err) => {
+                    console.warn('Events listener notice:', err);
+                });
+        }
+
+        async function simulateTestTelemetryEvent() {
+            const sampleEvents = [
+                { eventType: 'GESTURE_NEXT', gesture: 'Quick Scroll', direction: 'DOWN', appName: 'Instagram' },
+                { eventType: 'GESTURE_LIKE', gesture: 'Thumbs-Up Like', action: 'LIKE_REEL', appName: 'Instagram' },
+                { eventType: 'GESTURE_AIR_TAP', gesture: 'Air Tap Pinch', normX: 0.52, normY: 0.44 },
+                { eventType: 'APP_LAUNCH', appName: 'YouTube', packageName: 'com.google.android.youtube' },
+                { eventType: 'GESTURE_NEXT', gesture: 'Quick Scroll', direction: 'DOWN', appName: 'TikTok' },
+                { eventType: 'GESTURE_NAV', gesture: 'Home Button', action: 'HOME' }
+            ];
+
+            const pick = sampleEvents[Math.floor(Math.random() * sampleEvents.length)];
+            const simDevice = {
+                deviceId: 'dev_pixel8_test',
+                deviceModel: 'Google Pixel 8 Pro',
+                eventType: pick.eventType,
+                timestamp: new Date().toISOString(),
+                appVersion: '2.5.0',
+                ...pick
+            };
+
+            if (firestoreDb) {
+                try {
+                    await firestoreDb.collection('aerosense_events').add(simDevice);
+                    await firestoreDb.collection('aerosense_devices').doc(simDevice.deviceId).set({
+                        deviceId: simDevice.deviceId,
+                        deviceModel: simDevice.deviceModel,
+                        brand: 'Google',
+                        androidRelease: '15',
+                        appVersion: '2.5.0',
+                        isOnline: true,
+                        lastSeen: simDevice.timestamp,
+                        lastAction: pick.gesture || pick.appName || pick.eventType,
+                        totalGestures: firebase.firestore.FieldValue.increment(1)
+                    }, { merge: true });
+
+                    showToast('Event Dispatched', `Simulated ${pick.gesture || pick.eventType} sent to Firebase!`);
+                    return;
+                } catch (e) {
+                    console.error('Simulate event error:', e);
+                }
+            }
+
+            // Local simulator fallback if Firebase not connected yet
+            liveEventsList.unshift(simDevice);
+            let existingDev = liveDevicesList.find(d => d.deviceId === simDevice.deviceId);
+            if (!existingDev) {
+                existingDev = {
+                    deviceId: simDevice.deviceId,
+                    deviceModel: simDevice.deviceModel,
+                    brand: 'Google',
+                    androidRelease: '15',
+                    appVersion: '2.5.0',
+                    isOnline: true,
+                    lastSeen: simDevice.timestamp,
+                    lastAction: pick.gesture || pick.appName || pick.eventType,
+                    totalGestures: 1
+                };
+                liveDevicesList.push(existingDev);
+            } else {
+                existingDev.isOnline = true;
+                existingDev.lastSeen = simDevice.timestamp;
+                existingDev.lastAction = pick.gesture || pick.appName || pick.eventType;
+                existingDev.totalGestures = (existingDev.totalGestures || 0) + 1;
+            }
+
+            renderActivityStream();
+            renderDevicesTable();
+            updateAnalyticsMetrics();
+            showToast('Simulated (Local)', `Simulated ${pick.gesture || pick.eventType} added locally.`);
+        }
+
+        function clearActivityFeed() {
+            liveEventsList = [];
+            renderActivityStream();
+            updateAnalyticsMetrics();
+            showToast('Cleared', 'Activity stream cleared.');
+        }
+
+        function loadInitialSimulatorData() {
+            if (liveEventsList.length === 0) {
+                liveEventsList = [
+                    { deviceId: 'dev_samsung_s23', deviceModel: 'Samsung Galaxy S23', eventType: 'GESTURE_NEXT', gesture: 'Quick Scroll (Fold)', direction: 'DOWN', timestamp: new Date(Date.now() - 25000).toISOString(), appVersion: '2.5.0' },
+                    { deviceId: 'dev_oneplus_11', deviceModel: 'OnePlus 11', eventType: 'GESTURE_LIKE', gesture: 'Thumbs-Up Like', action: 'LIKE_REEL', timestamp: new Date(Date.now() - 85000).toISOString(), appVersion: '2.5.0' },
+                    { deviceId: 'dev_samsung_s23', deviceModel: 'Samsung Galaxy S23', eventType: 'APP_LAUNCH', appName: 'Instagram', packageName: 'com.instagram.android', timestamp: new Date(Date.now() - 140000).toISOString(), appVersion: '2.5.0' },
+                    { deviceId: 'dev_pixel_7', deviceModel: 'Google Pixel 7', eventType: 'ENGINE_START', status: 'LIVE', timestamp: new Date(Date.now() - 260000).toISOString(), appVersion: '2.5.0' }
+                ];
+            }
+            if (liveDevicesList.length === 0) {
+                liveDevicesList = [
+                    { deviceId: 'dev_samsung_s23', deviceModel: 'Samsung Galaxy S23', brand: 'Samsung', androidRelease: '14', appVersion: '2.5.0', isOnline: true, lastSeen: new Date(Date.now() - 25000).toISOString(), lastAction: 'Quick Scroll', totalGestures: 148 },
+                    { deviceId: 'dev_oneplus_11', deviceModel: 'OnePlus 11', brand: 'OnePlus', androidRelease: '14', appVersion: '2.5.0', isOnline: true, lastSeen: new Date(Date.now() - 85000).toISOString(), lastAction: 'Thumbs-Up Like', totalGestures: 92 },
+                    { deviceId: 'dev_pixel_7', deviceModel: 'Google Pixel 7', brand: 'Google', androidRelease: '14', appVersion: '2.5.0', isOnline: false, lastSeen: new Date(Date.now() - 450000).toISOString(), lastAction: 'Engine Paused', totalGestures: 41 }
+                ];
+            }
+            renderActivityStream();
+            renderDevicesTable();
+            updateAnalyticsMetrics();
+        }
+
         // Load saved state on boot
         window.onload = function() {
             const savedConfig = localStorage.getItem('aero_admin_remote_config');
@@ -475,6 +1029,7 @@
             }
             reflectConfigToUI();
             checkSavedFirebaseCredentials();
+            loadInitialSimulatorData();
         };
 
         function showToast(title, msg, isSuccess = true) {
@@ -571,6 +1126,9 @@
                 firestoreDb = firebase.firestore();
                 document.getElementById('cloud-status-badge').className = 'px-3.5 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold flex items-center gap-2';
                 document.getElementById('cloud-status-text').textContent = `Firebase: ${projectId}`;
+                const kpiCloud = document.getElementById('kpi-cloud-status');
+                if (kpiCloud) kpiCloud.textContent = 'Connected';
+                subscribeToLiveTelemetry();
                 return true;
             } catch (err) {
                 console.warn('Firebase init notice:', err);

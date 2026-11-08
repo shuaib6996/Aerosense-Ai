@@ -278,6 +278,14 @@ flowchart TD
 - Automatically applies owner's remote changes to `aeroConfig` and shows in-app update prompts without re-releasing APKs.
 - 100% offline-safe with local storage fallback.
 
+### Phase 4: Live Telemetry & User Behavior Analytics (✅ COMPLETED & LIVE)
+- **Engine**: `AeroAnalytics` built directly into `index.html` & `android/app/src/main/assets/index.html`.
+- **Collections**:
+  - `aerosense_devices`: Real-time device registry, presence heartbeat (`isOnline`, `lastSeen`), total gestures, device model/OS, and last action.
+  - `aerosense_events`: Live user action stream (`GESTURE_NEXT`, `GESTURE_PREV`, `GESTURE_LIKE`, `GESTURE_AIR_TAP`, `ENGINE_START`, `ENGINE_STOP`, `APP_LAUNCH`, `SETTINGS_CHANGED`).
+- **Admin Dashboard**: Live real-time action stream, gesture adoption percentages, connected devices directory, and simulated test telemetry in `admin.html`.
+- **Hardware Native Bridge**: `MainActivity.java` exposes `getDeviceInfoJson()` to securely capture device model and Android SDK version.
+
 ---
 
 ## 🔐 6. Security & Role-Based Access Control (RBAC)

@@ -861,6 +861,22 @@ public class MainActivity extends Activity {
                 }
             });
         }
+
+        @JavascriptInterface
+        public String getDeviceInfoJson() {
+            try {
+                org.json.JSONObject obj = new org.json.JSONObject();
+                obj.put("model", Build.MODEL);
+                obj.put("manufacturer", Build.MANUFACTURER);
+                obj.put("brand", Build.BRAND);
+                obj.put("sdkInt", Build.VERSION.SDK_INT);
+                obj.put("release", Build.VERSION.RELEASE);
+                obj.put("appVersion", "2.5.0");
+                return obj.toString();
+            } catch (Exception e) {
+                return "{}";
+            }
+        }
     }
 
     @Override
