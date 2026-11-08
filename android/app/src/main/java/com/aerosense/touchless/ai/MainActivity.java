@@ -471,7 +471,7 @@ public class MainActivity extends Activity {
             AeroForegroundService.start(MainActivity.this);
             startKeepAliveHeartbeat();
             if (AeroAccessibilityService.instance != null) {
-                AeroAccessibilityService.instance.setCursorVisibility(true);
+                AeroAccessibilityService.instance.setCursorVisibility(false);
             }
         }
 

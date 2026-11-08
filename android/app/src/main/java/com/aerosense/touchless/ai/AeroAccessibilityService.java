@@ -21,6 +21,7 @@ import android.widget.FrameLayout;
 import android.content.Context;
 import android.media.AudioManager;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AeroAccessibilityService extends AccessibilityService {
 
@@ -44,6 +45,16 @@ public class AeroAccessibilityService extends AccessibilityService {
     private long lastGestureDispatchTime = 0;
     private volatile boolean isCursorEnabled = false;
     private volatile boolean isTwoHandModeEnabled = false;
+    private final AtomicBoolean isCursor1UpdatePending = new AtomicBoolean(false);
+    private final AtomicBoolean isCursor2UpdatePending = new AtomicBoolean(false);
+    private volatile float latestNormX1 = 0.5f;
+    private volatile float latestNormY1 = 0.5f;
+    private volatile boolean latestIsPinching1 = false;
+    private volatile float latestNormX2 = 0.5f;
+    private volatile float latestNormY2 = 0.5f;
+    private volatile boolean latestIsPinching2 = false;
+    private boolean hasHandHistory1 = false;
+    private boolean hasHandHistory2 = false;
 
     @Override
     protected void onServiceConnected() {
@@ -53,6 +64,8 @@ public class AeroAccessibilityService extends AccessibilityService {
         updateScreenDimensions();
         smoothX = screenWidth / 2f;
         smoothY = screenHeight / 2f;
+        hasHandHistory1 = false;
+        hasHandHistory2 = false;
         createSystemAirCursorOverlay();
     }
 
@@ -144,8 +157,92 @@ public class AeroAccessibilityService extends AccessibilityService {
         });
     }
 
+    private final Runnable cursor1UpdateRunnable = new Runnable() {
+        @Override
+        public void run() {
+            isCursor1UpdatePending.set(false);
+            if (cursorContainer == null || cursorParams == null || windowManager == null || !isCursorEnabled) return;
+            try {
+                if (cursorContainer.getVisibility() != View.VISIBLE) {
+                    cursorContainer.setVisibility(View.VISIBLE);
+                }
+                updateScreenDimensions();
+                float targetX = latestNormX1 * screenWidth;
+                float targetY = latestNormY1 * screenHeight;
+
+                if (!hasHandHistory1) {
+                    smoothX = targetX;
+                    smoothY = targetY;
+                    hasHandHistory1 = true;
+                } else {
+                    smoothX += (targetX - smoothX) * 0.45f;
+                    smoothY += (targetY - smoothY) * 0.45f;
+                }
+
+                cursorParams.x = Math.max(0, Math.min(screenWidth - 70, (int) smoothX - 35));
+                cursorParams.y = Math.max(0, Math.min(screenHeight - 70, (int) smoothY - 35));
+
+                GradientDrawable ring = (GradientDrawable) cursorContainer.getBackground();
+                if (latestIsPinching1) {
+                    ring.setColor(Color.parseColor("#AA10B981"));
+                    ring.setStroke(7, Color.parseColor("#10B981"));
+                } else {
+                    ring.setColor(Color.parseColor("#3822C55E"));
+                    ring.setStroke(5, Color.parseColor("#22D3EE"));
+                }
+                windowManager.updateViewLayout(cursorContainer, cursorParams);
+            } catch (Exception ignored) {}
+        }
+    };
+
+    private final Runnable cursor2UpdateRunnable = new Runnable() {
+        @Override
+        public void run() {
+            isCursor2UpdatePending.set(false);
+            if (cursorContainer2 == null || cursorParams2 == null || windowManager == null || !isCursorEnabled || !isTwoHandModeEnabled) return;
+            try {
+                if (cursorContainer2.getVisibility() != View.VISIBLE) {
+                    cursorContainer2.setVisibility(View.VISIBLE);
+                }
+                updateScreenDimensions();
+                float targetX = latestNormX2 * screenWidth;
+                float targetY = latestNormY2 * screenHeight;
+
+                if (!hasHandHistory2) {
+                    smoothX2 = targetX;
+                    smoothY2 = targetY;
+                    hasHandHistory2 = true;
+                } else {
+                    smoothX2 += (targetX - smoothX2) * 0.45f;
+                    smoothY2 += (targetY - smoothY2) * 0.45f;
+                }
+
+                cursorParams2.x = Math.max(0, Math.min(screenWidth - 70, (int) smoothX2 - 35));
+                cursorParams2.y = Math.max(0, Math.min(screenHeight - 70, (int) smoothY2 - 35));
+
+                GradientDrawable ring = (GradientDrawable) cursorContainer2.getBackground();
+                if (latestIsPinching2) {
+                    ring.setColor(Color.parseColor("#AAF59E0B"));
+                    ring.setStroke(7, Color.parseColor("#F59E0B"));
+                } else {
+                    ring.setColor(Color.parseColor("#38F59E0B"));
+                    ring.setStroke(5, Color.parseColor("#FBBF24"));
+                }
+                windowManager.updateViewLayout(cursorContainer2, cursorParams2);
+            } catch (Exception ignored) {}
+        }
+    };
+
     public void setCursorVisibility(boolean visible) {
         this.isCursorEnabled = visible;
+        if (!visible) {
+            hasHandHistory1 = false;
+            hasHandHistory2 = false;
+            mainHandler.removeCallbacks(cursor1UpdateRunnable);
+            mainHandler.removeCallbacks(cursor2UpdateRunnable);
+            isCursor1UpdatePending.set(false);
+            isCursor2UpdatePending.set(false);
+        }
         mainHandler.post(() -> {
             if (cursorContainer != null) {
                 cursorContainer.setVisibility(visible ? View.VISIBLE : View.GONE);
@@ -158,6 +255,11 @@ public class AeroAccessibilityService extends AccessibilityService {
 
     public void setTwoHandMode(boolean enabled) {
         this.isTwoHandModeEnabled = enabled;
+        if (!enabled) {
+            hasHandHistory2 = false;
+            mainHandler.removeCallbacks(cursor2UpdateRunnable);
+            isCursor2UpdatePending.set(false);
+        }
         mainHandler.post(() -> {
             if (cursorContainer2 != null) {
                 cursorContainer2.setVisibility(enabled && isCursorEnabled ? View.VISIBLE : View.GONE);
@@ -167,64 +269,22 @@ public class AeroAccessibilityService extends AccessibilityService {
 
     public void updateCursorPosition(float normX, float normY, boolean isPinching) {
         if (!isCursorEnabled) return;
-        mainHandler.post(() -> {
-            if (cursorContainer == null || cursorParams == null || windowManager == null || !isCursorEnabled) return;
-            try {
-                if (cursorContainer.getVisibility() != View.VISIBLE) {
-                    cursorContainer.setVisibility(View.VISIBLE);
-                }
-                updateScreenDimensions();
-                float targetX = normX * screenWidth;
-                float targetY = normY * screenHeight;
-
-                smoothX += (targetX - smoothX) * 0.45f;
-                smoothY += (targetY - smoothY) * 0.45f;
-
-                cursorParams.x = Math.max(0, Math.min(screenWidth - 70, (int) smoothX - 35));
-                cursorParams.y = Math.max(0, Math.min(screenHeight - 70, (int) smoothY - 35));
-
-                GradientDrawable ring = (GradientDrawable) cursorContainer.getBackground();
-                if (isPinching) {
-                    ring.setColor(Color.parseColor("#AA10B981"));
-                    ring.setStroke(7, Color.parseColor("#10B981"));
-                } else {
-                    ring.setColor(Color.parseColor("#3822C55E"));
-                    ring.setStroke(5, Color.parseColor("#22D3EE"));
-                }
-                windowManager.updateViewLayout(cursorContainer, cursorParams);
-            } catch (Exception ignored) {}
-        });
+        latestNormX1 = normX;
+        latestNormY1 = normY;
+        latestIsPinching1 = isPinching;
+        if (isCursor1UpdatePending.compareAndSet(false, true)) {
+            mainHandler.post(cursor1UpdateRunnable);
+        }
     }
 
     public void updateCursorPosition2(float normX, float normY, boolean isPinching) {
         if (!isCursorEnabled || !isTwoHandModeEnabled) return;
-        mainHandler.post(() -> {
-            if (cursorContainer2 == null || cursorParams2 == null || windowManager == null) return;
-            try {
-                if (cursorContainer2.getVisibility() != View.VISIBLE) {
-                    cursorContainer2.setVisibility(View.VISIBLE);
-                }
-                updateScreenDimensions();
-                float targetX = normX * screenWidth;
-                float targetY = normY * screenHeight;
-
-                smoothX2 += (targetX - smoothX2) * 0.45f;
-                smoothY2 += (targetY - smoothY2) * 0.45f;
-
-                cursorParams2.x = Math.max(0, Math.min(screenWidth - 70, (int) smoothX2 - 35));
-                cursorParams2.y = Math.max(0, Math.min(screenHeight - 70, (int) smoothY2 - 35));
-
-                GradientDrawable ring = (GradientDrawable) cursorContainer2.getBackground();
-                if (isPinching) {
-                    ring.setColor(Color.parseColor("#AAF59E0B"));
-                    ring.setStroke(7, Color.parseColor("#F59E0B"));
-                } else {
-                    ring.setColor(Color.parseColor("#38F59E0B"));
-                    ring.setStroke(5, Color.parseColor("#FBBF24"));
-                }
-                windowManager.updateViewLayout(cursorContainer2, cursorParams2);
-            } catch (Exception ignored) {}
-        });
+        latestNormX2 = normX;
+        latestNormY2 = normY;
+        latestIsPinching2 = isPinching;
+        if (isCursor2UpdatePending.compareAndSet(false, true)) {
+            mainHandler.post(cursor2UpdateRunnable);
+        }
     }
 
     public void performAirTap(float normX, float normY) {
