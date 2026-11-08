@@ -732,9 +732,9 @@
 
                     <!-- Prominent START/STOP Centerpiece Button (Fully Round, Never Cut Off) -->
                     <button id="hero-start-btn" onclick="toggleBackgroundEngine()" 
-                        class="AirClickable w-24 h-24 sm:w-26 sm:h-26 rounded-full bg-gradient-to-tr from-emerald-400 via-cyan-400 to-blue-500 text-slate-950 flex flex-col items-center justify-center shadow-xl shadow-cyan-500/30 transition-all duration-300 active:scale-95 hover:scale-105 border-4 border-slate-900/80 my-1 shrink-0">
-                        <i id="hero-start-icon" class="fa-solid fa-power-off text-3xl"></i>
-                        <span id="hero-start-label" class="text-[11px] font-black uppercase tracking-widest mt-1">START</span>
+                        class="AirClickable w-24 h-24 sm:w-26 sm:h-26 rounded-full bg-gradient-to-tr from-emerald-400 via-cyan-400 to-blue-500 text-slate-950 flex flex-col items-center justify-center shadow-xl shadow-cyan-500/30 transition-all duration-300 active:scale-95 hover:scale-105 border-4 border-slate-900/80 my-1 shrink-0 overflow-hidden">
+                        <i id="hero-start-icon" class="fa-solid fa-power-off text-3xl shrink-0"></i>
+                        <span id="hero-start-label" class="text-[11px] font-black uppercase tracking-widest mt-1 max-w-[76px] truncate text-center leading-none">START</span>
                     </button>
 
                     <!-- Status Headings -->
@@ -1051,20 +1051,20 @@
                                     <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-semibold">Insta/FB/YT</span>
                                 </span>
                                 <div class="flex items-center gap-1.5">
-                                    <span id="lbl-like-hold-duration" class="text-xs font-extrabold text-pink-400">2.0s</span>
-                                    <button onclick="resetSingleSlider('likeHoldDuration', 2.0)" class="AirClickable p-1 text-[11px] text-slate-400 hover:text-pink-300 active:scale-90 transition" title="Reset to 2.0s">
+                                    <span id="lbl-like-hold-duration" class="text-xs font-extrabold text-pink-400">1.5s</span>
+                                    <button onclick="resetSingleSlider('likeHoldDuration', 1.5)" class="AirClickable p-1 text-[11px] text-slate-400 hover:text-pink-300 active:scale-90 transition" title="Reset to 1.5s">
                                         <i class="fa-solid fa-rotate-left"></i>
                                     </button>
                                 </div>
                             </div>
                             <div class="aero-slider-wrap">
-                                <input id="sl-like-hold-duration" type="range" min="0.0" max="5.0" step="0.5" value="2.0"
+                                <input id="sl-like-hold-duration" type="range" min="0.0" max="5.0" step="0.5" value="1.5"
                                     oninput="updateSetting('likeHoldDuration', this.value)" class="aero-slider">
                                 <div class="slider-ticks"><span></span><span></span><span></span><span></span><span></span><span></span></div>
                             </div>
                             <div class="flex justify-between text-[10px] font-bold text-slate-400">
                                 <span>0.0s (Instant)</span>
-                                <span class="text-indigo-400">2.0s (Default)</span>
+                                <span class="text-indigo-400">1.5s (Default)</span>
                                 <span>5.0s</span>
                             </div>
                         </div>
@@ -2050,6 +2050,8 @@
         let thumbsUpStartTime = 0;
         let thumbsUpTriggered = false;
         let thumbsUpProgress = 0;
+        let likeGestureArmed = false;
+        let likeStepTime = 0;
         let pinchStartTime = 0;
         let pinchMenuTriggered = false;
         let pinchHoldProgress = 0;
@@ -2092,7 +2094,7 @@
             scrollDistance: 3,
             pointerSpeed: 3,
             handScale: 1.0,
-            likeHoldDuration: 2.0,
+            likeHoldDuration: 1.5,
             longPinchDuration: 1.8,
             holdDuration: 1.5,
             activationDelay: 1.0,
@@ -2138,6 +2140,13 @@
                 aeroConfig.longPinchDuration = 1.8;
             }
             try { localStorage.setItem('aero_long_pinch_v1_8', 'true'); } catch(e) {}
+            localStorage.setItem('aero_spatial_settings', JSON.stringify(aeroConfig));
+        }
+        if (localStorage.getItem('aero_like_hold_v1_5') !== 'true') {
+            if (aeroConfig.likeHoldDuration === 2.0 || aeroConfig.likeHoldDuration === undefined) {
+                aeroConfig.likeHoldDuration = 1.5;
+            }
+            try { localStorage.setItem('aero_like_hold_v1_5', 'true'); } catch(e) {}
             localStorage.setItem('aero_spatial_settings', JSON.stringify(aeroConfig));
         }
 
@@ -2571,9 +2580,9 @@
             if (lblHand) lblHand.textContent = `${(aeroConfig.handScale !== undefined ? aeroConfig.handScale : 1.0).toFixed(1)}x`;
 
             const slLike = document.getElementById('sl-like-hold-duration');
-            if (slLike) slLike.value = aeroConfig.likeHoldDuration !== undefined ? aeroConfig.likeHoldDuration : 2.0;
+            if (slLike) slLike.value = aeroConfig.likeHoldDuration !== undefined ? aeroConfig.likeHoldDuration : 1.5;
             const lblLike = document.getElementById('lbl-like-hold-duration');
-            if (lblLike) lblLike.textContent = `${(aeroConfig.likeHoldDuration !== undefined ? aeroConfig.likeHoldDuration : 2.0).toFixed(1)}s`;
+            if (lblLike) lblLike.textContent = `${(aeroConfig.likeHoldDuration !== undefined ? aeroConfig.likeHoldDuration : 1.5).toFixed(1)}s`;
 
             const slLongPinch = document.getElementById('sl-long-pinch-duration');
             if (slLongPinch) slLongPinch.value = aeroConfig.longPinchDuration !== undefined ? aeroConfig.longPinchDuration : 1.8;
@@ -3644,32 +3653,33 @@
 
             if (state === 'STARTING') {
                 if (pill) {
-                    pill.textContent = 'STARTING...';
-                    pill.className = 'px-2 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 font-extrabold text-[9px] uppercase tracking-wider whitespace-nowrap animate-pulse';
+                    pill.textContent = 'STARTING';
+                    pill.className = 'px-2 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 font-extrabold text-[9px] uppercase tracking-tight whitespace-nowrap animate-pulse';
                 }
                 if (dot) {
                     dot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0';
                 }
                 if (standbyPill) {
-                    standbyPill.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/50 text-amber-300 text-[10px] font-extrabold uppercase tracking-wider animate-pulse';
+                    standbyPill.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/50 text-amber-300 text-[10px] font-extrabold uppercase tracking-wide animate-pulse max-w-[200px] truncate';
                 }
                 if (standbyDot) {
-                    standbyDot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping';
+                    standbyDot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping shrink-0';
                 }
                 if (standbyText) {
-                    standbyText.textContent = 'INITIALIZING AI ENGINE...';
+                    standbyText.textContent = 'STARTING AI...';
                 }
                 if (heroBtn) {
-                    heroBtn.className = 'AirClickable w-24 h-24 sm:w-26 sm:h-26 rounded-full bg-gradient-to-tr from-amber-400 via-yellow-400 to-orange-500 text-slate-950 flex flex-col items-center justify-center shadow-xl shadow-amber-500/40 transition-all duration-300 border-4 border-amber-300/40 my-1 shrink-0 animate-pulse cursor-wait';
+                    heroBtn.className = 'AirClickable w-24 h-24 sm:w-26 sm:h-26 rounded-full bg-gradient-to-tr from-amber-400 via-yellow-400 to-orange-500 text-slate-950 flex flex-col items-center justify-center shadow-xl shadow-amber-500/40 transition-all duration-300 border-4 border-amber-300/40 my-1 shrink-0 animate-pulse cursor-wait overflow-hidden';
                 }
                 if (heroIcon) {
-                    heroIcon.className = 'fa-solid fa-circle-notch fa-spin text-3xl text-slate-950';
+                    heroIcon.className = 'fa-solid fa-circle-notch fa-spin text-2xl text-slate-950 shrink-0';
                 }
                 if (heroLabel) {
-                    heroLabel.textContent = 'STARTING...';
+                    heroLabel.textContent = 'STARTING';
+                    heroLabel.className = 'text-[9px] font-black uppercase tracking-tight text-center leading-none mt-1 max-w-[70px] truncate';
                 }
                 if (heroHeading) {
-                    heroHeading.textContent = 'Initializing Camera & AI Hand Engine...';
+                    heroHeading.textContent = 'Starting AI Hand Engine...';
                 }
             } else if (state === 'LIVE') {
                 if (pill) {
@@ -3683,19 +3693,20 @@
                     standbyPill.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[10px] font-extrabold uppercase tracking-wider';
                 }
                 if (standbyDot) {
-                    standbyDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse';
+                    standbyDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0';
                 }
                 if (standbyText) {
                     standbyText.textContent = 'AI Vision Live';
                 }
                 if (heroBtn) {
-                    heroBtn.className = 'AirClickable w-24 h-24 sm:w-26 sm:h-26 rounded-full bg-gradient-to-tr from-rose-500 via-red-500 to-pink-600 text-white flex flex-col items-center justify-center shadow-xl shadow-rose-500/30 transition-all duration-300 active:scale-95 hover:scale-105 border-4 border-slate-900/80 my-1 shrink-0';
+                    heroBtn.className = 'AirClickable w-24 h-24 sm:w-26 sm:h-26 rounded-full bg-gradient-to-tr from-rose-500 via-red-500 to-pink-600 text-white flex flex-col items-center justify-center shadow-xl shadow-rose-500/30 transition-all duration-300 active:scale-95 hover:scale-105 border-4 border-slate-900/80 my-1 shrink-0 overflow-hidden';
                 }
                 if (heroIcon) {
-                    heroIcon.className = 'fa-solid fa-stop text-3xl text-white';
+                    heroIcon.className = 'fa-solid fa-stop text-3xl text-white shrink-0';
                 }
                 if (heroLabel) {
                     heroLabel.textContent = 'STOP';
+                    heroLabel.className = 'text-[11px] font-black uppercase tracking-widest mt-1 max-w-[76px] truncate text-center leading-none';
                 }
                 if (heroHeading) {
                     heroHeading.textContent = 'Camera Hand Control Active';
@@ -3714,19 +3725,20 @@
                     standbyPill.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[10px] font-extrabold uppercase tracking-wider';
                 }
                 if (standbyDot) {
-                    standbyDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse';
+                    standbyDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0';
                 }
                 if (standbyText) {
                     standbyText.textContent = 'AI Vision Standby';
                 }
                 if (heroBtn) {
-                    heroBtn.className = 'AirClickable w-24 h-24 sm:w-26 sm:h-26 rounded-full bg-gradient-to-tr from-emerald-400 via-cyan-400 to-blue-500 text-slate-950 flex flex-col items-center justify-center shadow-xl shadow-cyan-500/30 transition-all duration-300 active:scale-95 hover:scale-105 border-4 border-slate-900/80 my-1 shrink-0';
+                    heroBtn.className = 'AirClickable w-24 h-24 sm:w-26 sm:h-26 rounded-full bg-gradient-to-tr from-emerald-400 via-cyan-400 to-blue-500 text-slate-950 flex flex-col items-center justify-center shadow-xl shadow-cyan-500/30 transition-all duration-300 active:scale-95 hover:scale-105 border-4 border-slate-900/80 my-1 shrink-0 overflow-hidden';
                 }
                 if (heroIcon) {
-                    heroIcon.className = 'fa-solid fa-power-off text-3xl text-slate-950';
+                    heroIcon.className = 'fa-solid fa-power-off text-3xl text-slate-950 shrink-0';
                 }
                 if (heroLabel) {
                     heroLabel.textContent = 'START';
+                    heroLabel.className = 'text-[11px] font-black uppercase tracking-widest mt-1 max-w-[76px] truncate text-center leading-none';
                 }
                 if (heroHeading) {
                     heroHeading.textContent = 'Tap START to Activate Camera Hand Control';
@@ -3829,6 +3841,7 @@
                                 homeStep1HoldStart = 0;
                                 backGestureStep = 0;
                                 backStep1HoldStart = 0;
+                                likeGestureArmed = false;
                                 if (!wasPinching) {
                                     wasPinching = true;
                                     pinchStartTime = now;
@@ -3920,17 +3933,24 @@
                             // 🤘 Rock / Horns sign: Index and Pinky extended, Middle and Ring folded
                             const isRockSign = f.isIndexExt && f.isPinkyExt && f.isMiddleFold && f.isRingFold;
 
-                            // 👍 Social Media Like Gesture Hold Logic (0 - 5 sec slider, default 2.0s)
-                            const likeHoldSec = (typeof aeroConfig.likeHoldDuration === 'number') ? aeroConfig.likeHoldDuration : 2.0;
+                            // 👍 Social Media Like Gesture: Open Palm 🖐 ➔ Thumbs-Up 👍 ➔ 1.5s Hold
+                            const likeHoldSec = (typeof aeroConfig.likeHoldDuration === 'number') ? aeroConfig.likeHoldDuration : 1.5;
                             const likeHoldMs = likeHoldSec * 1000;
 
-                            // Protect active Home/Back sequence from any Like / Thumbs Up collision
-                            const inMultiStepSequence = (homeGestureStep > 0 || backGestureStep > 0);
+                            // Protect active Home/Back sequence (Step 2 is Fist/Rock waiting for Palm)
+                            const inMultiStepSequence = (homeGestureStep === 2 || backGestureStep === 2);
 
-                            if (isThumbsUp && !isGestureSleeping && !inMultiStepSequence) {
+                            // Timeout for Open Palm -> Thumbs Up transition (2200ms)
+                            if (likeGestureArmed && (now - likeStepTime > 2200)) {
+                                likeGestureArmed = false;
+                            }
+
+                            if (isThumbsUp && likeGestureArmed && !isGestureSleeping && !inMultiStepSequence) {
                                 wasIndexArmed = false;
                                 wasTwoArmed = false;
                                 isContinuousHolding = false;
+                                homeGestureStep = 0;
+                                backGestureStep = 0;
 
                                 if (!thumbsUpStartTime) {
                                     thumbsUpStartTime = now;
@@ -3942,9 +3962,12 @@
                                 if (elapsed >= likeHoldMs && !thumbsUpTriggered) {
                                     thumbsUpTriggered = true;
                                     spatialFlashTime = now;
+                                    likeGestureArmed = false;
                                     executeAction('LIKE');
                                     playGestureTone(880, 0.08);
                                     setTimeout(() => playGestureTone(1100, 0.10), 90);
+                                    thumbsUpStartTime = 0;
+                                    thumbsUpProgress = 0;
                                 }
                             } else {
                                 thumbsUpStartTime = 0;
@@ -3967,6 +3990,8 @@
                                     wasIndexArmed = false;
                                     wasTwoArmed = false;
                                     isContinuousHolding = false;
+                                    likeGestureArmed = true;
+                                    likeStepTime = now;
 
                                     if (homeGestureStep === 2) {
                                         // STEP 3: Return to Open Palm ✋ after Fist ✊!
@@ -4026,6 +4051,7 @@
                                     backStep1HoldStart = 0;
 
                                     if (isRockSign) {
+                                        likeGestureArmed = false;
                                         // Rock on / Horns sign 🤘: Index & Pinky Extended, Middle & Ring Folded
                                         if (backGestureStep === 1) {
                                             // STEP 2: Transition from Open Palm (Step 1) into Rock Sign 🤘 (Step 2)
@@ -4052,6 +4078,7 @@
                                             isContinuousHolding = false;
                                         }
                                     } else if (isAllFolded) {
+                                        likeGestureArmed = false;
                                         // Hand is in a complete Fist ✊
                                         backGestureStep = 0; // Fist cancels Back sequence!
                                         if (homeGestureStep === 1) {
@@ -4198,7 +4225,7 @@
                                 gestureState = 'SLEEP';
                             } else if (isCleanPinch) {
                                 gestureState = 'PINCH';
-                            } else if (isThumbsUp && homeGestureStep === 0 && backGestureStep === 0) {
+                            } else if (isThumbsUp && likeGestureArmed && homeGestureStep === 0 && backGestureStep === 0) {
                                 gestureState = 'THUMBS_UP';
                             } else if (lastActionName === 'HOME' && (now - spatialFlashTime) < 320) {
                                 gestureState = 'HOME';
@@ -4258,6 +4285,10 @@
                             homeStep1HoldStart = 0;
                             backGestureStep = 0;
                             backStep1HoldStart = 0;
+                            likeGestureArmed = false;
+                            thumbsUpStartTime = 0;
+                            thumbsUpTriggered = false;
+                            thumbsUpProgress = 0;
                             if (cursor) cursor.style.display = 'none';
                             if (window.AndroidBridge && window.AndroidBridge.setHandVisible) {
                                 window.AndroidBridge.setHandVisible(false);
@@ -4979,11 +5010,11 @@
         const HAND_GESTURE_GUIDE = [
             { id: 'FOLD_1', category: 'FOLD', badge: 'Reels / Shorts', badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40', title: '☝️ 1-Finger Fold & Open', actionLabel: 'Scroll Next Reel (Swipe Up)', howTo: 'Keep palm facing camera, bend ONLY Index finger down and open back up.', voiceEquivalent: '"Next" or "Agla"', actionCode: 'NEXT', stageHtml: buildMinimalGestureStage('FOLD_1') },
             { id: 'FOLD_2', category: 'FOLD', badge: 'Reels / Shorts', badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/40', title: '✌️ 2-Finger Fold & Open', actionLabel: 'Previous Reel (Swipe Down)', howTo: 'Bend Index and Middle fingers down together and open back up.', voiceEquivalent: '"Previous" or "Pichla"', actionCode: 'PREV', stageHtml: buildMinimalGestureStage('FOLD_2') },
-            { id: 'THUMBS_LIKE', category: 'SYSTEM', badge: 'YouTube & Insta', badgeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/40', title: '👍 Thumbs-Up Gesture', actionLabel: 'Like Video / Reel', howTo: 'Show a clear Thumbs-Up 👍 towards camera to instantly like YouTube videos or send Heart reaction on Instagram Reels.', voiceEquivalent: '"Like" or "Heart"', actionCode: 'LIKE', stageHtml: buildMinimalGestureStage('LIKE') },
+            { id: 'THUMBS_LIKE', category: 'SYSTEM', badge: 'YouTube & Insta', badgeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/40', title: '👍 Like Gesture (🖐➔👍 1.5s)', actionLabel: 'Like Video / Reel', howTo: 'Show Open Palm 🖐, then form Thumbs-Up 👍 and hold for 1.5s towards camera to like YouTube videos or send Heart reaction on Instagram Reels.', voiceEquivalent: '"Like" or "Heart"', actionCode: 'LIKE', stageHtml: buildMinimalGestureStage('LIKE') },
             { id: 'PINCH_TAP', category: 'FOLD', badge: 'Air Pointer', badgeColor: 'bg-blue-500/20 text-blue-300 border-blue-500/40', title: '👌 Air Cursor & Pinch Tap', actionLabel: 'Click / Tap Anywhere on Screen', howTo: 'Move your hand to guide the neon Air Cursor, then pinch Thumb + Index fingertips together to tap any app icon, reel footer, or button.', voiceEquivalent: '"Click" or "Tap"', actionCode: 'PLAY_PAUSE', stageHtml: buildMinimalGestureStage('PINCH') },
             { id: 'FOLD_3_BACK', category: 'SYSTEM', badge: 'System OS', badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40', title: '⬅️ 3-Step Back (✋➔🤘➔✋)', actionLabel: 'System Back Navigation', howTo: 'Show Open Palm ✋, make Rock sign 🤘 (Index & Pinky open, Middle & Ring folded), then open back to Palm ✋ to trigger Back.', voiceEquivalent: '"Back" or "Wapas"', actionCode: 'BACK', stageHtml: buildMinimalGestureStage('FOLD_3') },
             { id: 'FOLD_4_HOME', category: 'SYSTEM', badge: 'System OS', badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40', title: '🏠 3-Step Home (✋➔✊➔✋)', actionLabel: 'Go to Phone Home Screen', howTo: 'Show Open Palm ✋, curl hand into Fist ✊, then open back to Palm ✋ to trigger Home.', voiceEquivalent: '"Home" or "Ghar"', actionCode: 'HOME', stageHtml: buildMinimalGestureStage('FOLD_4') },
-            { id: 'FOLD_HOLD', category: 'FOLD', badge: 'Island Menu', badgeColor: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40', title: '⏱️ Long Pinch Hold (2.5s)', actionLabel: 'Open Quick Action Menu', howTo: 'Pinch Index + Thumb together and hold for 2.5s to pop open Volume Up/Down, Recents, and System controls.', voiceEquivalent: '"Open Menu"', actionCode: 'HOLD_MENU', stageHtml: buildMinimalGestureStage('HOLD') }
+            { id: 'FOLD_HOLD', category: 'FOLD', badge: 'Island Menu', badgeColor: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40', title: '⏱️ Long Pinch Hold (1.8s)', actionLabel: 'Open Quick Action Menu', howTo: 'Pinch Index + Thumb together and hold for 1.8s to pop open Volume Up/Down, Recents, and System controls.', voiceEquivalent: '"Open Menu"', actionCode: 'HOLD_MENU', stageHtml: buildMinimalGestureStage('HOLD') }
         ];
 
         const BUILTIN_VOICE_COMMANDS = [
@@ -5724,7 +5755,7 @@
             const elPau = document.getElementById('admin-stat-pause');
             if (elPau) elPau.textContent = `${parseFloat(aeroConfig.scrollHoldDelay || 0.3).toFixed(2)}s (Smooth Loop)`;
             const elLik = document.getElementById('admin-stat-like');
-            if (elLik) elLik.textContent = `${parseFloat(aeroConfig.likeHoldDuration || 2.0).toFixed(1)}s`;
+            if (elLik) elLik.textContent = `${parseFloat(aeroConfig.likeHoldDuration || 1.5).toFixed(1)}s`;
             const elHud = document.getElementById('admin-stat-hud');
             if (elHud) elHud.textContent = `${localStorage.getItem('aero_hud_custom_size') || '52'}px (Clean)`;
         }
