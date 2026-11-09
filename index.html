@@ -24,6 +24,9 @@
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
         }
+        .hidden {
+            display: none !important;
+        }
         html, body {
             margin: 0;
             padding: 0;
@@ -458,42 +461,34 @@
 
 
 
-    <!-- OTA APP UPDATE PROMPT MODAL -->
-    <div id="aero-ota-update-modal" class="fixed inset-0 z-[9600] bg-slate-950/90 backdrop-blur-md hidden items-center justify-center p-4">
-        <div class="bento-card rounded-3xl max-w-sm w-full p-5 shadow-2xl border border-cyan-500/40 flex flex-col gap-3.5 max-h-[90dvh] overflow-y-auto no-scrollbar">
-            <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 p-0.5 shrink-0">
-                    <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
-                        <i class="fa-solid fa-rocket text-cyan-400 text-lg"></i>
-                    </div>
+    <!-- COMPACT NON-INTRUSIVE OTA UPDATE BANNER (Small, Non-Blocking, User Can Update Later Anytime) -->
+    <div id="aero-ota-update-modal" style="display: none;" class="fixed top-3 left-3 right-3 sm:left-auto sm:right-4 sm:max-w-sm z-[9800] transition-all duration-300">
+        <div class="bento-card rounded-2xl p-3 sm:p-3.5 shadow-2xl border border-cyan-500/40 bg-[#070c1e]/95 backdrop-blur-xl flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-400 to-blue-600 flex items-center justify-center text-slate-950 text-sm font-black shrink-0 shadow-md shadow-cyan-500/30">
+                    <i class="fa-solid fa-rocket text-xs"></i>
                 </div>
                 <div class="min-w-0">
-                    <span id="ota-badge" class="px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 font-extrabold text-[9px] uppercase tracking-wider">New Update Live</span>
-                    <h2 id="ota-title" class="text-sm font-black text-white leading-tight mt-0.5">AeroSense AI Update</h2>
+                    <div class="flex items-center gap-1.5">
+                        <h4 id="ota-title" class="text-xs font-black text-white truncate">Update Available</h4>
+                        <span id="ota-badge" class="px-1.5 py-0.2 rounded-full bg-cyan-500/20 text-cyan-300 text-[8px] font-black uppercase tracking-wider shrink-0">New</span>
+                    </div>
+                    <p id="ota-desc" class="text-[10px] text-slate-400 truncate mt-0.5">Performance &amp; stability update</p>
                 </div>
             </div>
-
-            <p id="ota-desc" class="text-[11px] text-slate-300 leading-relaxed">
-                A new version is available with improved gesture responsiveness and stability!
-            </p>
-
-            <div id="ota-changelog-box" class="p-3 rounded-2xl bg-slate-900 border border-slate-800 text-[10px] text-slate-300 space-y-1">
-                <p>• Enhanced gesture tracking & performance updates</p>
-            </div>
-
-            <div class="flex gap-2 pt-1">
-                <button id="ota-btn-later" onclick="closeAeroOtaModal()" class="AirClickable flex-1 py-2.5 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs">
+            <div class="flex items-center gap-1.5 shrink-0">
+                <button id="ota-btn-later" type="button" onclick="closeAeroOtaModal()" class="AirClickable px-2.5 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-300 font-bold text-[10px] active:scale-95 transition">
                     Later
                 </button>
-                <button id="ota-btn-update" onclick="openAeroOtaDownload()" class="AirClickable flex-1 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-black text-xs shadow-lg shadow-cyan-500/20">
-                    Update Now
+                <button id="ota-btn-update" type="button" onclick="openAeroOtaDownload()" class="AirClickable px-3 py-1.5 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 font-black text-[10px] shadow-md shadow-cyan-500/20 active:scale-95 transition">
+                    Update
                 </button>
             </div>
         </div>
     </div>
 
     <!-- FIRST-LAUNCH STARTUP PERMISSION GATE MODAL -->
-    <div id="startup-permission-modal" class="fixed inset-0 z-[9600] bg-slate-950/90 backdrop-blur-md hidden items-center justify-center p-4">
+    <div id="startup-permission-modal" style="display: none;" class="fixed inset-0 z-[9600] bg-slate-950/90 backdrop-blur-md hidden items-center justify-center p-4">
         <div class="bento-card rounded-3xl max-w-sm w-full p-5 shadow-2xl border border-cyan-500/40 flex flex-col gap-3.5 max-h-[90dvh] overflow-y-auto no-scrollbar">
             <div class="flex items-center gap-3">
                 <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-cyan-500 to-emerald-400 p-0.5 shrink-0">
@@ -842,7 +837,7 @@
                     </div>
 
                     <p class="text-[11px] text-slate-400 leading-relaxed">
-                        Agar aapko sirf mobile me video ads ko automatic skip karna hai bina touch kiye aur <strong>camera on nahi karna</strong>, toh is engine ko start karein. Ye background me YouTube aur anya apps ke "Skip Ad" aate hi use turant auto-skip kar dega.
+                        Automatically skips video ads without touching your phone and <strong>without turning on the camera</strong>. Runs quietly in the background and auto-clicks "Skip Ad" buttons on YouTube and supported video apps the instant they become available.
                     </p>
                 </div>
 
@@ -868,8 +863,8 @@
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-triangle-exclamation text-amber-400 text-base shrink-0"></i>
                             <div>
-                                <span class="text-xs font-black text-amber-300 block">Accessibility Service Off</span>
-                                <span class="text-[10px] text-slate-400 block">Ads skip karne ke liye Gesture Service ko enable karein</span>
+                                <span class="text-xs font-black text-amber-300 block">Accessibility Service Required</span>
+                                <span class="text-[10px] text-slate-400 block">Enable Gesture Service in Accessibility Settings to allow auto-skipping ads</span>
                             </div>
                         </div>
                         <button onclick="requestNativeAccessibilityPermission()" class="px-2.5 py-1.5 rounded-xl bg-amber-500 text-slate-950 font-black text-[10px] shrink-0 active:scale-95 transition">
@@ -912,7 +907,7 @@
                             </div>
                             <div class="min-w-0">
                                 <h4 class="font-bold text-white text-[11px]">YouTube Video Ads (Pre-roll &amp; Mid-roll)</h4>
-                                <p class="text-slate-400 text-[10px]">Jaise hi video me "Skip Ad" button active hota hai, ye turant click kar deta hai.</p>
+                                <p class="text-slate-400 text-[10px]">Instantly clicks the "Skip Ad" button as soon as the countdown finishes.</p>
                             </div>
                         </div>
 
@@ -922,7 +917,7 @@
                             </div>
                             <div class="min-w-0">
                                 <h4 class="font-bold text-white text-[11px]">YouTube Music &amp; Streaming Apps</h4>
-                                <p class="text-slate-400 text-[10px]">Audio/Video streams me aane wale skippable promotional ads ko skip karta hai.</p>
+                                <p class="text-slate-400 text-[10px]">Auto-skips skippable commercial and promotional ads in media streams.</p>
                             </div>
                         </div>
 
@@ -932,7 +927,7 @@
                             </div>
                             <div class="min-w-0">
                                 <h4 class="font-bold text-white text-[11px]">Zero Camera &amp; Ultra-Low Battery</h4>
-                                <p class="text-slate-400 text-[10px]">Is engine ko chalane ke liye camera ya hand gestures ki zaroorat nahi hoti.</p>
+                                <p class="text-slate-400 text-[10px]">Runs purely through Accessibility Service — no camera or hand gestures required.</p>
                             </div>
                         </div>
                     </div>
@@ -1870,16 +1865,6 @@
 
                 <!-- 1. Developer & Platform Identity Card -->
                 <div class="bento-card rounded-3xl p-5 space-y-3.5 relative overflow-hidden border border-cyan-500/40 bg-gradient-to-br from-slate-900/90 via-[#070e24] to-slate-950 shadow-xl shadow-cyan-950/30">
-                    <!-- AiVisionMind Official Brand Poster Banner -->
-                    <div class="w-full h-32 sm:h-36 rounded-2xl overflow-hidden relative border border-cyan-500/30 shadow-md">
-                        <img src="aivisionmind_brand.jpg" alt="AiVisionMind - Think Create Innovate" class="w-full h-full object-cover object-center">
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent"></div>
-                        <div class="absolute bottom-2 left-3 right-3 flex items-center justify-between">
-                            <span class="text-[10px] font-black text-cyan-300 drop-shadow">AiVisionMind • Think • Create • Innovate</span>
-                            <span class="px-2 py-0.5 rounded-full bg-cyan-500/30 text-white text-[8px] font-extrabold uppercase backdrop-blur-sm border border-cyan-400/40">Official Brand</span>
-                        </div>
-                    </div>
-
                     <div class="flex items-center gap-3.5">
                         <div class="relative shrink-0">
                             <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-cyan-400 via-blue-600 to-indigo-600 flex items-center justify-center text-white text-2xl shadow-lg shadow-cyan-500/30 border border-cyan-300/30">
@@ -1965,7 +1950,7 @@
                                     <span class="px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 text-[8px] font-black">Anonymous</span>
                                 </div>
                                 <p class="text-slate-400 text-[10px] leading-relaxed mt-0.5">
-                                    Hum app ko or behtar aur users ke liye zyada useful banane ke liye Google Analytics (Firebase) ka use karte hain. Isse gestures ki accuracy, app stability aur features ko behtar banaya jata hai.
+                                    We use Google Analytics (Firebase) strictly to improve app performance and user experience. It helps us optimize gesture accuracy, ensure app stability, and deliver enhanced features.
                                 </p>
                             </div>
                         </div>
@@ -1976,7 +1961,7 @@
                             <div>
                                 <span class="font-bold text-white text-[11px] block">No 3rd-Party Data Sharing</span>
                                 <p class="text-slate-400 text-[10px] leading-relaxed mt-0.5">
-                                    <strong>AiVisionMind</strong> ek trusted platform hai. Hum user ka koi bhi personal info ya data kisi bhi third-party company ya advertisers ke sath share ya sell bilkul nahi karte.
+                                    <strong>AiVisionMind</strong> is a trusted platform. We never share, sell, or disclose user data or personal information to third-party companies or advertisers.
                                 </p>
                             </div>
                         </div>
@@ -1987,7 +1972,7 @@
                             <div>
                                 <span class="font-bold text-white text-[11px] block">100% On-Device AI Vision (Zero Recording)</span>
                                 <p class="text-slate-400 text-[10px] leading-relaxed mt-0.5">
-                                    Camera feed sirf volatile device RAM me real-time MediaPipe hand landmarks track karne ke liye use hota hai. Koi photo ya video kabhi save ya server par upload nahi hoti.
+                                    Camera feed is strictly processed in volatile device RAM in real time to track hand landmarks via MediaPipe. No photos or videos are ever saved or uploaded to any server.
                                 </p>
                             </div>
                         </div>
@@ -2072,7 +2057,7 @@
     </div>
 
     <!-- GESTURE GUIDE MODAL -->
-    <div id="gesture-guide-modal" class="fixed inset-0 z-[9500] bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4">
+    <div id="gesture-guide-modal" style="display: none;" class="fixed inset-0 z-[9500] bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4">
         <div class="bento-card rounded-3xl max-w-sm w-full p-4 space-y-2.5 border border-cyan-500/40">
             <div class="flex items-center justify-between">
                 <h3 class="text-sm font-black text-white">🖐️ Complete Air Gesture Guide</h3>
@@ -2113,7 +2098,7 @@
     </div>
 
     <!-- PRIVACY POLICY MODAL -->
-    <div id="privacy-policy-modal" onclick="if(event.target === this) closePrivacyPolicyModal()" class="fixed inset-0 z-[9600] bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4">
+    <div id="privacy-policy-modal" style="display: none;" onclick="if(event.target === this) closePrivacyPolicyModal()" class="fixed inset-0 z-[9600] bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4">
         <div class="bento-card rounded-3xl max-w-sm w-full p-4 sm:p-5 space-y-3.5 border border-cyan-500/40 max-h-[85vh] flex flex-col">
             <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 shrink-0">
                 <div class="flex items-center gap-2">
@@ -2284,7 +2269,7 @@
     </div>
 
     <!-- TERMS & CONDITIONS MODAL -->
-    <div id="terms-conditions-modal" onclick="if(event.target === this) closeTermsConditionsModal()" class="fixed inset-0 z-[9600] bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4">
+    <div id="terms-conditions-modal" style="display: none;" onclick="if(event.target === this) closeTermsConditionsModal()" class="fixed inset-0 z-[9600] bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4">
         <div class="bento-card rounded-3xl max-w-sm w-full p-4 sm:p-5 space-y-3.5 border border-indigo-500/40 max-h-[85vh] flex flex-col">
             <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 shrink-0">
                 <div class="flex items-center gap-2">
@@ -2455,7 +2440,7 @@
     </div>
 
     <!-- HUD SIZE SLIDER MODAL (Min 50px, Max 88px) -->
-    <div id="hud-size-modal" class="fixed inset-0 z-[9600] bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
+    <div id="hud-size-modal" style="display: none;" class="fixed inset-0 z-[9600] bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
         <div class="bento-card rounded-3xl max-w-xs w-full p-4 space-y-3 border border-cyan-500/40">
             <div class="flex items-center justify-between">
                 <h3 class="text-xs font-black text-white flex items-center gap-1.5">
@@ -2485,7 +2470,7 @@
     </div>
 
     <!-- PRIVACY POLICY & PLAY STORE TERMS MODAL -->
-    <div id="legal-modal" class="fixed inset-0 z-[9550] bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4">
+    <div id="legal-modal" style="display: none;" class="fixed inset-0 z-[9550] bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4">
         <div class="bento-card rounded-3xl max-w-sm w-full p-4 space-y-3 border border-emerald-500/40">
             <div class="flex items-center justify-between">
                 <h3 class="text-sm font-black text-white">🛡️ Play Store Privacy & Terms</h3>
@@ -2499,7 +2484,7 @@
     </div>
 
     <!-- DEVICE APP PICKER MODAL -->
-    <div id="device-app-modal" onclick="if(event.target === this) closeDeviceAppPickerModal()" class="fixed inset-0 z-[9500] bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4">
+    <div id="device-app-modal" style="display: none;" onclick="if(event.target === this) closeDeviceAppPickerModal()" class="fixed inset-0 z-[9500] bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4">
         <div class="bento-card rounded-3xl max-w-sm w-full p-4 space-y-3 border border-cyan-500/40 max-h-[85dvh] flex flex-col">
             <div class="flex items-center justify-between">
                 <h3 class="text-sm font-black text-white">📱 Select Phone Apps to Add</h3>
@@ -3263,6 +3248,7 @@
                 </div>
             `;
             }).join('');
+            modal.style.display = 'flex';
             modal.classList.remove('hidden');
             modal.classList.add('flex');
         }
@@ -3273,6 +3259,7 @@
             }
             const modal = document.getElementById('device-app-modal');
             if (modal) {
+                modal.style.display = 'none';
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
             }
@@ -3361,6 +3348,7 @@
             setPrivacyLanguage('en');
             const modal = document.getElementById('privacy-policy-modal');
             if (modal) {
+                modal.style.display = 'flex';
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');
             }
@@ -3369,6 +3357,7 @@
         function closePrivacyPolicyModal() {
             const modal = document.getElementById('privacy-policy-modal');
             if (modal) {
+                modal.style.display = 'none';
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
             }
@@ -3378,6 +3367,7 @@
             setTermsLanguage('en');
             const modal = document.getElementById('terms-conditions-modal');
             if (modal) {
+                modal.style.display = 'flex';
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');
             }
@@ -3386,6 +3376,7 @@
         function closeTermsConditionsModal() {
             const modal = document.getElementById('terms-conditions-modal');
             if (modal) {
+                modal.style.display = 'none';
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
             }
@@ -3393,6 +3384,11 @@
 
         window.closeAllModals = function() {
             let handled = false;
+            const otaModal = document.getElementById('aero-ota-update-modal');
+            if (otaModal && otaModal.style.display !== 'none' && !otaModal.classList.contains('hidden')) {
+                closeAeroOtaModal();
+                handled = true;
+            }
             const termsModal = document.getElementById('terms-conditions-modal');
             if (termsModal && !termsModal.classList.contains('hidden')) {
                 closeTermsConditionsModal();
@@ -3753,6 +3749,7 @@
         function openHudSizeModal() {
             const m = document.getElementById('hud-size-modal');
             if (m) {
+                m.style.display = 'flex';
                 m.classList.remove('hidden');
                 m.classList.add('flex');
             }
@@ -3764,6 +3761,7 @@
         function closeHudSizeModal() {
             const m = document.getElementById('hud-size-modal');
             if (m) {
+                m.style.display = 'none';
                 m.classList.add('hidden');
                 m.classList.remove('flex');
             }
@@ -5265,16 +5263,22 @@
 
         function openStartupPermissionModal() {
             const m = document.getElementById('startup-permission-modal');
-            m.classList.remove('hidden');
-            m.classList.add('flex');
+            if (m) {
+                m.style.display = 'flex';
+                m.classList.remove('hidden');
+                m.classList.add('flex');
+            }
             refreshNativePermissionStatus();
         }
 
         function handleStartupPermissionDecision(allowed) {
             if (!allowed) {
                 const m = document.getElementById('startup-permission-modal');
-                m.classList.add('hidden');
-                m.classList.remove('flex');
+                if (m) {
+                    m.style.display = 'none';
+                    m.classList.add('hidden');
+                    m.classList.remove('flex');
+                }
                 localStorage.setItem('aero_perm_prompted', '1');
                 return;
             }
@@ -5311,8 +5315,11 @@
             }
 
             const m = document.getElementById('startup-permission-modal');
-            m.classList.add('hidden');
-            m.classList.remove('flex');
+            if (m) {
+                m.style.display = 'none';
+                m.classList.add('hidden');
+                m.classList.remove('flex');
+            }
             localStorage.setItem('aero_perm_prompted', '1');
             showToast('✅', 'Permissions Ready', 'Tap START button to activate Hand Control');
         }
@@ -5437,20 +5444,29 @@
 
         function closeGestureGuideModal() {
             const m = document.getElementById('gesture-guide-modal');
-            m.classList.add('hidden');
-            m.classList.remove('flex');
+            if (m) {
+                m.style.display = 'none';
+                m.classList.add('hidden');
+                m.classList.remove('flex');
+            }
         }
 
         function openLegalModal() {
             const m = document.getElementById('legal-modal');
-            m.classList.remove('hidden');
-            m.classList.add('flex');
+            if (m) {
+                m.style.display = 'flex';
+                m.classList.remove('hidden');
+                m.classList.add('flex');
+            }
         }
 
         function closeLegalModal() {
             const m = document.getElementById('legal-modal');
-            m.classList.add('hidden');
-            m.classList.remove('flex');
+            if (m) {
+                m.style.display = 'none';
+                m.classList.add('hidden');
+                m.classList.remove('flex');
+            }
         }
 
         let currentTab = 'launcher';
@@ -6486,7 +6502,14 @@
                         return;
                     }
 
+                    // Strict check: only trigger if latestCode is strictly greater than current version
                     if (latestCode > AERO_CURRENT_VERSION_CODE) {
+                        window.aeroLatestOtaCode = latestCode;
+                        const dismissedCode = parseInt(localStorage.getItem('aero_ota_last_dismissed_code') || '0', 10);
+                        // If user previously dismissed this version and it's not a force-update, don't show
+                        if (!isForce && dismissedCode >= latestCode) {
+                            return;
+                        }
                         showAeroOtaModal(latestName, isForce, data.fields.changelog?.arrayValue?.values);
                     }
                 }
@@ -6499,29 +6522,33 @@
             const modal = document.getElementById('aero-ota-update-modal');
             if (!modal) return;
             const title = document.getElementById('ota-title');
-            if (title) title.textContent = `AeroSense AI v${versionName || 'Update'} Available!`;
+            if (title) title.textContent = `AeroSense AI v${versionName || 'Update'}`;
             const btnLater = document.getElementById('ota-btn-later');
             if (btnLater) {
                 if (isForce) {
+                    btnLater.style.display = 'none';
                     btnLater.classList.add('hidden');
                 } else {
+                    btnLater.style.display = '';
                     btnLater.classList.remove('hidden');
                 }
             }
-            const box = document.getElementById('ota-changelog-box');
-            if (box && changelogArr && changelogArr.length) {
-                box.innerHTML = changelogArr.map(v => `<p>• ${v.stringValue || ''}</p>`).join('');
-            }
+            modal.style.display = 'block';
             modal.classList.remove('hidden');
-            modal.classList.add('flex');
         }
 
         function closeAeroOtaModal() {
             const modal = document.getElementById('aero-ota-update-modal');
             if (modal) {
+                modal.style.display = 'none';
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
             }
+            try {
+                if (window.aeroLatestOtaCode) {
+                    localStorage.setItem('aero_ota_last_dismissed_code', String(window.aeroLatestOtaCode));
+                }
+            } catch (e) {}
         }
 
         function openAeroOtaDownload() {
@@ -6584,3 +6611,4 @@
     </script>
 </body>
 </html>
+ 
