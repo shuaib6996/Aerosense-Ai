@@ -56,7 +56,6 @@ public class MainActivity extends Activity {
     private volatile boolean isHoldMenuShowing = false;
     private int savedOverlayX = -1;
     private int savedOverlayY = -1;
-    private final AeroVoiceControlPatch voiceControlPatch = new AeroVoiceControlPatch();
 
     private final Handler keepAliveHeartbeatHandler = new Handler(Looper.getMainLooper());
     private final Runnable keepAliveHeartbeatRunnable = new Runnable() {
@@ -170,11 +169,9 @@ public class MainActivity extends Activity {
         webView.loadUrl("file:///android_asset/index.html");
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
-                checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{
-                        Manifest.permission.CAMERA,
-                        Manifest.permission.RECORD_AUDIO
+                        Manifest.permission.CAMERA
                 }, PERMISSION_REQ_CODE);
             }
         }
@@ -464,14 +461,12 @@ public class MainActivity extends Activity {
         public void requestRuntimePermissions() {
             runOnUiThread(() -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
-                        checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                    if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                         requestPermissions(new String[]{
-                                Manifest.permission.CAMERA,
-                                Manifest.permission.RECORD_AUDIO
+                                Manifest.permission.CAMERA
                         }, PERMISSION_REQ_CODE);
                     } else {
-                        Toast.makeText(MainActivity.this, "Camera & Microphone already granted!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "Camera permission already granted!", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -720,12 +715,10 @@ public class MainActivity extends Activity {
                 boolean overlayEnabled = Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(MainActivity.this);
                 boolean camEnabled = Build.VERSION.SDK_INT < Build.VERSION_CODES.M ||
                         checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
-                boolean micEnabled = Build.VERSION.SDK_INT < Build.VERSION_CODES.M ||
-                        checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
                 obj.put("accessibility", accEnabled);
                 obj.put("overlay", overlayEnabled);
                 obj.put("camera", camEnabled);
-                obj.put("microphone", micEnabled);
+                obj.put("microphone", true);
             } catch (Exception ignored) {}
             return obj.toString();
         }
@@ -844,14 +837,10 @@ public class MainActivity extends Activity {
         public void updateFloatingIndicatorBounds(float size, float horiz, float vert, float opacity) {}
 
         @JavascriptInterface
-        public void startNativeVoiceRecognition(String languageTag) {
-            voiceControlPatch.startListening(MainActivity.this, webView, languageTag);
-        }
+        public void startNativeVoiceRecognition(String languageTag) {}
 
         @JavascriptInterface
-        public void stopNativeVoiceRecognition() {
-            voiceControlPatch.stopListening();
-        }
+        public void stopNativeVoiceRecognition() {}
 
         @JavascriptInterface
         public void enterFloatingOverlay() {
@@ -1029,8 +1018,5 @@ public class MainActivity extends Activity {
         AeroForegroundService.stop(this);
         activeWebView = null;
         super.onDestroy();
-        if (voiceControlPatch != null) {
-            voiceControlPatch.stopListening();
-        }
     }
 }

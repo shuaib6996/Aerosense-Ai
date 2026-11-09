@@ -1,7 +1,7 @@
 {
   "short_name": "AeroSense AI",
   "name": "AeroSense AI™ — Touchless Hand Gesture Mobile OS",
-  "description": "Control short videos, music, and recipes hands-free using AI camera air gestures and voice commands.",
+  "description": "Control short videos, music, and recipes hands-free using AI camera air gestures.",
   "id": "com.aerosense.touchless.ai",
   "start_url": "./index.html",
   "scope": "./",

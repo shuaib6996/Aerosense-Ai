@@ -1,7 +1,7 @@
 {
 "name": "aerosense-ai-touchless-os",
 "version": "2.4.0",
-"description": "AeroSense AI - Smart Touchless Hand Gesture & Voice Mobile OS for Android and iOS",
+"description": "AeroSense AI - Smart Touchless Hand Gesture Mobile OS for Android and iOS",
 "main": "index.html",
 "scripts": {
 "start": "npx serve .",

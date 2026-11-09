@@ -275,7 +275,6 @@
         body.native-overlay-mode header,
         body.native-overlay-mode main,
         body.native-overlay-mode nav,
-        body.native-overlay-mode #floating-voice-hud,
         body.native-overlay-mode #dynamic-hand-indicator,
         body.native-overlay-mode #dynamic-control-interface {
             display: none !important;
@@ -335,25 +334,6 @@
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 26px;
             padding: 18px;
-        }
-
-        /* Animated Voice Equalizer Bars */
-        .voice-wave-bar {
-            width: 5px;
-            height: 10px;
-            border-radius: 999px;
-            background: #22d3ee;
-            transition: height 0.15s ease;
-        }
-        .listening-active .voice-wave-bar:nth-child(1) { animation: waveBounce 0.55s infinite ease-in-out 0.0s; }
-        .listening-active .voice-wave-bar:nth-child(2) { animation: waveBounce 0.55s infinite ease-in-out 0.12s; background: #465fff; }
-        .listening-active .voice-wave-bar:nth-child(3) { animation: waveBounce 0.55s infinite ease-in-out 0.24s; background: #10b981; }
-        .listening-active .voice-wave-bar:nth-child(4) { animation: waveBounce 0.55s infinite ease-in-out 0.15s; background: #a855f7; }
-        .listening-active .voice-wave-bar:nth-child(5) { animation: waveBounce 0.55s infinite ease-in-out 0.05s; }
-
-        @keyframes waveBounce {
-            0%, 100% { height: 8px; }
-            50% { height: 28px; }
         }
 
         /* Clean Minimalist Gesture + Phone Stage */
@@ -511,8 +491,8 @@
                     <div class="flex items-center gap-2.5 min-w-0">
                         <i class="fa-solid fa-camera text-cyan-400 text-sm w-5 text-center shrink-0"></i>
                         <div class="min-w-0">
-                            <p class="text-xs font-extrabold text-white truncate">1. Camera & Microphone</p>
-                            <p class="text-[10px] text-slate-400 truncate">Detect Finger-Fold, Pinch & Voice AI</p>
+                            <p class="text-xs font-extrabold text-white truncate">1. Camera Access</p>
+                            <p class="text-[10px] text-slate-400 truncate">Detect Finger-Fold, Air Cursor & Pinch</p>
                         </div>
                     </div>
                     <button onclick="requestNativeCameraPermission()" id="startup-cam-badge" class="AirClickable px-2.5 py-1 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 font-extrabold text-[9px] shrink-0">
@@ -660,15 +640,11 @@
                             <span class="font-black text-sm text-white tracking-tight truncate leading-none">AeroSense AI</span>
                             <span id="cam-live-dot" class="w-1.5 h-1.5 rounded-full bg-slate-600 shrink-0"></span>
                         </div>
-                        <span class="text-[10px] text-slate-400 font-semibold tracking-wide leading-none mt-1 truncate">Touchless Hand & Voice OS</span>
+                        <span class="text-[10px] text-slate-400 font-semibold tracking-wide leading-none mt-1 truncate">Touchless Hand Gesture OS</span>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-1.5 shrink-0">
-                    
-                    <button id="voice-btn" onclick="toggleVoiceControl()" class="AirClickable w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-cyan-400 flex items-center justify-center active:scale-95 transition" title="Voice Control">
-                        <i id="voice-icon" class="fa-solid fa-microphone-slash text-xs"></i>
-                    </button>
                     <span id="header-bg-pill" class="px-2 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-400 font-extrabold text-[9px] uppercase tracking-wider whitespace-nowrap">
                         OFF
                     </span>
@@ -1683,167 +1659,26 @@
             </section>
 
 
-            <!-- VIEW 4: VOICE CONTROL & MINIMALIST GESTURE GUIDE -->
+            <!-- VIEW 4: MINIMALIST GESTURE GUIDE -->
             <section id="view-guide" class="hidden space-y-4">
-                <!-- Header with Voice Toggle -->
+                <!-- Header -->
                 <div class="flex items-center justify-between gap-2">
                     <div>
                         <span class="px-2.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-[9px] font-extrabold uppercase">
-                            Touchless Voice + Hand AI
+                            Touchless Spatial AI
                         </span>
-                        <h2 class="text-xl font-black text-white mt-0.5">Voice & Gesture Guide</h2>
+                        <h2 class="text-xl font-black text-white mt-0.5">Air Gesture Guide</h2>
                     </div>
-                    <button id="top-mic-toggle" onclick="toggleVoiceRecognition()" class="px-3 py-1.5 rounded-2xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-black text-xs flex items-center gap-1.5 shadow-lg active:scale-95 transition">
-                        <i id="top-mic-icon" class="fa-solid fa-microphone"></i>
-                        <span id="top-mic-label">Start Voice</span>
-                    </button>
                 </div>
 
-                <!-- Top Navigation Pill Tabs -->
-                <div class="bg-[#16181f] p-1.5 rounded-full flex items-center gap-1 border border-white/5">
-                    <button onclick="switchGuideTab('gestures')" id="gtab-gestures"
-                        class="flex-1 py-1.5 px-2 rounded-full font-extrabold text-xs bg-[#465fff] text-white transition">
-                        🖐️ Hand Guide
-                    </button>
-                    <button onclick="switchGuideTab('voice')" id="gtab-voice"
-                        class="flex-1 py-1.5 px-2 rounded-full font-extrabold text-xs text-slate-400 hover:text-white transition">
-                        🎙️ Voice Control
-                    </button>
-                    <button onclick="switchGuideTab('custom')" id="gtab-custom"
-                        class="flex-1 py-1.5 px-2 rounded-full font-extrabold text-xs text-slate-400 hover:text-white transition">
-                        ⚡ Custom
-                    </button>
-                </div>
-
-                <!-- TAB 1: VISUAL HAND GESTURE GUIDE -->
+                <!-- HAND GESTURE GUIDE FILTER & CARDS -->
                 <div id="gpanel-gestures" class="space-y-3">
                     <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
                         <button onclick="filterGestureCards('ALL')" id="gfilt-ALL" class="px-3 py-1 rounded-full bg-cyan-500 text-slate-950 font-black text-[10px] whitespace-nowrap">All (7)</button>
-                        <button onclick="filterGestureCards('FOLD')" id="gfilt-FOLD" class="px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300 font-bold text-[10px] whitespace-nowrap">Reels & Media</button>
-                        <button onclick="filterGestureCards('SYSTEM')" id="gfilt-SYSTEM" class="px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300 font-bold text-[10px] whitespace-nowrap">System & Like</button>
+                        <button onclick="filterGestureCards('FOLD')" id="gfilt-FOLD" class="px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300 font-bold text-[10px] whitespace-nowrap">Reels &amp; Media</button>
+                        <button onclick="filterGestureCards('SYSTEM')" id="gfilt-SYSTEM" class="px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300 font-bold text-[10px] whitespace-nowrap">System &amp; Like</button>
                     </div>
                     <div id="gesture-guide-cards" class="space-y-3"></div>
-                </div>
-
-                <!-- TAB 2: VOICE CONTROL ENGINE -->
-                <div id="gpanel-voice" class="space-y-3 hidden">
-                    <!-- Live Voice Mic & Speech Controller Card (Integrated Voice UI) -->
-                    <div class="p-3.5 rounded-2xl bg-gradient-to-r from-cyan-950/70 via-slate-900 to-indigo-950/70 border border-cyan-500/40 flex items-center justify-between gap-3 shadow-xl">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <button id="hud-mic-btn" onclick="toggleVoiceRecognition()" class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 text-slate-950 flex items-center justify-center shrink-0 shadow-lg shadow-cyan-500/30 active:scale-95 transition" title="Toggle Voice Recognition">
-                                <i id="hud-mic-icon" class="fa-solid fa-microphone-slash text-base"></i>
-                            </button>
-                            <div class="min-w-0">
-                                <div class="flex items-center gap-2">
-                                    <p id="hud-voice-status" class="text-[10px] font-black text-cyan-300 uppercase tracking-wider">Voice Standby</p>
-                                    <div id="voice-wave-box" class="flex items-center gap-1 h-3.5">
-                                        <span class="voice-wave-bar"></span>
-                                        <span class="voice-wave-bar"></span>
-                                        <span class="voice-wave-bar"></span>
-                                        <span class="voice-wave-bar"></span>
-                                        <span class="voice-wave-bar"></span>
-                                    </div>
-                                </div>
-                                <p id="hud-voice-transcript" class="text-xs font-bold text-white truncate max-w-[210px] mt-0.5">Say "Next", "Back", "Home"...</p>
-                            </div>
-                        </div>
-                        <span id="voice-live-badge" class="px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 font-extrabold text-[9px] uppercase tracking-wider shrink-0 border border-slate-700">
-                            OFFLINE
-                        </span>
-                    </div>
-
-                    <div class="module-card space-y-3">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h3 class="text-sm font-extrabold text-white">Voice AI Autopilot</h3>
-                                <p class="text-[10px] text-slate-400">Control Reels, Back, Home & Typing by voice</p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center justify-between py-1 border-t border-white/5 pt-2">
-                            <span class="text-xs font-bold text-white">Language</span>
-                            <div class="flex items-center gap-1.5">
-                                <button onclick="setVoiceLanguage('en-US')" id="lang-en" class="px-2.5 py-1 rounded-lg bg-[#465fff] text-white font-extrabold text-xs">English</button>
-                                <button onclick="setVoiceLanguage('hi-IN')" id="lang-hi" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 font-extrabold text-xs">हिंदी / Hinglish</button>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center justify-between py-1">
-                            <div>
-                                <span class="text-xs font-bold text-white block">Continuous Listening</span>
-                                <span class="text-[9px] text-slate-400">Keep mic active in background</span>
-                            </div>
-                            <button id="toggle-continuous-voice" onclick="toggleContinuousMode()" class="w-11 h-6 rounded-full bg-[#465fff] p-0.5 flex items-center justify-end transition">
-                                <div class="w-4 h-4 rounded-full bg-white flex items-center justify-center text-[#465fff] text-[9px]"><i id="icon-continuous-voice" class="fa-solid fa-check"></i></div>
-                            </button>
-                        </div>
-
-                        <div class="flex items-center justify-between py-1">
-                            <div>
-                                <span class="text-xs font-bold text-white block">Voice Reply (TTS Audio)</span>
-                                <span class="text-[9px] text-slate-400">Speak confirmation when command runs</span>
-                            </div>
-                            <button id="toggle-tts-reply" onclick="toggleTtsReply()" class="w-11 h-6 rounded-full bg-[#465fff] p-0.5 flex items-center justify-end transition">
-                                <div class="w-4 h-4 rounded-full bg-white flex items-center justify-center text-[#465fff] text-[9px]"><i id="icon-tts-reply" class="fa-solid fa-check"></i></div>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="module-card space-y-2.5">
-                        <h4 class="text-xs font-extrabold text-cyan-300 uppercase tracking-wider">🗣️ Built-In Voice Commands (Tap to Test)</h4>
-                        <div id="voice-commands-list" class="space-y-1.5"></div>
-                    </div>
-                </div>
-
-                <!-- TAB 3: CUSTOM TRIGGER BUILDER -->
-                <div id="gpanel-custom" class="space-y-3 hidden">
-                    <div class="module-card space-y-3">
-                        <h3 class="text-sm font-extrabold text-white">Add Custom Voice & Gesture Trigger</h3>
-                        <p class="text-[11px] text-slate-400">Assign a hand gesture icon and voice phrase to any action.</p>
-
-                        <div class="space-y-2.5">
-                            <div>
-                                <label class="text-[11px] font-bold text-slate-300 block mb-1">Select Gesture Icon:</label>
-                                <div id="custom-gesture-icon-picker" class="grid grid-cols-6 gap-1.5 pt-0.5">
-                                    <button type="button" onclick="selectCustomIcon('☝️')" class="cust-icon-btn p-1.5 rounded-xl bg-cyan-500/20 border-2 border-cyan-400 text-base flex items-center justify-center">☝️</button>
-                                    <button type="button" onclick="selectCustomIcon('✌️')" class="cust-icon-btn p-1.5 rounded-xl bg-slate-900 border border-slate-700 text-base flex items-center justify-center">✌️</button>
-                                    <button type="button" onclick="selectCustomIcon('✊')" class="cust-icon-btn p-1.5 rounded-xl bg-slate-900 border border-slate-700 text-base flex items-center justify-center">✊</button>
-                                    <button type="button" onclick="selectCustomIcon('👌')" class="cust-icon-btn p-1.5 rounded-xl bg-slate-900 border border-slate-700 text-base flex items-center justify-center">👌</button>
-                                    <button type="button" onclick="selectCustomIcon('🖐️')" class="cust-icon-btn p-1.5 rounded-xl bg-slate-900 border border-slate-700 text-base flex items-center justify-center">🖐️</button>
-                                    <button type="button" onclick="selectCustomIcon('🙌')" class="cust-icon-btn p-1.5 rounded-xl bg-slate-900 border border-slate-700 text-base flex items-center justify-center">🙌</button>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="text-[11px] font-bold text-slate-300 block mb-1">When I say this voice phrase:</label>
-                                <input id="custom-voice-phrase" type="text" placeholder="e.g. Skip video / Aage badho"
-                                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-none focus:border-cyan-400">
-                            </div>
-
-                            <div>
-                                <label class="text-[11px] font-bold text-slate-300 block mb-1">Perform this Action:</label>
-                                <select id="custom-voice-action" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-none">
-                                    <option value="NEXT">☝️ Scroll Next Reel (Swipe Up)</option>
-                                    <option value="PREV">✌️ Previous Reel (Swipe Down)</option>
-                                    <option value="PLAY_PAUSE">👌 Play / Pause Video</option>
-                                    <option value="LIKE">❤️ Like / Heart Reel</option>
-                                    <option value="BACK">⬅️ System Back</option>
-                                    <option value="HOME">🏠 System Home Screen</option>
-                                    <option value="VOL_UP">🔊 Volume Up</option>
-                                    <option value="VOL_DOWN">🔉 Volume Down</option>
-                                                                    </select>
-                            </div>
-
-                            <button onclick="addCustomVoiceCommand()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-black text-xs shadow-lg active:scale-95 transition">
-                                + Save Custom Trigger
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="module-card space-y-2">
-                        <h4 class="text-xs font-extrabold uppercase tracking-wider text-purple-300">Saved Custom Triggers</h4>
-                        <div id="custom-triggers-list" class="space-y-1.5"></div>
-                    </div>
                 </div>
             </section>
 
@@ -2176,10 +2011,10 @@
                     <div>
                         <h4 class="font-black text-white text-xs mb-1 flex items-center gap-1.5">
                             <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
-                            <span>5. Accessibility &amp; Microphone Safety</span>
+                            <span>5. Accessibility &amp; Sensor Safety</span>
                         </h4>
                         <p class="text-[11px] text-slate-400">
-                            The Android Accessibility Service is utilized solely to dispatch user-triggered spatial actions (Air Tap, Back, Home, and Swipe gestures). It never inspects, logs, or reads on-screen text, passwords, or personal messages. Microphone input for voice commands is never recorded or transmitted.
+                            The Android Accessibility Service is utilized solely to dispatch user-triggered spatial actions (Air Tap, Back, Home, and Swipe gestures). It never inspects, logs, or reads on-screen text, passwords, or personal messages. No microphone or voice audio is requested or recorded.
                         </p>
                     </div>
 
@@ -2241,10 +2076,10 @@
                     <div>
                         <h4 class="font-black text-white text-xs mb-1 flex items-center gap-1.5">
                             <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
-                            <span>5. एक्सेसिबिलिटी एवं माइक सुरक्षा</span>
+                            <span>5. एक्सेसिबिलिटी एवं सेंसर सुरक्षा</span>
                         </h4>
                         <p class="text-[11px] text-slate-400">
-                            Accessibility Service का इस्तेमाल केवल जेस्चर आधारित एक्शन (Air Tap, Back, Home, Swipe) करने के लिए होता है। यह आपकी स्क्रीन के किसी भी निजी मैसेज या पासवर्ड को कभी नहीं पढ़ती। वॉइस कमांड ऑडियो कभी भी रिकॉर्ड या स्टोर नहीं होता।
+                            Accessibility Service का इस्तेमाल केवल जेस्चर आधारित एक्शन (Air Tap, Back, Home, Swipe) करने के लिए होता है। यह आपकी स्क्रीन के किसी भी निजी मैसेज या पासवर्ड को कभी नहीं पढ़ती। ऐप में किसी भी प्रकार का माइक्रोफ़ोन या ऑडियो रिकॉर्डिंग नहीं किया जाता है।
                         </p>
                     </div>
 
@@ -5249,7 +5084,7 @@
             if (window.AndroidBridge && window.AndroidBridge.requestRuntimePermissions) {
                 window.AndroidBridge.requestRuntimePermissions();
             } else if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+                navigator.mediaDevices.getUserMedia({ video: true })
                     .then(() => refreshNativePermissionStatus())
                     .catch(() => {});
             }
@@ -5291,7 +5126,7 @@
             }
 
             if (permissionsState) {
-                if (!permissionsState.camera || !permissionsState.microphone) {
+                if (!permissionsState.camera) {
                     if (window.AndroidBridge.requestRuntimePermissions) {
                         window.AndroidBridge.requestRuntimePermissions();
                     }
@@ -5355,7 +5190,7 @@
                     const homeOvBadge = document.getElementById('home-ov-badge');
 
                     if (camBadge) {
-                        if (st.camera && st.microphone) {
+                        if (st.camera) {
                             camBadge.textContent = 'GRANTED ✓';
                             camBadge.className = 'px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 font-extrabold text-[9px] shrink-0';
                             camBadge.disabled = true;
@@ -5709,21 +5544,8 @@
 
 
         // =====================================================================
-        // 7. VOICE RECOGNITION & INTERACTIVE GESTURE GUIDE ENGINE
+        // 7. INTERACTIVE AIR GESTURE GUIDE ENGINE
         // =====================================================================
-        let selectedCustomIcon = '☝️';
-
-        function selectCustomIcon(icon) {
-            selectedCustomIcon = icon;
-            document.querySelectorAll('.cust-icon-btn').forEach(btn => {
-                if (btn.textContent === icon) {
-                    btn.className = 'cust-icon-btn p-1.5 rounded-xl bg-cyan-500/20 border-2 border-cyan-400 text-base flex items-center justify-center';
-                } else {
-                    btn.className = 'cust-icon-btn p-1.5 rounded-xl bg-slate-900 border border-slate-700 text-base flex items-center justify-center';
-                }
-            });
-        }
-
         function buildMinimalGestureStage(mode) {
             let phoneScreenContent = '';
             let gestureSymbol = '☝️';
@@ -5809,31 +5631,17 @@
         }
 
         const HAND_GESTURE_GUIDE = [
-            { id: 'FOLD_1', category: 'FOLD', badge: 'Reels / Shorts', badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40', title: '☝️ 1-Finger Fold & Open', actionLabel: 'Scroll Next Reel (Swipe Up)', howTo: 'Keep palm facing camera, bend ONLY Index finger down and open back up.', voiceEquivalent: '"Next" or "Agla"', actionCode: 'NEXT', stageHtml: buildMinimalGestureStage('FOLD_1') },
-            { id: 'FOLD_2', category: 'FOLD', badge: 'Reels / Shorts', badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/40', title: '✌️ 2-Finger Fold & Open', actionLabel: 'Previous Reel (Swipe Down)', howTo: 'Bend Index and Middle fingers down together and open back up.', voiceEquivalent: '"Previous" or "Pichla"', actionCode: 'PREV', stageHtml: buildMinimalGestureStage('FOLD_2') },
-            { id: 'THUMBS_LIKE', category: 'SYSTEM', badge: 'YouTube & Insta', badgeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/40', title: '👍 Like Gesture (🖐➔👍 1.5s)', actionLabel: 'Like Video / Reel', howTo: 'Show Open Palm 🖐, then form Thumbs-Up 👍 and hold for 1.5s towards camera to like YouTube videos or send Heart reaction on Instagram Reels.', voiceEquivalent: '"Like" or "Heart"', actionCode: 'LIKE', stageHtml: buildMinimalGestureStage('LIKE') },
-            { id: 'PINCH_TAP', category: 'FOLD', badge: 'Air Pointer', badgeColor: 'bg-blue-500/20 text-blue-300 border-blue-500/40', title: '👌 Air Cursor & Pinch Tap', actionLabel: 'Click / Tap Anywhere on Screen', howTo: 'Move your hand to guide the neon Air Cursor, then pinch Thumb + Index fingertips together to tap any app icon, reel footer, or button.', voiceEquivalent: '"Click" or "Tap"', actionCode: 'PLAY_PAUSE', stageHtml: buildMinimalGestureStage('PINCH') },
-            { id: 'FOLD_3_BACK', category: 'SYSTEM', badge: 'System OS', badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40', title: '⬅️ 3-Step Back (✋➔🤘➔✋)', actionLabel: 'System Back Navigation', howTo: 'Show Open Palm ✋, make Rock sign 🤘 (Index & Pinky open, Middle & Ring folded), then open back to Palm ✋ to trigger Back.', voiceEquivalent: '"Back" or "Wapas"', actionCode: 'BACK', stageHtml: buildMinimalGestureStage('FOLD_3') },
-            { id: 'FOLD_4_HOME', category: 'SYSTEM', badge: 'System OS', badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40', title: '🏠 3-Step Home (✋➔✊➔✋)', actionLabel: 'Go to Phone Home Screen', howTo: 'Show Open Palm ✋, curl hand into Fist ✊, then open back to Palm ✋ to trigger Home.', voiceEquivalent: '"Home" or "Ghar"', actionCode: 'HOME', stageHtml: buildMinimalGestureStage('FOLD_4') },
-            { id: 'FOLD_HOLD', category: 'FOLD', badge: 'Island Menu', badgeColor: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40', title: '⏱️ Long Pinch Hold (1.8s)', actionLabel: 'Open Quick Action Menu', howTo: 'Pinch Index + Thumb together and hold for 1.8s to pop open Volume Up/Down, Recents, and System controls.', voiceEquivalent: '"Open Menu"', actionCode: 'HOLD_MENU', stageHtml: buildMinimalGestureStage('HOLD') }
+            { id: 'FOLD_1', category: 'FOLD', badge: 'Reels / Shorts', badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40', title: '☝️ 1-Finger Fold & Open', actionLabel: 'Scroll Next Reel (Swipe Up)', howTo: 'Keep palm facing camera, bend ONLY Index finger down and open back up.', actionCode: 'NEXT', stageHtml: buildMinimalGestureStage('FOLD_1') },
+            { id: 'FOLD_2', category: 'FOLD', badge: 'Reels / Shorts', badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/40', title: '✌️ 2-Finger Fold & Open', actionLabel: 'Previous Reel (Swipe Down)', howTo: 'Bend Index and Middle fingers down together and open back up.', actionCode: 'PREV', stageHtml: buildMinimalGestureStage('FOLD_2') },
+            { id: 'THUMBS_LIKE', category: 'SYSTEM', badge: 'YouTube & Insta', badgeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/40', title: '👍 Like Gesture (🖐➔👍 1.5s)', actionLabel: 'Like Video / Reel', howTo: 'Show Open Palm 🖐, then form Thumbs-Up 👍 and hold for 1.5s towards camera to like YouTube videos or send Heart reaction on Instagram Reels.', actionCode: 'LIKE', stageHtml: buildMinimalGestureStage('LIKE') },
+            { id: 'PINCH_TAP', category: 'FOLD', badge: 'Air Pointer', badgeColor: 'bg-blue-500/20 text-blue-300 border-blue-500/40', title: '👌 Air Cursor & Pinch Tap', actionLabel: 'Click / Tap Anywhere on Screen', howTo: 'Move your hand to guide the neon Air Cursor, then pinch Thumb + Index fingertips together to tap any app icon, reel footer, or button.', actionCode: 'PLAY_PAUSE', stageHtml: buildMinimalGestureStage('PINCH') },
+            { id: 'FOLD_3_BACK', category: 'SYSTEM', badge: 'System OS', badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40', title: '⬅️ 3-Step Back (✋➔🤘➔✋)', actionLabel: 'System Back Navigation', howTo: 'Show Open Palm ✋, make Rock sign 🤘 (Index & Pinky open, Middle & Ring folded), then open back to Palm ✋ to trigger Back.', actionCode: 'BACK', stageHtml: buildMinimalGestureStage('FOLD_3') },
+            { id: 'FOLD_4_HOME', category: 'SYSTEM', badge: 'System OS', badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40', title: '🏠 3-Step Home (✋➔✊➔✋)', actionLabel: 'Go to Phone Home Screen', howTo: 'Show Open Palm ✋, curl hand into Fist ✊, then open back to Palm ✋ to trigger Home.', actionCode: 'HOME', stageHtml: buildMinimalGestureStage('FOLD_4') },
+            { id: 'FOLD_HOLD', category: 'FOLD', badge: 'Island Menu', badgeColor: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40', title: '⏱️ Long Pinch Hold (1.8s)', actionLabel: 'Open Quick Action Menu', howTo: 'Pinch Index + Thumb together and hold for 1.8s to pop open Volume Up/Down, Recents, and System controls.', actionCode: 'HOLD_MENU', stageHtml: buildMinimalGestureStage('HOLD') }
         ];
-
-        const BUILTIN_VOICE_COMMANDS = [
-            { action: 'NEXT', title: 'Scroll Next Reel / Video', phrases: ['next', 'scroll', 'swipe up', 'agla', 'aage'], displaySay: '"Next" / "Agla"', icon: 'fa-forward-step text-cyan-400' },
-            { action: 'PREV', title: 'Previous Reel / Video', phrases: ['previous', 'prev', 'swipe down', 'pichla', 'peeche'], displaySay: '"Previous" / "Pichla"', icon: 'fa-backward-step text-purple-400' },
-            { action: 'PLAY_PAUSE', title: 'Play or Pause Media', phrases: ['play', 'pause', 'stop', 'resume', 'ruko', 'chalu karo'], displaySay: '"Play" / "Pause" / "Ruko"', icon: 'fa-play-pause text-emerald-400' },
-            { action: 'LIKE', title: 'Like / Heart Current Video', phrases: ['like', 'heart', 'love', 'boost', 'pasand'], displaySay: '"Like" / "Heart"', icon: 'fa-heart text-rose-400' },
-            { action: 'BACK', title: 'System Back Navigation', phrases: ['back', 'go back', 'wapas', 'peeche jao'], displaySay: '"Back" / "Wapas"', icon: 'fa-chevron-left text-amber-400' },
-            { action: 'HOME', title: 'Go to Phone Home Screen', phrases: ['home', 'home screen', 'ghar', 'main screen'], displaySay: '"Home" / "Home Screen"', icon: 'fa-house text-emerald-400' },
-            { action: 'VOL_UP', title: 'Volume Up', phrases: ['volume up', 'louder', 'aawaz badhao', 'tej karo'], displaySay: '"Volume Up" / "Aawaz Badhao"', icon: 'fa-volume-high text-blue-400' },
-            { action: 'VOL_DOWN', title: 'Volume Down', phrases: ['volume down', 'quieter', 'aawaz kam karo'], displaySay: '"Volume Down" / "Aawaz Kam"', icon: 'fa-volume-low text-indigo-400' }
-        ];
-
-        let customVoiceTriggers = JSON.parse(localStorage.getItem('aero_custom_voice_triggers') || '[]');
-        let voiceState = { listening: false, continuous: true, ttsReply: true, lang: 'en-US', recognition: null };
 
         function renderGestureCards(filter = 'ALL') {
-            ['ALL', 'FOLD', 'SYSTEM', 'TYPING'].forEach(f => {
+            ['ALL', 'FOLD', 'SYSTEM'].forEach(f => {
                 const btn = document.getElementById(`gfilt-${f}`);
                 if (btn) {
                     btn.className = f === filter
@@ -5849,12 +5657,11 @@
                 <div class="module-card flex flex-col gap-3">
                     <div class="flex items-center justify-between gap-2">
                         <span class="px-2.5 py-0.5 rounded-full border text-[9px] font-extrabold uppercase ${g.badgeColor}">${g.badge}</span>
-                        <span class="text-[10px] font-bold text-slate-400">🎙️ Say: <strong class="text-cyan-300">${g.voiceEquivalent}</strong></span>
+                        <span class="text-[10px] font-bold text-cyan-300">${g.actionLabel}</span>
                     </div>
 
                     <div>
                         <h3 class="text-sm font-black text-white">${g.title}</h3>
-                        <p class="text-xs font-extrabold text-cyan-400">${g.actionLabel}</p>
                     </div>
 
                     ${g.stageHtml}
@@ -5863,7 +5670,7 @@
                         <strong class="text-white">How to do it:</strong> ${g.howTo}
                     </p>
 
-                    <button onclick="dispatchVoiceOrGestureAction('${g.actionCode}', 'Hand Guide Test')"
+                    <button onclick="dispatchGestureAction('${g.actionCode}', 'Hand Guide Test')"
                         class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-extrabold text-cyan-300 active:scale-95 transition">
                         ⚡ Test Gesture Action Now
                     </button>
@@ -5873,161 +5680,8 @@
 
         function filterGestureCards(category) { renderGestureCards(category); }
 
-        function renderVoiceCommandsList() {
-            const container = document.getElementById('voice-commands-list');
-            if (!container) return;
-            container.innerHTML = BUILTIN_VOICE_COMMANDS.map(cmd => `
-                <div onclick="dispatchVoiceOrGestureAction('${cmd.action}', 'Voice: ${cmd.displaySay}')"
-                    class="p-2.5 rounded-2xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 flex items-center justify-between gap-2 cursor-pointer active:scale-98 transition">
-                    <div class="flex items-center gap-2.5 min-w-0">
-                        <div class="w-7 h-7 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center shrink-0">
-                            <i class="fa-solid ${cmd.icon} text-xs"></i>
-                        </div>
-                        <div class="min-w-0">
-                            <p class="text-xs font-extrabold text-white truncate">${cmd.title}</p>
-                            <p class="text-[10px] text-cyan-300 font-bold truncate">Say: ${cmd.displaySay}</p>
-                        </div>
-                    </div>
-                    <span class="px-2 py-0.5 rounded-lg bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-[9px] font-extrabold shrink-0">Test ▶</span>
-                </div>
-            `).join('');
-        }
-
-        function renderCustomTriggers() {
-            const container = document.getElementById('custom-triggers-list');
-            if (!container) return;
-            if (customVoiceTriggers.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-2">No custom voice phrases saved yet.</p>`;
-                return;
-            }
-            container.innerHTML = customVoiceTriggers.map((item, idx) => `
-                <div class="p-2 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-2">
-                    <div class="flex items-center gap-2">
-                        <span class="text-base">${item.icon || '☝️'}</span>
-                        <div>
-                            <p class="text-xs font-extrabold text-white">"${item.phrase}"</p>
-                            <p class="text-[10px] text-emerald-400 font-bold">Action: ${item.action}</p>
-                        </div>
-                    </div>
-                    <button onclick="removeCustomVoiceCommand(${idx})" class="px-2 py-1 rounded-lg bg-rose-500/15 text-rose-400 text-xs font-bold">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                </div>
-            `).join('');
-        }
-
-        function addCustomVoiceCommand() {
-            const phraseInput = document.getElementById('custom-voice-phrase');
-            const actionSelect = document.getElementById('custom-voice-action');
-            if (!phraseInput || !actionSelect) return;
-            const phrase = phraseInput.value.trim().toLowerCase();
-            if (!phrase) {
-                showToast('⚠️', 'Empty Phrase', 'Please enter a voice phrase first');
-                return;
-            }
-            customVoiceTriggers.push({ phrase, action: actionSelect.value, icon: selectedCustomIcon });
-            localStorage.setItem('aero_custom_voice_triggers', JSON.stringify(customVoiceTriggers));
-            phraseInput.value = '';
-            renderCustomTriggers();
-            showToast('✅', 'Trigger Saved', `Icon ${selectedCustomIcon} + Say "${phrase}" saved!`);
-        }
-
-        function removeCustomVoiceCommand(index) {
-            customVoiceTriggers.splice(index, 1);
-            localStorage.setItem('aero_custom_voice_triggers', JSON.stringify(customVoiceTriggers));
-            renderCustomTriggers();
-        }
-
-        function initSpeechRecognition() {
-            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRec) return null;
-            const rec = new SpeechRec();
-            rec.continuous = true;
-            rec.interimResults = true;
-            rec.lang = voiceState.lang;
-
-            rec.onstart = () => { voiceState.listening = true; updateVoiceUI(); };
-            rec.onresult = (event) => {
-                let finalTranscript = '';
-                for (let i = event.resultIndex; i < event.results.length; i++) {
-                    if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript;
-                }
-                if (finalTranscript) {
-                    const transEl = document.getElementById('hud-voice-transcript');
-                    if (transEl) transEl.textContent = `"${finalTranscript.trim()}"`;
-                    parseAndExecuteVoiceCommand(finalTranscript.trim().toLowerCase());
-                }
-            };
-            rec.onend = () => {
-                if (voiceState.listening && voiceState.continuous) { try { rec.start(); } catch (e) {} }
-                else { voiceState.listening = false; updateVoiceUI(); }
-            };
-            return rec;
-        }
-
-        window.onNativeVoiceTranscript = function(phrase) {
-            const transEl = document.getElementById('hud-voice-transcript');
-            if (transEl) transEl.textContent = `"${phrase}"`;
-            parseAndExecuteVoiceCommand(phrase.toLowerCase());
-        };
-
-        function toggleFloatingVoiceHud(show) {
-            // Floating voice pill removed from footer; Voice Controller is integrated inside Gestures -> Voice Control panel
-        }
-
-        function toggleVoiceRecognition() {
-            if (voiceState.listening) {
-                voiceState.listening = false;
-                if (voiceState.recognition) { try { voiceState.recognition.stop(); } catch (e) {} }
-                if (window.AndroidBridge && window.AndroidBridge.stopNativeVoiceRecognition) {
-                    window.AndroidBridge.stopNativeVoiceRecognition();
-                }
-                updateVoiceUI();
-                showToast('⏹️', 'Voice Paused', 'Microphone stopped');
-                return;
-            }
-            if (!voiceState.recognition) voiceState.recognition = initSpeechRecognition();
-            if (voiceState.recognition) {
-                try {
-                    voiceState.recognition.lang = voiceState.lang;
-                    voiceState.recognition.start();
-                } catch (e) {}
-            }
-            if (window.AndroidBridge && window.AndroidBridge.startNativeVoiceRecognition) {
-                window.AndroidBridge.startNativeVoiceRecognition(voiceState.lang);
-            }
-            voiceState.listening = true;
-            updateVoiceUI();
-            showToast('🎙️', 'Voice AI Live', 'Say "Next", "Back", "Home"...');
-        }
-
-        function parseAndExecuteVoiceCommand(transcript) {
-            for (const custom of customVoiceTriggers) {
-                if (transcript.includes(custom.phrase)) {
-                    dispatchVoiceOrGestureAction(custom.action, `Custom: "${custom.phrase}"`);
-                    return;
-                }
-            }
-            for (const cmd of BUILTIN_VOICE_COMMANDS) {
-                for (const phrase of cmd.phrases) {
-                    if (transcript === phrase || transcript.includes(phrase)) {
-                        dispatchVoiceOrGestureAction(cmd.action, `Heard "${transcript}"`);
-                        return;
-                    }
-                }
-            }
-        }
-
-        function dispatchVoiceOrGestureAction(actionCode, sourceLabel) {
+        function dispatchGestureAction(actionCode, sourceLabel) {
             showToast('⚡', sourceLabel, `Action: ${actionCode}`);
-            if (voiceState.ttsReply && ('speechSynthesis' in window)) {
-                try {
-                    window.speechSynthesis.cancel();
-                    const utter = new SpeechSynthesisUtterance(actionCode.replace('_', ' '));
-                    utter.lang = voiceState.lang;
-                    window.speechSynthesis.speak(utter);
-                } catch (e) {}
-            }
             if (actionCode === 'NEXT') executeAction('NEXT');
             else if (actionCode === 'PREV') executeAction('PREV');
             else if (actionCode === 'BACK') executeSystemNavigation('BACK');
@@ -6038,68 +5692,7 @@
             else if (actionCode === 'VOL_DOWN') triggerHoldMenuOption('VOL_DOWN');
             else if (actionCode === 'HOLD_MENU') openFoldHoldMenu();
         }
-
-        function updateVoiceUI() {
-            const waveBox = document.getElementById('voice-wave-box');
-            const hudStatus = document.getElementById('hud-voice-status');
-            const hudMicBtn = document.getElementById('hud-mic-btn');
-            const hudMicIcon = document.getElementById('hud-mic-icon');
-            const topLabel = document.getElementById('top-mic-label');
-            const liveBadge = document.getElementById('voice-live-badge');
-            const headerVoiceIcon = document.getElementById('voice-icon');
-
-            if (voiceState.listening) {
-                if (waveBox) waveBox.classList.add('listening-active');
-                if (hudStatus) hudStatus.textContent = `Listening (${voiceState.lang})`;
-                if (hudMicBtn) hudMicBtn.className = 'w-8 h-8 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center shrink-0 shadow-lg';
-                if (hudMicIcon) hudMicIcon.className = 'fa-solid fa-microphone text-xs';
-                if (topLabel) topLabel.textContent = 'Listening...';
-                if (liveBadge) {
-                    liveBadge.textContent = '● LIVE';
-                    liveBadge.className = 'px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-extrabold text-[9px] uppercase';
-                }
-                if (headerVoiceIcon) headerVoiceIcon.className = 'fa-solid fa-microphone text-cyan-400 text-xs animate-pulse';
-            } else {
-                if (waveBox) waveBox.classList.remove('listening-active');
-                if (hudStatus) hudStatus.textContent = 'Voice Standby';
-                if (hudMicBtn) hudMicBtn.className = 'w-8 h-8 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center shrink-0';
-                if (hudMicIcon) hudMicIcon.className = 'fa-solid fa-microphone-slash text-xs';
-                if (topLabel) topLabel.textContent = 'Start Voice';
-                if (liveBadge) {
-                    liveBadge.textContent = 'OFFLINE';
-                    liveBadge.className = 'px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-extrabold text-[9px] uppercase';
-                }
-                if (headerVoiceIcon) headerVoiceIcon.className = 'fa-solid fa-microphone-slash text-xs';
-            }
-        }
-
-        function setVoiceLanguage(lang) {
-            voiceState.lang = lang;
-            const lEn = document.getElementById('lang-en');
-            const lHi = document.getElementById('lang-hi');
-            if (lEn) lEn.className = lang === 'en-US' ? 'px-2.5 py-1 rounded-lg bg-[#465fff] text-white font-extrabold text-xs' : 'px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 font-extrabold text-xs';
-            if (lHi) lHi.className = lang === 'hi-IN' ? 'px-2.5 py-1 rounded-lg bg-[#465fff] text-white font-extrabold text-xs' : 'px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 font-extrabold text-xs';
-        }
-
-        function toggleContinuousMode() { voiceState.continuous = !voiceState.continuous; }
-        function toggleTtsReply() { voiceState.ttsReply = !voiceState.ttsReply; }
-
-        function switchGuideTab(tab) {
-            ['gestures', 'voice', 'custom'].forEach(t => {
-                const p = document.getElementById(`gpanel-${t}`);
-                if (p) p.classList.toggle('hidden', t !== tab);
-                const b = document.getElementById(`gtab-${t}`);
-                if (b) {
-                    b.className = t === tab
-                        ? 'flex-1 py-1.5 px-2 rounded-full font-extrabold text-xs bg-[#465fff] text-white transition'
-                        : 'flex-1 py-1.5 px-2 rounded-full font-extrabold text-xs text-slate-400 hover:text-white transition';
-                }
-            });
-        }
-
-        function toggleVoiceControl() {
-            toggleVoiceRecognition();
-        }
+        window.dispatchVoiceOrGestureAction = dispatchGestureAction;
 
         window.isNativeOverlayActive = false;
 
@@ -6110,7 +5703,6 @@
             document.body.classList.toggle('native-overlay-mode', isO);
             const appShell = document.getElementById('app-shell');
             const floatingHud = document.getElementById('spatial-floating-hud');
-            const voiceHud = document.getElementById('floating-voice-hud');
 
             if (isO) {
                 document.documentElement.style.background = 'transparent';
@@ -6118,7 +5710,6 @@
                 document.body.style.background = 'transparent';
                 document.body.style.backgroundColor = 'transparent';
                 if (appShell) appShell.style.display = 'none';
-                if (voiceHud) voiceHud.style.display = 'none';
                 if (floatingHud) {
                     floatingHud.style.opacity = '';
                 }
@@ -6128,7 +5719,6 @@
                 document.body.style.background = '#050811';
                 document.body.style.backgroundColor = '#050811';
                 if (appShell) appShell.style.display = '';
-                if (voiceHud) voiceHud.style.display = '';
             }
         };
 
@@ -6582,8 +6172,6 @@
             refreshNativePermissionStatus();
                         renderSettingsUI();
             renderGestureCards('ALL');
-            renderVoiceCommandsList();
-            renderCustomTriggers();
             initDraggableHud();
             let savedSize = localStorage.getItem('aero_hud_custom_size');
             if (!savedSize || savedSize === '68') {
@@ -6611,3 +6199,4 @@
     </script>
 </body>
 </html>
+ 
