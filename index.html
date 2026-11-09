@@ -748,6 +748,25 @@
                     </div>
                 </div>
 
+                <!-- Dedicated Auto Skip Ads Quick Card -->
+                <div onclick="switchTab('skipads')" class="AirClickable bento-card rounded-3xl p-3 sm:p-3.5 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-slate-900 border border-amber-500/30 flex items-center justify-between cursor-pointer hover:border-amber-500/60 transition active:scale-[0.98] shrink-0">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg border border-amber-500/30 shrink-0">
+                            <i class="fa-solid fa-forward-fast"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-2">
+                                <h4 class="text-xs font-black text-white truncate">Auto Skip Ads Engine</h4>
+                                <span id="home-skipads-status-badge" class="px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 text-[8px] font-black uppercase tracking-wider shrink-0">Inactive</span>
+                            </div>
+                            <p class="text-[10px] text-slate-400 truncate mt-0.5">Skip YouTube ads automatically • No Camera needed</p>
+                        </div>
+                    </div>
+                    <div class="w-7 h-7 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center text-xs shrink-0 ml-2">
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                    </div>
+                </div>
+
                 <!-- 2. System Control Permissions Card -->
                 <div class="bento-card rounded-3xl p-3.5 sm:p-4 space-y-3 shrink-0">
                     <div class="flex items-center justify-between gap-2">
@@ -799,7 +818,134 @@
                 </div>
             </section>
 
-            
+            <!-- VIEW 2: AUTO SKIP ADS ENGINE (Dedicated Section) -->
+            <section id="view-skipads" class="hidden space-y-4">
+                <!-- 1. Skip Ads Engine Header Card -->
+                <div class="bento-card rounded-3xl p-4 sm:p-5 space-y-3 border border-amber-500/40 bg-gradient-to-br from-[#1c0f02] via-[#090b14] to-slate-950 shadow-xl shadow-amber-950/20">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-slate-950 text-xl font-black shadow-lg shadow-amber-500/30">
+                                <i class="fa-solid fa-forward-fast"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-1.5">
+                                    <h2 class="text-base font-black text-white">Auto Skip Ads Engine</h2>
+                                    <span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[9px] font-black uppercase">v1.0</span>
+                                </div>
+                                <p class="text-[10px] text-amber-300 font-bold">Automatic Skip for YouTube &amp; Mobile Video Ads</p>
+                            </div>
+                        </div>
+                        <span id="skipads-active-pill" class="px-2.5 py-1 rounded-xl bg-slate-800 text-slate-400 border border-slate-700 font-black text-[10px] flex items-center gap-1.5 transition">
+                            <span id="skipads-dot" class="w-2 h-2 rounded-full bg-slate-500"></span>
+                            <span id="skipads-pill-text">Inactive</span>
+                        </span>
+                    </div>
+
+                    <p class="text-[11px] text-slate-400 leading-relaxed">
+                        Agar aapko sirf mobile me video ads ko automatic skip karna hai bina touch kiye aur <strong>camera on nahi karna</strong>, toh is engine ko start karein. Ye background me YouTube aur anya apps ke "Skip Ad" aate hi use turant auto-skip kar dega.
+                    </p>
+                </div>
+
+                <!-- 2. Main Start/Stop Engine Action Center -->
+                <div class="bento-card rounded-3xl p-5 flex flex-col items-center justify-center text-center gap-3 border border-slate-800 bg-gradient-to-b from-slate-900/90 to-slate-950 relative overflow-hidden">
+                    <div id="skipads-glow-ring" class="absolute -inset-1 rounded-3xl bg-amber-500/10 blur-xl opacity-0 transition-opacity duration-500 pointer-events-none"></div>
+
+                    <!-- Skip Engine Big Button -->
+                    <button id="btn-toggle-skipads" onclick="toggleAutoSkipAdsEngine()"
+                        class="AirClickable w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-gradient-to-tr from-amber-500 via-orange-500 to-yellow-400 text-slate-950 flex flex-col items-center justify-center shadow-2xl shadow-amber-500/30 transition-all duration-300 active:scale-95 hover:scale-105 border-4 border-slate-900/80 my-1 shrink-0 overflow-hidden relative">
+                        <i id="skipads-btn-icon" class="fa-solid fa-forward-fast text-4xl mb-1"></i>
+                        <span id="skipads-btn-label" class="text-xs font-black uppercase tracking-wider">START SKIP</span>
+                        <span class="text-[8px] font-extrabold text-slate-900/80 uppercase tracking-tight">ENGINE</span>
+                    </button>
+
+                    <div class="space-y-0.5 max-w-xs">
+                        <h3 id="skipads-status-title" class="text-sm font-black text-white">Tap START to Enable Auto Skip Ads</h3>
+                        <p id="skipads-status-desc" class="text-[10px] text-slate-400">Runs quietly in background • 0% Camera • 0% Extra Battery</p>
+                    </div>
+
+                    <!-- Accessibility Service Alert (shown if permission is missing) -->
+                    <div id="skipads-perm-alert" class="hidden w-full p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 items-center justify-between gap-2 text-left">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation text-amber-400 text-base shrink-0"></i>
+                            <div>
+                                <span class="text-xs font-black text-amber-300 block">Accessibility Service Off</span>
+                                <span class="text-[10px] text-slate-400 block">Ads skip karne ke liye Gesture Service ko enable karein</span>
+                            </div>
+                        </div>
+                        <button onclick="requestNativeAccessibilityPermission()" class="px-2.5 py-1.5 rounded-xl bg-amber-500 text-slate-950 font-black text-[10px] shrink-0 active:scale-95 transition">
+                            Enable
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3. Real-Time Stats Card -->
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div class="bento-card rounded-2xl p-3.5 space-y-1 bg-slate-900/90 border border-slate-800">
+                        <span class="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">Total Ads Skipped</span>
+                        <div class="flex items-baseline gap-1.5">
+                            <span id="skipads-counter" class="text-2xl font-black text-amber-400 transition-all duration-300">0</span>
+                            <span class="text-[10px] text-slate-500 font-bold">Ads</span>
+                        </div>
+                        <span class="text-[9px] text-slate-500 font-medium block">Across all apps</span>
+                    </div>
+
+                    <div class="bento-card rounded-2xl p-3.5 space-y-1 bg-slate-900/90 border border-slate-800">
+                        <span class="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">Estimated Time Saved</span>
+                        <div class="flex items-baseline gap-1.5">
+                            <span id="skipads-time-saved" class="text-2xl font-black text-emerald-400">0s</span>
+                        </div>
+                        <span class="text-[9px] text-slate-500 font-medium block">~15 sec per ad</span>
+                    </div>
+                </div>
+
+                <!-- 4. Supported Features & Platforms Bento -->
+                <div class="bento-card rounded-3xl p-4 sm:p-5 space-y-3 border border-slate-800 bg-slate-900/80">
+                    <h3 class="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                        Engine Capabilities &amp; Coverage
+                    </h3>
+
+                    <div class="space-y-2 text-xs">
+                        <div class="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800/80 flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-xl bg-red-500/15 text-red-400 flex items-center justify-center shrink-0">
+                                <i class="fa-brands fa-youtube text-base"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <h4 class="font-bold text-white text-[11px]">YouTube Video Ads (Pre-roll &amp; Mid-roll)</h4>
+                                <p class="text-slate-400 text-[10px]">Jaise hi video me "Skip Ad" button active hota hai, ye turant click kar deta hai.</p>
+                            </div>
+                        </div>
+
+                        <div class="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800/80 flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-xl bg-rose-500/15 text-rose-400 flex items-center justify-center shrink-0">
+                                <i class="fa-solid fa-music text-sm"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <h4 class="font-bold text-white text-[11px]">YouTube Music &amp; Streaming Apps</h4>
+                                <p class="text-slate-400 text-[10px]">Audio/Video streams me aane wale skippable promotional ads ko skip karta hai.</p>
+                            </div>
+                        </div>
+
+                        <div class="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800/80 flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
+                                <i class="fa-solid fa-battery-full text-sm"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <h4 class="font-bold text-white text-[11px]">Zero Camera &amp; Ultra-Low Battery</h4>
+                                <p class="text-slate-400 text-[10px]">Is engine ko chalane ke liye camera ya hand gestures ki zaroorat nahi hoti.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. Reset Stats / Action Button -->
+                <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-900/60 border border-slate-800 text-[11px]">
+                    <span class="text-slate-400">Want to clear your skip history?</span>
+                    <button onclick="resetAutoSkipStats()" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold active:scale-95 transition">
+                        Reset Stats
+                    </button>
+                </div>
+            </section>
 
             <!-- VIEW 3: SPATIAL SETTINGS -->
             <section id="view-settings" class="hidden space-y-4">
@@ -1722,74 +1868,127 @@
                     </span>
                 </div>
 
-                <!-- 1. App Identity Card -->
-                <div class="bento-card rounded-3xl p-5 space-y-3 relative overflow-hidden border border-cyan-500/30">
-                    <div class="flex items-center gap-3.5">
-                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center text-white text-2xl shadow-lg shadow-cyan-500/30 shrink-0">
-                            <i class="fa-solid fa-hand-sparkles"></i>
+                <!-- 1. Developer & Platform Identity Card -->
+                <div class="bento-card rounded-3xl p-5 space-y-3.5 relative overflow-hidden border border-cyan-500/40 bg-gradient-to-br from-slate-900/90 via-[#070e24] to-slate-950 shadow-xl shadow-cyan-950/30">
+                    <!-- AiVisionMind Official Brand Poster Banner -->
+                    <div class="w-full h-32 sm:h-36 rounded-2xl overflow-hidden relative border border-cyan-500/30 shadow-md">
+                        <img src="aivisionmind_brand.jpg" alt="AiVisionMind - Think Create Innovate" class="w-full h-full object-cover object-center">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent"></div>
+                        <div class="absolute bottom-2 left-3 right-3 flex items-center justify-between">
+                            <span class="text-[10px] font-black text-cyan-300 drop-shadow">AiVisionMind • Think • Create • Innovate</span>
+                            <span class="px-2 py-0.5 rounded-full bg-cyan-500/30 text-white text-[8px] font-extrabold uppercase backdrop-blur-sm border border-cyan-400/40">Official Brand</span>
                         </div>
-                        <div class="min-w-0">
-                            <div class="flex items-center gap-2">
-                                <h3 class="text-base font-black text-white tracking-wide truncate">AeroSense AI</h3>
-                                <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-black text-[9px] uppercase tracking-wider">v1.0 Live</span>
+                    </div>
+
+                    <div class="flex items-center gap-3.5">
+                        <div class="relative shrink-0">
+                            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-cyan-400 via-blue-600 to-indigo-600 flex items-center justify-center text-white text-2xl shadow-lg shadow-cyan-500/30 border border-cyan-300/30">
+                                <i class="fa-solid fa-user-astronaut"></i>
                             </div>
-                            <p class="text-[11px] text-cyan-300 font-bold mt-0.5">Touchless Hand &amp; Voice OS</p>
-                            <p class="text-[10px] text-slate-400 font-medium mt-0.5">Next-generation touchless spatial interaction for Android</p>
+                            <span class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 border-2 border-slate-950 flex items-center justify-center text-[9px] text-slate-950 font-black shadow" title="Verified Creator">
+                                <i class="fa-solid fa-check"></i>
+                            </span>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <h3 class="text-base font-black text-white tracking-wide truncate">Mr. Shuaib</h3>
+                                <span class="px-2 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 font-extrabold text-[9px] uppercase tracking-wider">Lead Developer</span>
+                            </div>
+                            <div class="flex items-center gap-1.5 text-[11px] text-cyan-300 font-bold mt-0.5">
+                                <i class="fa-solid fa-cube text-[10px]"></i>
+                                <span>AiVisionMind</span>
+                                <span class="text-slate-500">•</span>
+                                <span class="text-slate-400 font-medium text-[10px]">Creator &amp; AI Architect</span>
+                            </div>
+                            <p class="text-[10px] text-slate-400 font-medium mt-1 leading-snug">
+                                Developing touchless spatial AI OS apps with an uncompromising focus on user privacy &amp; transparency.
+                            </p>
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800/80 text-[10px]">
-                        <div class="p-2.5 rounded-2xl bg-slate-900/80 border border-slate-800">
-                            <span class="text-slate-400 font-medium block">App Version</span>
-                            <span class="font-extrabold text-white text-xs mt-0.5 block">Version 1 (v1.0.0)</span>
+                        <div class="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center gap-2">
+                            <div class="w-7 h-7 rounded-xl bg-indigo-500/15 text-indigo-300 flex items-center justify-center shrink-0">
+                                <i class="fa-solid fa-microchip text-xs"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="text-slate-400 font-medium block truncate">Developer Platform</span>
+                                <span class="font-extrabold text-white text-xs truncate block">AiVisionMind</span>
+                            </div>
                         </div>
-                        <div class="p-2.5 rounded-2xl bg-slate-900/80 border border-slate-800">
-                            <span class="text-slate-400 font-medium block">AI Architecture</span>
-                            <span class="font-extrabold text-emerald-300 text-xs mt-0.5 block">100% On-Device</span>
+                        <div class="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center gap-2">
+                            <div class="w-7 h-7 rounded-xl bg-emerald-500/15 text-emerald-300 flex items-center justify-center shrink-0">
+                                <i class="fa-solid fa-shield-halved text-xs"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="text-slate-400 font-medium block truncate">Privacy Trust Status</span>
+                                <span class="font-extrabold text-emerald-300 text-xs truncate block">100% Trusted</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- 2. Privacy Policy Bento Card -->
-                <div class="bento-card rounded-3xl p-4 sm:p-5 space-y-3 border border-indigo-500/30">
+                <!-- 2. Privacy Policy & Terms Bento Card -->
+                <div class="bento-card rounded-3xl p-4 sm:p-5 space-y-3.5 border border-indigo-500/40 bg-gradient-to-b from-[#080d1e] to-slate-950">
                     <div class="flex items-center justify-between gap-2">
                         <div class="flex items-center gap-2.5">
-                            <div class="w-8 h-8 rounded-xl bg-indigo-500/15 border border-indigo-500/40 flex items-center justify-center text-indigo-400 shrink-0">
-                                <i class="fa-solid fa-shield-halved text-sm"></i>
+                            <div class="w-9 h-9 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400 shrink-0">
+                                <i class="fa-solid fa-shield-heart text-base"></i>
                             </div>
                             <div>
-                                <h3 class="text-sm font-black text-white">Privacy Policy</h3>
-                                <p class="text-[10px] text-slate-400 font-medium">Your data stays strictly on your phone</p>
+                                <h3 class="text-sm font-black text-white">Privacy &amp; Terms Policy</h3>
+                                <p class="text-[10px] text-emerald-300 font-bold">Privacy is Our #1 Priority</p>
                             </div>
                         </div>
-                        <button type="button" onclick="openPrivacyPolicyModal()"
-                            class="AirClickable px-3 py-1.5 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/40 text-indigo-300 text-[11px] font-black active:scale-95 transition flex items-center gap-1.5 shrink-0">
-                            <span>Read Full</span>
-                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-                        </button>
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            <button type="button" onclick="openPrivacyPolicyModal()"
+                                class="AirClickable px-2.5 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 text-[10px] font-black active:scale-95 transition flex items-center gap-1">
+                                <span>Privacy</span>
+                                <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                            </button>
+                            <button type="button" onclick="openTermsConditionsModal()"
+                                class="AirClickable px-2.5 py-1.5 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/40 text-indigo-300 text-[10px] font-black active:scale-95 transition flex items-center gap-1">
+                                <span>Terms</span>
+                                <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Privacy Quick Highlights -->
                     <div class="space-y-2 text-xs">
+                        <!-- 1. Google Analytics Transparency -->
                         <div class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-start gap-2.5">
-                            <span class="text-base leading-none">🛡️</span>
+                            <span class="text-base leading-none">📊</span>
                             <div>
-                                <span class="font-bold text-white text-[11px] block">100% On-Device AI Vision</span>
-                                <span class="text-slate-400 text-[10px] leading-tight block mt-0.5">Camera feed is processed in local device RAM. No images, video, or data leave your phone.</span>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="font-bold text-white text-[11px] block">Google Analytics (App Improvement Only)</span>
+                                    <span class="px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 text-[8px] font-black">Anonymous</span>
+                                </div>
+                                <p class="text-slate-400 text-[10px] leading-relaxed mt-0.5">
+                                    Hum app ko or behtar aur users ke liye zyada useful banane ke liye Google Analytics (Firebase) ka use karte hain. Isse gestures ki accuracy, app stability aur features ko behtar banaya jata hai.
+                                </p>
                             </div>
                         </div>
-                        <div class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-start gap-2.5">
-                            <span class="text-base leading-none">🚫</span>
-                            <div>
-                                <span class="font-bold text-white text-[11px] block">Zero Media Storage</span>
-                                <span class="text-slate-400 text-[10px] leading-tight block mt-0.5">Hand landmarks are computed in real time and discarded instantly. Nothing is ever saved or recorded.</span>
-                            </div>
-                        </div>
+
+                        <!-- 2. Zero 3rd-Party Sharing -->
                         <div class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-start gap-2.5">
                             <span class="text-base leading-none">🔒</span>
                             <div>
-                                <span class="font-bold text-white text-[11px] block">No Personal Data Collection</span>
-                                <span class="text-slate-400 text-[10px] leading-tight block mt-0.5">No accounts required, no tracking analytics, no telemetry, and zero third-party data sharing.</span>
+                                <span class="font-bold text-white text-[11px] block">No 3rd-Party Data Sharing</span>
+                                <p class="text-slate-400 text-[10px] leading-relaxed mt-0.5">
+                                    <strong>AiVisionMind</strong> ek trusted platform hai. Hum user ka koi bhi personal info ya data kisi bhi third-party company ya advertisers ke sath share ya sell bilkul nahi karte.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- 3. Realtime On-Device AI Vision -->
+                        <div class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-start gap-2.5">
+                            <span class="text-base leading-none">⚡</span>
+                            <div>
+                                <span class="font-bold text-white text-[11px] block">100% On-Device AI Vision (Zero Recording)</span>
+                                <p class="text-slate-400 text-[10px] leading-relaxed mt-0.5">
+                                    Camera feed sirf volatile device RAM me real-time MediaPipe hand landmarks track karne ke liye use hota hai. Koi photo ya video kabhi save ya server par upload nahi hoti.
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -1824,33 +2023,49 @@
                 </div>
 
                 <!-- 4. Version & Developer Footer -->
-                <div class="p-4 rounded-3xl bg-slate-900/40 border border-slate-800/60 text-center space-y-1">
-                    <p class="text-xs font-black text-white">AeroSense AI™ OS • App Version 1</p>
-                    <p class="text-[10px] text-slate-400 font-medium">Engineered for Next-Generation Touchless Interaction</p>
-                    <p class="text-[9px] text-slate-500 font-bold tracking-wider pt-1">© 2026 AeroSense AI. All rights reserved.</p>
+                <div class="p-4 rounded-3xl bg-slate-900/60 border border-slate-800/80 text-center space-y-1.5">
+                    <div class="flex items-center justify-center gap-1.5 text-xs font-black text-white">
+                        <span>AeroSense AI™ OS</span>
+                        <span class="text-slate-600">•</span>
+                        <span class="text-cyan-400">App Version 1</span>
+                    </div>
+                    <p class="text-[10px] text-slate-300 font-semibold">
+                        Developed &amp; Architected by <span class="text-white font-black">Mr. Shuaib</span>
+                    </p>
+                    <p class="text-[9px] text-cyan-300 font-extrabold tracking-wide uppercase">
+                        <i class="fa-solid fa-shield-halved text-[8px] mr-0.5"></i>
+                        Powered by AiVisionMind • Trusted Platform
+                    </p>
+                    <p class="text-[9px] text-slate-500 font-medium tracking-tight pt-0.5">
+                        User Privacy is Our First Priority • © 2026 AiVisionMind. All rights reserved.
+                    </p>
                 </div>
             </section>
 
         </main>
 
-        <!-- 4. BOTTOM NAVIGATION (Home | Settings | Gestures | More) -->
-        <nav class="shrink-0 bg-[#04070f] border-t border-slate-800 px-3 py-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] z-[9000] relative select-none">
-            <div class="grid grid-cols-4 gap-1.5 sm:gap-2">
-                <button type="button" onclick="switchTab('launcher')" id="nav-launcher" class="AirClickable min-h-[48px] py-2 px-1 rounded-xl bg-cyan-500/15 text-cyan-400 font-extrabold text-[10px] flex flex-col items-center justify-center gap-0.5 active:scale-95 transition cursor-pointer select-none touch-manipulation">
+        <!-- 4. BOTTOM NAVIGATION (Home | Skip Ads | Settings | Gestures | More) -->
+        <nav class="shrink-0 bg-[#04070f] border-t border-slate-800 px-2 sm:px-3 py-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] z-[9000] relative select-none">
+            <div class="grid grid-cols-5 gap-1 sm:gap-1.5">
+                <button type="button" onclick="switchTab('launcher')" id="nav-launcher" class="AirClickable min-h-[48px] py-2 px-0.5 rounded-xl bg-cyan-500/15 text-cyan-400 font-extrabold text-[9px] sm:text-[10px] flex flex-col items-center justify-center gap-0.5 active:scale-95 transition cursor-pointer select-none touch-manipulation">
                     <i class="fa-solid fa-house text-sm pointer-events-none"></i>
-                    <span class="pointer-events-none">Home</span>
+                    <span class="pointer-events-none truncate">Home</span>
                 </button>
-                <button type="button" onclick="switchTab('settings')" id="nav-settings" class="AirClickable min-h-[48px] py-2 px-1 rounded-xl text-slate-400 font-bold text-[10px] flex flex-col items-center justify-center gap-0.5 active:scale-95 transition cursor-pointer select-none touch-manipulation">
+                <button type="button" onclick="switchTab('skipads')" id="nav-skipads" class="AirClickable min-h-[48px] py-2 px-0.5 rounded-xl text-slate-400 font-bold text-[9px] sm:text-[10px] flex flex-col items-center justify-center gap-0.5 active:scale-95 transition cursor-pointer select-none touch-manipulation">
+                    <i class="fa-solid fa-forward-fast text-sm pointer-events-none"></i>
+                    <span class="pointer-events-none truncate">Skip Ads</span>
+                </button>
+                <button type="button" onclick="switchTab('settings')" id="nav-settings" class="AirClickable min-h-[48px] py-2 px-0.5 rounded-xl text-slate-400 font-bold text-[9px] sm:text-[10px] flex flex-col items-center justify-center gap-0.5 active:scale-95 transition cursor-pointer select-none touch-manipulation">
                     <i class="fa-solid fa-sliders text-sm pointer-events-none"></i>
-                    <span class="pointer-events-none">Settings</span>
+                    <span class="pointer-events-none truncate">Settings</span>
                 </button>
-                <button type="button" onclick="switchTab('guide')" id="nav-guide" class="AirClickable min-h-[48px] py-2 px-1 rounded-xl text-slate-400 font-bold text-[10px] flex flex-col items-center justify-center gap-0.5 active:scale-95 transition cursor-pointer select-none touch-manipulation">
+                <button type="button" onclick="switchTab('guide')" id="nav-guide" class="AirClickable min-h-[48px] py-2 px-0.5 rounded-xl text-slate-400 font-bold text-[9px] sm:text-[10px] flex flex-col items-center justify-center gap-0.5 active:scale-95 transition cursor-pointer select-none touch-manipulation">
                     <i class="fa-solid fa-hand-sparkles text-sm pointer-events-none"></i>
-                    <span class="pointer-events-none">Gestures</span>
+                    <span class="pointer-events-none truncate">Gestures</span>
                 </button>
-                <button type="button" onclick="switchTab('more')" id="nav-more" class="AirClickable min-h-[48px] py-2 px-1 rounded-xl text-slate-400 font-bold text-[10px] flex flex-col items-center justify-center gap-0.5 active:scale-95 transition cursor-pointer select-none touch-manipulation">
+                <button type="button" onclick="switchTab('more')" id="nav-more" class="AirClickable min-h-[48px] py-2 px-0.5 rounded-xl text-slate-400 font-bold text-[9px] sm:text-[10px] flex flex-col items-center justify-center gap-0.5 active:scale-95 transition cursor-pointer select-none touch-manipulation">
                     <i class="fa-solid fa-circle-info text-sm pointer-events-none"></i>
-                    <span class="pointer-events-none">More</span>
+                    <span class="pointer-events-none truncate">More</span>
                 </button>
             </div>
         </nav>
@@ -1902,52 +2117,338 @@
         <div class="bento-card rounded-3xl max-w-sm w-full p-4 sm:p-5 space-y-3.5 border border-cyan-500/40 max-h-[85vh] flex flex-col">
             <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 shrink-0">
                 <div class="flex items-center gap-2">
-                    <div class="w-7 h-7 rounded-lg bg-cyan-500/20 text-cyan-300 flex items-center justify-center text-xs">
+                    <div class="w-8 h-8 rounded-xl bg-cyan-500/20 text-cyan-300 flex items-center justify-center text-sm shadow">
                         <i class="fa-solid fa-shield-halved"></i>
                     </div>
                     <div>
                         <h3 class="text-sm font-black text-white">Privacy Policy</h3>
-                        <p class="text-[9px] text-cyan-300 font-extrabold uppercase tracking-wide">AeroSense AI Version 1</p>
+                        <p class="text-[9px] text-cyan-300 font-extrabold uppercase tracking-wide">AiVisionMind • Lead Dev: Mr. Shuaib</p>
                     </div>
                 </div>
-                <button onclick="closePrivacyPolicyModal()" class="text-slate-400 hover:text-white text-sm p-1">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+                <div class="flex items-center gap-2">
+                    <!-- Language Switcher Pill -->
+                    <div class="flex items-center bg-slate-900/90 rounded-xl p-0.5 border border-cyan-500/30 text-[10px] font-bold">
+                        <button type="button" id="btn-privacy-lang-en" onclick="setPrivacyLanguage('en')"
+                            class="px-2 py-0.5 rounded-lg bg-cyan-500 text-slate-950 font-black shadow transition">EN</button>
+                        <button type="button" id="btn-privacy-lang-hi" onclick="setPrivacyLanguage('hi')"
+                            class="px-2 py-0.5 rounded-lg text-slate-400 hover:text-white transition">हिंदी</button>
+                    </div>
+                    <button onclick="closePrivacyPolicyModal()" class="text-slate-400 hover:text-white text-base p-1.5 active:scale-90 transition">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
             </div>
 
-            <div class="space-y-3 text-xs overflow-y-auto pr-1 flex-1 text-slate-300 leading-relaxed no-scrollbar">
-                <div>
-                    <h4 class="font-black text-white text-xs mb-1">1. Summary</h4>
-                    <p class="text-[11px] text-slate-400">AeroSense AI is designed with strict on-device privacy. Your physical movements, camera video, and voice commands remain 100% private to your phone.</p>
+            <!-- Priority Badge -->
+            <div class="p-2.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-2 shrink-0">
+                <i class="fa-solid fa-shield-heart text-emerald-400 text-sm"></i>
+                <span class="text-[10px] font-extrabold text-emerald-300">Your Privacy is Our #1 Priority</span>
+            </div>
+
+            <div class="text-xs overflow-y-auto pr-1 flex-1 text-slate-300 leading-relaxed no-scrollbar">
+                <!-- English Privacy Content (Default) -->
+                <div id="privacy-content-en" class="space-y-3">
+                    <div>
+                        <h4 class="font-black text-white text-xs mb-1 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+                            <span>1. AiVisionMind Trust Commitment</span>
+                        </h4>
+                        <p class="text-[11px] text-slate-400">
+                            AeroSense AI™ is architected by <strong>Mr. Shuaib</strong> under the <strong>AiVisionMind</strong> platform (<em>"Think • Create • Innovate"</em>). We place user privacy and data trust as our absolute #1 priority. This application is engineered with ethical AI standards and complete transparency.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-black text-white text-xs mb-1 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+                            <span>2. 100% On-Device AI Vision (Zero Recording)</span>
+                        </h4>
+                        <p class="text-[11px] text-slate-400">
+                            Camera feed is strictly processed in real-time inside your device's temporary memory (RAM) via MediaPipe to detect hand landmarks. <strong>No photos, screenshots, or videos are ever saved, stored, or transmitted to any external server.</strong> Each video frame is discarded immediately after hand tracking calculation.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-black text-white text-xs mb-1 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+                            <span>3. Google Analytics (For Continuous App Improvement)</span>
+                        </h4>
+                        <p class="text-[11px] text-slate-400">
+                            To make the app faster, more reliable, and truly useful, we utilize Google Analytics (Firebase Analytics). This is limited strictly to aggregated, non-personally identifiable telemetry (such as gesture trigger frequencies, app stability, crash logs, and engine initialization speed) so that our engineering team can swiftly resolve bugs and deliver continuous performance improvements.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-black text-white text-xs mb-1 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+                            <span>4. Strict No-Sharing Policy (Zero 3rd Parties)</span>
+                        </h4>
+                        <p class="text-[11px] text-slate-400">
+                            <strong>AiVisionMind</strong> is an established, trusted platform. We strictly guarantee that we will <strong>NEVER</strong> sell, rent, trade, or share any user data or behavioral analytics with third-party advertising companies, data brokers, or marketing networks.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-black text-white text-xs mb-1 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+                            <span>5. Accessibility &amp; Microphone Safety</span>
+                        </h4>
+                        <p class="text-[11px] text-slate-400">
+                            The Android Accessibility Service is utilized solely to dispatch user-triggered spatial actions (Air Tap, Back, Home, and Swipe gestures). It never inspects, logs, or reads on-screen text, passwords, or personal messages. Microphone input for voice commands is never recorded or transmitted.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-black text-white text-xs mb-1 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+                            <span>6. Creator &amp; Version Attribution</span>
+                        </h4>
+                        <p class="text-[11px] text-slate-400">
+                            App: AeroSense AI™ OS • Version 1 (v1.0.0)<br>
+                            Lead Developer: <strong>Mr. Shuaib</strong><br>
+                            Developer Platform: <strong>AiVisionMind</strong> • <em>Your AI-Powered Partner for a Smarter Tomorrow</em>
+                        </p>
+                    </div>
                 </div>
 
-                <div>
-                    <h4 class="font-black text-white text-xs mb-1">2. Camera &amp; Vision Data</h4>
-                    <p class="text-[11px] text-slate-400">AeroSense AI accesses your front camera solely to compute real-time hand skeleton landmarks. <strong>No video frames, photographs, or recordings are ever saved, stored, or sent to any cloud server.</strong> All processing occurs strictly in volatile device memory (RAM) and is discarded immediately.</p>
-                </div>
+                <!-- Hindi Privacy Content -->
+                <div id="privacy-content-hi" class="space-y-3 hidden">
+                    <div>
+                        <h4 class="font-black text-white text-xs mb-1 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+                            <span>1. AiVisionMind गोपनीयता प्रतिबद्धता (Trust Commitment)</span>
+                        </h4>
+                        <p class="text-[11px] text-slate-400">
+                            AeroSense AI™ का निर्माण लीड डेवलपर <strong>Mr. Shuaib</strong> द्वारा <strong>AiVisionMind</strong> प्लेटफॉर्म (<em>"Think • Create • Innovate"</em>) के अंतर्गत किया गया है। उपयोगकर्ता की निजता (Privacy) और डेटा सुरक्षा हमारी सर्वोच्च प्राथमिकता (#1 Priority) है। यह ऐप 100% नैतिक और पारदर्शी मानकों पर आधारित है।
+                        </p>
+                    </div>
 
-                <div>
-                    <h4 class="font-black text-white text-xs mb-1">3. Accessibility Service</h4>
-                    <p class="text-[11px] text-slate-400">The Android Accessibility Service is used strictly to simulate physical touches and system navigation (Back, Home, Reel Swiping) based on your air gestures. <strong>We do not read, log, or inspect screen text, passwords, or personal data.</strong></p>
-                </div>
+                    <div>
+                        <h4 class="font-black text-white text-xs mb-1 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+                            <span>2. 100% ऑन-डिवाइस विज़न (कोई रिकॉर्डिंग या सेविंग नहीं)</span>
+                        </h4>
+                        <p class="text-[11px] text-slate-400">
+                            कैमरा फीड का उपयोग केवल मोबाइल की अस्थायी RAM में रियल-टाइम हैंड लैंडमार्क ट्रैक करने के लिए किया जाता है। <strong>कोई भी फोटो, वीडियो या रिकॉर्डिंग न तो फोन में सेव होती है और न ही किसी बाहरी सर्वर पर भेजी जाती है।</strong> फ्रेम प्रोसेस होते ही मेमोरी से तुरंत नष्ट कर दिया जाता है।
+                        </p>
+                    </div>
 
-                <div>
-                    <h4 class="font-black text-white text-xs mb-1">4. Voice Recognition</h4>
-                    <p class="text-[11px] text-slate-400">Voice control triggers (e.g. "Next", "Back", "Home") use Android's native speech recognition. Audio transcripts are parsed in real time and are never stored or shared.</p>
-                </div>
+                    <div>
+                        <h4 class="font-black text-white text-xs mb-1 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+                            <span>3. गूगल एनालिटिक्स — ऐप को और बेहतर बनाने हेतु</span>
+                        </h4>
+                        <p class="text-[11px] text-slate-400">
+                            ऐप को और अधिक बेहतर, तेज़ तथा उपयोगकर्ताओं के लिए उपयोगी बनाने के लिए हम Google Analytics (Firebase) का उपयोग करते हैं। इसका उद्देश्य केवल अनाम (Anonymous) टेक्निकल डेटा—जैसे जेस्चर की विश्वसनीयता, क्रैश रिपोर्ट और स्टार्टअप गति को ट्रैक करना है ताकि समस्याओं को तुरंत सुलझाया जा सके।
+                        </p>
+                    </div>
 
-                <div>
-                    <h4 class="font-black text-white text-xs mb-1">5. Zero Personal Data Collection</h4>
-                    <p class="text-[11px] text-slate-400">AeroSense AI does not collect names, emails, phone numbers, location, device IDs, or usage history. No third-party ad networks or tracking trackers are embedded.</p>
-                </div>
+                    <div>
+                        <h4 class="font-black text-white text-xs mb-1 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+                            <span>4. डेटा शेयरिंग पर पूर्ण रोक (No 3rd-Party Sharing)</span>
+                        </h4>
+                        <p class="text-[11px] text-slate-400">
+                            <strong>AiVisionMind</strong> एक पूरी तरह विश्वसनीय (Trusted) प्लेटफॉर्म है। हम उपयोगकर्ता की व्यक्तिगत जानकारी या व्यवहार डेटा को किसी भी तीसरे पक्ष (Third-Party), विज्ञापनदाता या मार्केटिंग एजेंसी के साथ कभी भी साझा या विक्रय (Share/Sell) <strong>कतई नहीं</strong> करते हैं।
+                        </p>
+                    </div>
 
-                <div>
-                    <h4 class="font-black text-white text-xs mb-1">6. App Version &amp; Contact</h4>
-                    <p class="text-[11px] text-slate-400">This policy applies to AeroSense AI Version 1 (v1.0.0). For inquiries or questions, contact us via official project channels.</p>
+                    <div>
+                        <h4 class="font-black text-white text-xs mb-1 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+                            <span>5. एक्सेसिबिलिटी एवं माइक सुरक्षा</span>
+                        </h4>
+                        <p class="text-[11px] text-slate-400">
+                            Accessibility Service का इस्तेमाल केवल जेस्चर आधारित एक्शन (Air Tap, Back, Home, Swipe) करने के लिए होता है। यह आपकी स्क्रीन के किसी भी निजी मैसेज या पासवर्ड को कभी नहीं पढ़ती। वॉइस कमांड ऑडियो कभी भी रिकॉर्ड या स्टोर नहीं होता।
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-black text-white text-xs mb-1 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+                            <span>6. डेवलपर एवं वर्जन विवरण (Developer Attribution)</span>
+                        </h4>
+                        <p class="text-[11px] text-slate-400">
+                            ऐप: AeroSense AI™ OS • Version 1 (v1.0.0)<br>
+                            लीड डेवलपर: <strong>Mr. Shuaib</strong><br>
+                            डेवलपर प्लेटफ़ॉर्म: <strong>AiVisionMind</strong> • <em>Your AI-Powered Partner for a Smarter Tomorrow</em>
+                        </p>
+                    </div>
                 </div>
             </div>
 
             <button onclick="closePrivacyPolicyModal()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-black text-xs active:scale-95 transition shadow-lg shrink-0">
+                Close &amp; Accept
+            </button>
+        </div>
+    </div>
+
+    <!-- TERMS & CONDITIONS MODAL -->
+    <div id="terms-conditions-modal" onclick="if(event.target === this) closeTermsConditionsModal()" class="fixed inset-0 z-[9600] bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bento-card rounded-3xl max-w-sm w-full p-4 sm:p-5 space-y-3.5 border border-indigo-500/40 max-h-[85vh] flex flex-col">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 shrink-0">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-300 flex items-center justify-center text-sm shadow">
+                        <i class="fa-solid fa-file-contract"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-black text-white">Terms &amp; Conditions</h3>
+                        <p class="text-[9px] text-indigo-300 font-extrabold uppercase tracking-wide">AiVisionMind • Lead Dev: Mr. Shuaib</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <!-- Language Switcher Pill -->
+                    <div class="flex items-center bg-slate-900/90 rounded-xl p-0.5 border border-indigo-500/30 text-[10px] font-bold">
+                        <button type="button" id="btn-terms-lang-en" onclick="setTermsLanguage('en')"
+                            class="px-2 py-0.5 rounded-lg bg-indigo-500 text-white font-black shadow transition">EN</button>
+                        <button type="button" id="btn-terms-lang-hi" onclick="setTermsLanguage('hi')"
+                            class="px-2 py-0.5 rounded-lg text-slate-400 hover:text-white transition">हिंदी</button>
+                    </div>
+                    <button onclick="closeTermsConditionsModal()" class="text-slate-400 hover:text-white text-base p-1.5 active:scale-90 transition">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Priority Badge -->
+            <div class="p-2.5 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center gap-2 shrink-0">
+                <i class="fa-solid fa-certificate text-indigo-400 text-sm"></i>
+                <span class="text-[10px] font-extrabold text-indigo-300">Official Terms of Service • Version 1</span>
+            </div>
+
+            <div class="text-xs overflow-y-auto pr-1 flex-1 text-slate-300 leading-relaxed no-scrollbar">
+                <!-- English Terms Content (Default) -->
+                <div id="terms-content-en" class="space-y-3">
+                    <div>
+                        <h4 class="font-black text-white text-xs mb-1 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                            <span>1. Developer &amp; Platform Ownership</span>
+                        </h4>
+                        <p class="text-[11px] text-slate-400">
+                            AeroSense AI™ OS is engineered, designed, and maintained by <strong>Mr. Shuaib</strong> under the <strong>AiVisionMind</strong> platform (<em>"Think • Create • Innovate"</em>). All gesture computer vision pipelines, spatial mathematics, interface designs, neural algorithms, and intellectual property exclusively belong to AiVisionMind.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-black text-white text-xs mb-1 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                            <span>2. Permitted Touchless Gesture Usage</span>
+                        </h4>
+                        <p class="text-[11px] text-slate-400">
+                            The software grants you a personal, non-exclusive license for touchless hand gesture navigation (Next, Prev, Like, Back, Home, Volume) on compatible Android hardware. Commercial resale, reverse-engineering, or tampering with the software core without authorization is prohibited.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-black text-white text-xs mb-1 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                            <span>3. Google Analytics for Continuous Optimization</span>
+                        </h4>
+                        <p class="text-[11px] text-slate-400">
+                            By using the software, you agree to anonymized technical telemetry via Google Analytics (Firebase Analytics). This is used strictly by <strong>AiVisionMind</strong> to monitor gesture reliability, resolve application crashes, optimize battery and CPU usage, and introduce continuous features to make the application more useful for users.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-black text-white text-xs mb-1 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                            <span>4. Strict 3rd-Party Non-Disclosure Guarantee</span>
+                        </h4>
+                        <p class="text-[11px] text-slate-400">
+                            <strong>AiVisionMind</strong> is an established, trusted platform. Under no circumstances will user activity or behavior be sold, commercialized, traded, or disclosed to any third-party marketing entities, advertisers, or external parties.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-black text-white text-xs mb-1 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                            <span>5. Safe Operation &amp; Guidelines</span>
+                        </h4>
+                        <p class="text-[11px] text-slate-400">
+                            Users agree to operate touchless gesture controls only in safe environments. Touchless controls must never be operated while driving vehicles, crossing roads, or operating hazardous machinery.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-black text-white text-xs mb-1 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                            <span>6. Creator &amp; Platform Attributions</span>
+                        </h4>
+                        <p class="text-[11px] text-slate-400">
+                            Lead Architect &amp; Developer: <strong>Mr. Shuaib</strong><br>
+                            Developer Platform: <strong>AiVisionMind</strong> • <em>Think • Create • Innovate</em><br>
+                            OS Version: Version 1 (v1.0.0)
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Hindi Terms Content -->
+                <div id="terms-content-hi" class="space-y-3 hidden">
+                    <div>
+                        <h4 class="font-black text-white text-xs mb-1 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                            <span>1. डेवलपर एवं प्लेटफ़ॉर्म स्वामित्व (Ownership)</span>
+                        </h4>
+                        <p class="text-[11px] text-slate-400">
+                            AeroSense AI™ OS का निर्माण, डिज़ाइन और रखरखाव लीड डेवलपर <strong>Mr. Shuaib</strong> द्वारा <strong>AiVisionMind</strong> प्लेटफॉर्म (<em>"Think • Create • Innovate"</em>) के तहत किया गया है। इसके सभी जेस्चर कंप्यूटर विज़न एल्गोरिदम, इंटरफ़ेस डिज़ाइन और बौद्धिक संपदा (IP) AiVisionMind के पूर्ण स्वामित्व में हैं।
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-black text-white text-xs mb-1 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                            <span>2. टचलेस जेस्चर उपयोग की अनुमति (Permitted Usage)</span>
+                        </h4>
+                        <p class="text-[11px] text-slate-400">
+                            यह ऐप उपयोगकर्ताओं को टचलेस जेस्चर (Next, Prev, Like, Back, Home, Volume) से फ़ोन संचालन का व्यक्तिगत और गैर-व्यावसायिक उपयोग अधिकार प्रदान करता है। ऐप का अनधिकृत संशोधन या रिवर्स इंजीनियरिंग पूरी तरह प्रतिबंधित है।
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-black text-white text-xs mb-1 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                            <span>3. गूगल एनालिटिक्स द्वारा ऐप में निरंतर सुधार</span>
+                        </h4>
+                        <p class="text-[11px] text-slate-400">
+                            ऐप को और बेहतर, सुगम तथा उपयोगी बनाने के लिए हम Google Analytics (Firebase) का उपयोग करते हैं। इस अनाम डेटा का उपयोग केवल जेस्चर की सटीकता, क्रैश फिक्सिंग और इंजन परफ़ॉर्मेंस को मॉनिटर करने के लिए किया जाता है, ताकि ऐप का अनुभव और बेहतर बनाया जा सके।
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-black text-white text-xs mb-1 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                            <span>4. थर्ड-पार्टी शेयरिंग पर पूर्ण रोक (Zero 3rd-Party Sharing)</span>
+                        </h4>
+                        <p class="text-[11px] text-slate-400">
+                            <strong>AiVisionMind</strong> एक 100% विश्वसनीय (Trusted) प्लेटफॉर्म है। हम उपयोगकर्ता का कोई भी डेटा या गतिविधि किसी भी बाहरी कंपनी, विज्ञापनदाता या डेटा ब्रोकर के साथ कभी भी साझा या विक्रय (Share/Sell) <strong>नहीं</strong> करते हैं।
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-black text-white text-xs mb-1 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                            <span>5. सुरक्षित उपयोग के नियम (Safety Guidelines)</span>
+                        </h4>
+                        <p class="text-[11px] text-slate-400">
+                            उपयोगकर्ता सहमत हैं कि वे ऐप का उपयोग केवल सुरक्षित स्थानों पर करेंगे। ड्राइविंग करते समय, सड़क पार करते समय या किसी खतरनाक मशीन पर काम करते समय टचलेस जेस्चर का उपयोग न करें।
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-black text-white text-xs mb-1 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                            <span>6. निर्माता एवं प्लेटफ़ॉर्म जानकारी (Attribution)</span>
+                        </h4>
+                        <p class="text-[11px] text-slate-400">
+                            लीड आर्किटेक्ट एवं डेवलपर: <strong>Mr. Shuaib</strong><br>
+                            डेवलपर प्लेटफ़ॉर्म: <strong>AiVisionMind</strong> • <em>Think • Create • Innovate</em><br>
+                            वर्जन: Version 1 (v1.0.0)
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="closeTermsConditionsModal()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-black text-xs active:scale-95 transition shadow-lg shrink-0">
                 Close &amp; Accept
             </button>
         </div>
@@ -2802,7 +3303,62 @@
             showToast('🗑️', 'App Removed', 'Removed from gesture list');
         }
 
+        function setTermsLanguage(lang) {
+            const enContent = document.getElementById('terms-content-en');
+            const hiContent = document.getElementById('terms-content-hi');
+            const btnEn = document.getElementById('btn-terms-lang-en');
+            const btnHi = document.getElementById('btn-terms-lang-hi');
+
+            if (lang === 'hi') {
+                if (enContent) enContent.classList.add('hidden');
+                if (hiContent) hiContent.classList.remove('hidden');
+                if (btnEn) {
+                    btnEn.className = 'px-2 py-0.5 rounded-lg text-slate-400 hover:text-white transition';
+                }
+                if (btnHi) {
+                    btnHi.className = 'px-2 py-0.5 rounded-lg bg-indigo-500 text-white font-black shadow transition';
+                }
+            } else {
+                if (enContent) enContent.classList.remove('hidden');
+                if (hiContent) hiContent.classList.add('hidden');
+                if (btnEn) {
+                    btnEn.className = 'px-2 py-0.5 rounded-lg bg-indigo-500 text-white font-black shadow transition';
+                }
+                if (btnHi) {
+                    btnHi.className = 'px-2 py-0.5 rounded-lg text-slate-400 hover:text-white transition';
+                }
+            }
+        }
+
+        function setPrivacyLanguage(lang) {
+            const enContent = document.getElementById('privacy-content-en');
+            const hiContent = document.getElementById('privacy-content-hi');
+            const btnEn = document.getElementById('btn-privacy-lang-en');
+            const btnHi = document.getElementById('btn-privacy-lang-hi');
+
+            if (lang === 'hi') {
+                if (enContent) enContent.classList.add('hidden');
+                if (hiContent) hiContent.classList.remove('hidden');
+                if (btnEn) {
+                    btnEn.className = 'px-2 py-0.5 rounded-lg text-slate-400 hover:text-white transition';
+                }
+                if (btnHi) {
+                    btnHi.className = 'px-2 py-0.5 rounded-lg bg-cyan-500 text-slate-950 font-black shadow transition';
+                }
+            } else {
+                if (enContent) enContent.classList.remove('hidden');
+                if (hiContent) hiContent.classList.add('hidden');
+                if (btnEn) {
+                    btnEn.className = 'px-2 py-0.5 rounded-lg bg-cyan-500 text-slate-950 font-black shadow transition';
+                }
+                if (btnHi) {
+                    btnHi.className = 'px-2 py-0.5 rounded-lg text-slate-400 hover:text-white transition';
+                }
+            }
+        }
+
         function openPrivacyPolicyModal() {
+            setPrivacyLanguage('en');
             const modal = document.getElementById('privacy-policy-modal');
             if (modal) {
                 modal.classList.remove('hidden');
@@ -2818,8 +3374,30 @@
             }
         }
 
+        function openTermsConditionsModal() {
+            setTermsLanguage('en');
+            const modal = document.getElementById('terms-conditions-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
+
+        function closeTermsConditionsModal() {
+            const modal = document.getElementById('terms-conditions-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
         window.closeAllModals = function() {
             let handled = false;
+            const termsModal = document.getElementById('terms-conditions-modal');
+            if (termsModal && !termsModal.classList.contains('hidden')) {
+                closeTermsConditionsModal();
+                handled = true;
+            }
             const privModal = document.getElementById('privacy-policy-modal');
             if (privModal && !privModal.classList.contains('hidden')) {
                 closePrivacyPolicyModal();
@@ -4829,6 +5407,7 @@
                     }
                 } catch (e) {}
             }
+            if (typeof updateAutoSkipAdsUI === 'function') updateAutoSkipAdsUI();
         };
 
         function requestNativeAccessibilityPermission() {
@@ -4883,6 +5462,8 @@
             document.getElementById('view-launcher').classList.toggle('hidden', tab !== 'launcher');
             const vStream = document.getElementById('view-stream');
             if (vStream) vStream.classList.toggle('hidden', tab !== 'stream');
+            const vSkipAds = document.getElementById('view-skipads');
+            if (vSkipAds) vSkipAds.classList.toggle('hidden', tab !== 'skipads');
             document.getElementById('view-settings').classList.toggle('hidden', tab !== 'settings');
             const vGuide = document.getElementById('view-guide');
             if (vGuide) vGuide.classList.toggle('hidden', tab !== 'guide');
@@ -4894,16 +5475,220 @@
             } else if (hasUnsavedSettings) {
                 discardPendingSettings(true);
             }
+            if (tab === 'skipads') {
+                updateAutoSkipAdsUI();
+            }
 
-            const tabs = ['launcher', 'settings', 'guide', 'more'];
+            const tabs = ['launcher', 'skipads', 'settings', 'guide', 'more'];
             tabs.forEach(t => {
                 const navBtn = document.getElementById(`nav-${t}`);
                 if (navBtn) {
                     navBtn.className = tab === t
-                        ? 'AirClickable min-h-[48px] py-2 px-1 rounded-xl bg-cyan-500/15 text-cyan-400 font-extrabold text-[10px] flex flex-col items-center justify-center gap-0.5 active:scale-95 transition cursor-pointer select-none touch-manipulation'
-                        : 'AirClickable min-h-[48px] py-2 px-1 rounded-xl text-slate-400 font-bold text-[10px] flex flex-col items-center justify-center gap-0.5 active:scale-95 transition cursor-pointer select-none touch-manipulation';
+                        ? 'AirClickable min-h-[48px] py-2 px-0.5 rounded-xl bg-cyan-500/15 text-cyan-400 font-extrabold text-[9px] sm:text-[10px] flex flex-col items-center justify-center gap-0.5 active:scale-95 transition cursor-pointer select-none touch-manipulation'
+                        : 'AirClickable min-h-[48px] py-2 px-0.5 rounded-xl text-slate-400 font-bold text-[9px] sm:text-[10px] flex flex-col items-center justify-center gap-0.5 active:scale-95 transition cursor-pointer select-none touch-manipulation';
                 }
             });
+        }
+
+        // =====================================================================
+        // AUTO SKIP ADS ENGINE LOGIC (AiVisionMind • Mr. Shuaib)
+        // =====================================================================
+        let isAutoSkipAdsRunning = false;
+        const getNativeBridge = () => window.AndroidBridge || window.Android || null;
+
+        function initAutoSkipAdsEngine() {
+            try {
+                const bridge = getNativeBridge();
+                if (bridge && typeof bridge.isAutoSkipAdsEnabled === 'function') {
+                    isAutoSkipAdsRunning = bridge.isAutoSkipAdsEnabled();
+                } else {
+                    isAutoSkipAdsRunning = localStorage.getItem('aero_skip_ads_enabled') === 'true';
+                }
+            } catch (e) {
+                isAutoSkipAdsRunning = false;
+            }
+            updateAutoSkipAdsUI();
+        }
+
+        function getAutoSkipAdsCount() {
+            try {
+                const bridge = getNativeBridge();
+                if (bridge && typeof bridge.getTotalAdsSkippedCount === 'function') {
+                    return bridge.getTotalAdsSkippedCount();
+                }
+                return parseInt(localStorage.getItem('aero_skip_ads_count') || '0', 10);
+            } catch (e) {
+                return 0;
+            }
+        }
+
+        function formatTimeSaved(seconds) {
+            if (seconds < 60) {
+                return `${seconds}s`;
+            }
+            const mins = Math.floor(seconds / 60);
+            const remSecs = seconds % 60;
+            return remSecs > 0 ? `${mins}m ${remSecs}s` : `${mins}m`;
+        }
+
+        function updateAutoSkipAdsUI() {
+            const count = getAutoSkipAdsCount();
+            const counterEl = document.getElementById('skipads-counter');
+            if (counterEl) counterEl.textContent = count;
+
+            const timeSavedEl = document.getElementById('skipads-time-saved');
+            if (timeSavedEl) timeSavedEl.textContent = formatTimeSaved(count * 15);
+
+            const activePill = document.getElementById('skipads-active-pill');
+            const dotEl = document.getElementById('skipads-dot');
+            const pillText = document.getElementById('skipads-pill-text');
+            const glowRing = document.getElementById('skipads-glow-ring');
+            const btnEl = document.getElementById('btn-toggle-skipads');
+            const btnIcon = document.getElementById('skipads-btn-icon');
+            const btnLabel = document.getElementById('skipads-btn-label');
+            const titleEl = document.getElementById('skipads-status-title');
+            const descEl = document.getElementById('skipads-status-desc');
+            const homeBadge = document.getElementById('home-skipads-status-badge');
+
+            // Check if accessibility service is enabled
+            let hasAccessibility = true;
+            try {
+                const bridge = getNativeBridge();
+                if (bridge && typeof bridge.checkPermissionsJson === 'function') {
+                    const json = JSON.parse(bridge.checkPermissionsJson());
+                    hasAccessibility = !!json.accessibility;
+                }
+            } catch (e) {}
+
+            const permAlert = document.getElementById('skipads-perm-alert');
+            if (permAlert) {
+                if (!hasAccessibility) {
+                    permAlert.classList.remove('hidden');
+                    permAlert.classList.add('flex');
+                } else {
+                    permAlert.classList.add('hidden');
+                    permAlert.classList.remove('flex');
+                }
+            }
+
+            if (isAutoSkipAdsRunning) {
+                if (activePill) {
+                    activePill.className = 'px-2.5 py-1 rounded-xl bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 font-black text-[10px] flex items-center gap-1.5 shadow-sm';
+                }
+                if (dotEl) {
+                    dotEl.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-ping';
+                }
+                if (pillText) pillText.textContent = 'Active • Monitoring';
+                if (glowRing) glowRing.classList.remove('opacity-0');
+
+                if (btnEl) {
+                    btnEl.className = 'AirClickable w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-gradient-to-tr from-rose-500 via-red-500 to-amber-500 text-white flex flex-col items-center justify-center shadow-2xl shadow-rose-500/40 transition-all duration-300 active:scale-95 hover:scale-105 border-4 border-slate-900/80 my-1 shrink-0 overflow-hidden relative ring-4 ring-emerald-500/40 animate-pulse';
+                }
+                if (btnIcon) btnIcon.className = 'fa-solid fa-stop text-4xl mb-1';
+                if (btnLabel) btnLabel.textContent = 'STOP SKIP';
+
+                if (titleEl) titleEl.textContent = 'Auto Skip Engine is ACTIVE';
+                if (descEl) descEl.textContent = 'Monitoring YouTube & apps in background • Ready to skip ads';
+
+                if (homeBadge) {
+                    homeBadge.className = 'px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[8px] font-black uppercase tracking-wider shrink-0 flex items-center gap-1';
+                    homeBadge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>Active';
+                }
+            } else {
+                if (activePill) {
+                    activePill.className = 'px-2.5 py-1 rounded-xl bg-slate-800 text-slate-400 border border-slate-700 font-black text-[10px] flex items-center gap-1.5 transition';
+                }
+                if (dotEl) {
+                    dotEl.className = 'w-2 h-2 rounded-full bg-slate-500';
+                }
+                if (pillText) pillText.textContent = 'Inactive';
+                if (glowRing) glowRing.classList.add('opacity-0');
+
+                if (btnEl) {
+                    btnEl.className = 'AirClickable w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-gradient-to-tr from-amber-500 via-orange-500 to-yellow-400 text-slate-950 flex flex-col items-center justify-center shadow-2xl shadow-amber-500/30 transition-all duration-300 active:scale-95 hover:scale-105 border-4 border-slate-900/80 my-1 shrink-0 overflow-hidden relative';
+                }
+                if (btnIcon) btnIcon.className = 'fa-solid fa-forward-fast text-4xl mb-1';
+                if (btnLabel) btnLabel.textContent = 'START SKIP';
+
+                if (titleEl) titleEl.textContent = 'Tap START to Enable Auto Skip Ads';
+                if (descEl) descEl.textContent = 'Runs quietly in background • 0% Camera • 0% Extra Battery';
+
+                if (homeBadge) {
+                    homeBadge.className = 'px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 text-[8px] font-black uppercase tracking-wider shrink-0';
+                    homeBadge.textContent = 'Inactive';
+                }
+            }
+        }
+
+        function toggleAutoSkipAdsEngine() {
+            let hasAccessibility = true;
+            const bridge = getNativeBridge();
+            try {
+                if (bridge && typeof bridge.checkPermissionsJson === 'function') {
+                    const json = JSON.parse(bridge.checkPermissionsJson());
+                    hasAccessibility = !!json.accessibility;
+                }
+            } catch (e) {}
+
+            if (!isAutoSkipAdsRunning && !hasAccessibility) {
+                showToast('⚠️', 'Permission Required', 'Enable Gesture Service in Accessibility Settings');
+                if (bridge && typeof bridge.openAccessibilitySettings === 'function') {
+                    bridge.openAccessibilitySettings();
+                }
+                return;
+            }
+
+            isAutoSkipAdsRunning = !isAutoSkipAdsRunning;
+            localStorage.setItem('aero_skip_ads_enabled', isAutoSkipAdsRunning ? 'true' : 'false');
+
+            if (bridge && typeof bridge.setAutoSkipAdsEnabled === 'function') {
+                bridge.setAutoSkipAdsEnabled(isAutoSkipAdsRunning);
+            }
+
+            updateAutoSkipAdsUI();
+
+            if (isAutoSkipAdsRunning) {
+                showToast('⚡', 'Auto Skip Ads ACTIVE', 'Now YouTube and video ads will be skipped automatically!');
+                try {
+                    if (window.aeroTrackEvent) {
+                        window.aeroTrackEvent('auto_skip_ads_started', { timestamp: Date.now() });
+                    }
+                } catch (e) {}
+            } else {
+                showToast('🛑', 'Auto Skip Ads Stopped', 'Engine paused');
+            }
+        }
+
+        window.onAdSkippedNotification = function(newCount) {
+            try {
+                localStorage.setItem('aero_skip_ads_count', String(newCount));
+                const counterEl = document.getElementById('skipads-counter');
+                if (counterEl) {
+                    counterEl.textContent = newCount;
+                    counterEl.classList.add('scale-125', 'text-emerald-400');
+                    setTimeout(() => {
+                        counterEl.classList.remove('scale-125', 'text-emerald-400');
+                    }, 500);
+                }
+                const timeSavedEl = document.getElementById('skipads-time-saved');
+                if (timeSavedEl) timeSavedEl.textContent = formatTimeSaved(newCount * 15);
+
+                showToast('⏩', 'Ad Skipped!', `Auto-skipped YouTube Ad #${newCount}`);
+
+                if (window.aeroTrackEvent) {
+                    window.aeroTrackEvent('ad_skipped', { total_skipped: newCount });
+                }
+            } catch (e) {}
+        };
+
+        function resetAutoSkipStats() {
+            const bridge = getNativeBridge();
+            if (bridge && typeof bridge.resetAdsSkippedCount === 'function') {
+                bridge.resetAdsSkippedCount();
+            }
+            localStorage.setItem('aero_skip_ads_count', '0');
+            updateAutoSkipAdsUI();
+            showToast('🔄', 'Stats Reset', 'Ad skip counter set to 0');
         }
 
 
@@ -5765,6 +6550,7 @@
                 window.AeroAnalytics.init();
             }
             switchTab('launcher');
+            initAutoSkipAdsEngine();
             renderUserApps();
             refreshNativePermissionStatus();
                         renderSettingsUI();

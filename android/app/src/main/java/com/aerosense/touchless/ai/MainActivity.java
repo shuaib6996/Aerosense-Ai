@@ -889,6 +889,76 @@ public class MainActivity extends Activity {
                 return "{}";
             }
         }
+
+        @JavascriptInterface
+        public void setAutoSkipAdsEnabled(boolean enabled) {
+            runOnUiThread(() -> {
+                try {
+                    if (AeroAccessibilityService.instance != null) {
+                        AeroAccessibilityService.instance.setAutoSkipAdsEnabled(enabled);
+                    } else {
+                        android.content.SharedPreferences prefs = getSharedPreferences("aero_skip_ads_prefs", MODE_PRIVATE);
+                        prefs.edit().putBoolean("skip_ads_enabled", enabled).apply();
+                    }
+                    if (enabled) {
+                        Toast.makeText(MainActivity.this, "⚡ Auto Skip Ads Engine: ACTIVE (Monitoring Ads)", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(MainActivity.this, "🛑 Auto Skip Ads Engine: STOPPED", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception ignored) {}
+            });
+        }
+
+        @JavascriptInterface
+        public boolean isAutoSkipAdsEnabled() {
+            if (AeroAccessibilityService.instance != null) {
+                return AeroAccessibilityService.isAutoSkipAdsEnabled;
+            }
+            try {
+                android.content.SharedPreferences prefs = getSharedPreferences("aero_skip_ads_prefs", MODE_PRIVATE);
+                return prefs.getBoolean("skip_ads_enabled", false);
+            } catch (Exception ignored) {
+                return false;
+            }
+        }
+
+        @JavascriptInterface
+        public int getTotalAdsSkippedCount() {
+            if (AeroAccessibilityService.instance != null) {
+                return AeroAccessibilityService.totalAdsSkippedCount;
+            }
+            try {
+                android.content.SharedPreferences prefs = getSharedPreferences("aero_skip_ads_prefs", MODE_PRIVATE);
+                return prefs.getInt("total_ads_skipped", 0);
+            } catch (Exception ignored) {
+                return 0;
+            }
+        }
+
+        @JavascriptInterface
+        public void resetAdsSkippedCount() {
+            runOnUiThread(() -> {
+                try {
+                    if (AeroAccessibilityService.instance != null) {
+                        AeroAccessibilityService.instance.resetAdsSkippedCount();
+                    } else {
+                        android.content.SharedPreferences prefs = getSharedPreferences("aero_skip_ads_prefs", MODE_PRIVATE);
+                        prefs.edit().putInt("total_ads_skipped", 0).apply();
+                    }
+                    Toast.makeText(MainActivity.this, "Ads Skip Counter Reset", Toast.LENGTH_SHORT).show();
+                } catch (Exception ignored) {}
+            });
+        }
+    }
+
+    public void onAdSkippedFromService(final int count) {
+        runOnUiThread(() -> {
+            try {
+                if (webView != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    webView.evaluateJavascript("if(window.onAdSkippedNotification) window.onAdSkippedNotification(" + count + ");", null);
+                }
+            } catch (Exception ignored) {}
+        });
     }
 
     @Override
