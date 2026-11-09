@@ -25,9 +25,9 @@ AeroSense AI uses high-performance computer vision powered by MediaPipe to detec
 ---
 
 ### 3. 👍 Thumbs-Up Like Gesture
-- **How to perform**: Extend your thumb upward while keeping all four fingers closed in a fist.
-- **Default Action**: Triggers an instant double-tap / like burst on the active reel or video feed.
-- **Hold Duration**: 1.5s (customizable from 1.0s to 2.0s in Settings).
+- **How to perform**: Simply show your Thumbs-Up 👍 sign facing the camera and hold steady for 1.5s (no need to open hand first).
+- **Default Action**: Triggers an instant like / heart reaction on YouTube, Instagram Reels, Facebook, and short video feeds.
+- **Hold Duration**: 1.5s default (customizable from 0.0s to 5.0s in Settings).
 - **Haptic / Tone**: Plays an interactive audio tone upon successful trigger.
 
 ---

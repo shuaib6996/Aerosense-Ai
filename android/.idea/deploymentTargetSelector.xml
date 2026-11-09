@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="Aerosense ai">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-11-02T03:12:25.468163800Z">
+        <DropdownSelection timestamp="2026-11-09T16:36:01.758492400Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=RZ8R31TG36R" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\shuai\.android\avd\Pixel_8.avd" />
             </handle>
           </Target>
         </DropdownSelection>

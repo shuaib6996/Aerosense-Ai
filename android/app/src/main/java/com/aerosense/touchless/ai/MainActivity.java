@@ -867,12 +867,16 @@ public class MainActivity extends Activity {
         public String getDeviceInfoJson() {
             try {
                 org.json.JSONObject obj = new org.json.JSONObject();
+                String androidId = android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+                obj.put("deviceId", androidId != null ? androidId : "unknown");
                 obj.put("model", Build.MODEL);
                 obj.put("manufacturer", Build.MANUFACTURER);
                 obj.put("brand", Build.BRAND);
                 obj.put("sdkInt", Build.VERSION.SDK_INT);
                 obj.put("release", Build.VERSION.RELEASE);
                 obj.put("appVersion", "2.5.0");
+                obj.put("totalAdsSkipped", getTotalAdsSkippedCount());
+                obj.put("isSkipAdsEnabled", isAutoSkipAdsEnabled());
                 return obj.toString();
             } catch (Exception e) {
                 return "{}";

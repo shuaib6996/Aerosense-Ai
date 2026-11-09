@@ -645,19 +645,23 @@
                 </div>
 
                 <div class="flex items-center gap-1.5 shrink-0">
+                    <button id="header-notif-btn" type="button" onclick="openNotificationsModal()"
+                        class="AirClickable relative w-8 h-8 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800/80 text-slate-300 hover:text-white flex items-center justify-center text-xs active:scale-95 transition cursor-pointer"
+                        title="Notifications & Announcements">
+                        <i class="fa-solid fa-bell text-amber-400 text-sm"></i>
+                        <span id="notif-badge-dot" class="hidden absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-rose-500 text-white font-black text-[9px] flex items-center justify-center shadow-lg border-2 border-slate-950 animate-pulse">
+                            0
+                        </span>
+                    </button>
+
                     <span id="header-bg-pill" class="px-2 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-400 font-extrabold text-[9px] uppercase tracking-wider whitespace-nowrap">
                         OFF
                     </span>
                 </div>
             </div>
 
-            <!-- 3 Equal-Height Action Pills -->
-            <div class="grid grid-cols-3 gap-1.5 w-full">
-                <button onclick="openGestureGuideModal()" class="AirClickable h-8 px-2 rounded-xl bg-cyan-500/15 border border-cyan-500/40 text-cyan-300 text-[11px] font-extrabold flex items-center justify-center gap-1.5 whitespace-nowrap active:scale-95 transition">
-                    <i class="fa-solid fa-book-open text-[10px] shrink-0"></i>
-                    <span>Guide</span>
-                </button>
-
+            <!-- Action Pills -->
+            <div class="grid grid-cols-2 gap-1.5 w-full">
                 <button onclick="openFoldHoldMenu()" class="AirClickable h-8 px-2 rounded-xl bg-indigo-500/15 border border-indigo-500/40 text-indigo-300 text-[11px] font-extrabold flex items-center justify-center gap-1.5 whitespace-nowrap active:scale-95 transition">
                     <i class="fa-solid fa-up-down-left-right text-[10px] shrink-0"></i>
                     <span>Hold Menu</span>
@@ -669,22 +673,6 @@
                 </button>
             </div>
         </header>
-
-        <!-- 2. MASTER BACKGROUND ENGINE BAR -->
-        <div class="shrink-0 px-3 py-2 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between gap-2.5">
-            <div class="min-w-0 flex-1">
-                <span id="engine-title-text" class="text-xs font-black text-white block truncate tracking-tight">Gesture Service Engine</span>
-                <p id="engine-desc-text" class="text-[10px] text-slate-400 font-medium truncate">
-                    <span>Touchless Hand &amp; OS Gestures</span>
-                    <span id="selected-apps-count" class="hidden">0 User Apps</span>
-                </p>
-            </div>
-
-            <button id="float-overlay-btn" onclick="activateFloatingBackgroundOverlay()" class="AirClickable shrink-0 h-8 px-2.5 rounded-xl bg-cyan-500/15 border border-cyan-500/40 text-cyan-300 text-[11px] font-extrabold flex items-center gap-1.5 hover:bg-cyan-500/25 active:scale-95 transition whitespace-nowrap">
-                <i class="fa-solid fa-up-right-from-square text-[10px]"></i>
-                <span>Float HUD</span>
-            </button>
-        </div>
 
         <!-- 3. MAIN SCROLLABLE VIEWPORT -->
         <main class="flex-1 min-h-0 w-full overflow-y-auto no-scrollbar p-3 pb-3 flex flex-col">
@@ -790,31 +778,25 @@
             </section>
 
             <!-- VIEW 2: AUTO SKIP ADS ENGINE (Dedicated Section) -->
-            <section id="view-skipads" class="hidden space-y-4">
-                <!-- 1. Skip Ads Engine Header Card -->
-                <div class="bento-card rounded-3xl p-4 sm:p-5 space-y-3 border border-amber-500/40 bg-gradient-to-br from-[#1c0f02] via-[#090b14] to-slate-950 shadow-xl shadow-amber-950/20">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-slate-950 text-xl font-black shadow-lg shadow-amber-500/30">
-                                <i class="fa-solid fa-forward-fast"></i>
-                            </div>
-                            <div>
-                                <div class="flex items-center gap-1.5">
-                                    <h2 class="text-base font-black text-white">Auto Skip Ads Engine</h2>
-                                    <span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[9px] font-black uppercase">v1.0</span>
-                                </div>
-                                <p class="text-[10px] text-amber-300 font-bold">Automatic Skip for YouTube &amp; Mobile Video Ads</p>
-                            </div>
+            <section id="view-skipads" class="hidden space-y-3">
+                <!-- 1. Skip Ads Engine Header Card (Compact & Mobile-Optimized) -->
+                <div class="bento-card rounded-2xl p-3 sm:p-3.5 border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-[#0a0d18] to-slate-950 flex items-center justify-between gap-2.5 shrink-0 shadow-lg shadow-amber-950/20">
+                    <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-slate-950 text-sm font-black shadow-md shadow-amber-500/30 shrink-0">
+                            <i class="fa-solid fa-forward-fast"></i>
                         </div>
-                        <span id="skipads-active-pill" class="px-2.5 py-1 rounded-xl bg-slate-800 text-slate-400 border border-slate-700 font-black text-[10px] flex items-center gap-1.5 transition">
-                            <span id="skipads-dot" class="w-2 h-2 rounded-full bg-slate-500"></span>
-                            <span id="skipads-pill-text">Inactive</span>
-                        </span>
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center gap-1.5">
+                                <h2 class="text-xs sm:text-sm font-black text-white truncate">Auto Skip Ads</h2>
+                                <span class="px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[8px] font-black uppercase shrink-0">v1.0</span>
+                            </div>
+                            <p class="text-[10px] text-amber-300/80 font-semibold truncate mt-0.5">Auto-clicks "Skip Ad" on YouTube & video apps</p>
+                        </div>
                     </div>
-
-                    <p class="text-[11px] text-slate-400 leading-relaxed">
-                        Automatically skips video ads without touching your phone and <strong>without turning on the camera</strong>. Runs quietly in the background and auto-clicks "Skip Ad" buttons on YouTube and supported video apps the instant they become available.
-                    </p>
+                    <span id="skipads-active-pill" class="px-2.5 py-1 rounded-xl bg-slate-800 text-slate-400 border border-slate-700 font-black text-[10px] flex items-center gap-1.5 shrink-0 transition">
+                        <span id="skipads-dot" class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
+                        <span id="skipads-pill-text">Inactive</span>
+                    </span>
                 </div>
 
                 <!-- 2. Main Start/Stop Engine Action Center -->
@@ -1698,93 +1680,52 @@
                     </span>
                 </div>
 
-                <!-- 1. Developer & Platform Identity Card -->
-                <div class="bento-card rounded-3xl p-5 space-y-3.5 relative overflow-hidden border border-cyan-500/40 bg-gradient-to-br from-slate-900/90 via-[#070e24] to-slate-950 shadow-xl shadow-cyan-950/30">
-                    <div class="flex items-center gap-3.5">
-                        <div class="relative shrink-0">
-                            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-cyan-400 via-blue-600 to-indigo-600 flex items-center justify-center text-white text-2xl shadow-lg shadow-cyan-500/30 border border-cyan-300/30">
-                                <i class="fa-solid fa-user-astronaut"></i>
-                            </div>
-                            <span class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 border-2 border-slate-950 flex items-center justify-center text-[9px] text-slate-950 font-black shadow" title="Verified Creator">
-                                <i class="fa-solid fa-check"></i>
-                            </span>
+
+                <!-- 2. Privacy Policy & Terms Bento Card -->
+                <div class="bento-card rounded-3xl p-4 sm:p-5 space-y-3.5 border border-indigo-500/40 bg-gradient-to-b from-[#080d1e] to-slate-950">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400 shrink-0 shadow-md">
+                            <i class="fa-solid fa-shield-heart text-lg"></i>
                         </div>
                         <div class="min-w-0 flex-1">
-                            <div class="flex items-center gap-1.5 flex-wrap">
-                                <h3 class="text-base font-black text-white tracking-wide truncate">Mr. Shuaib</h3>
-                                <span class="px-2 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 font-extrabold text-[9px] uppercase tracking-wider">Lead Developer</span>
-                            </div>
-                            <div class="flex items-center gap-1.5 text-[11px] text-cyan-300 font-bold mt-0.5">
-                                <i class="fa-solid fa-cube text-[10px]"></i>
-                                <span>AiVisionMind</span>
-                                <span class="text-slate-500">•</span>
-                                <span class="text-slate-400 font-medium text-[10px]">Creator &amp; AI Architect</span>
-                            </div>
-                            <p class="text-[10px] text-slate-400 font-medium mt-1 leading-snug">
-                                Developing touchless spatial AI OS apps with an uncompromising focus on user privacy &amp; transparency.
+                            <h3 class="text-sm font-black text-white leading-tight">Privacy &amp; Terms Policy</h3>
+                            <p class="text-[10px] text-emerald-300 font-extrabold mt-0.5 flex items-center gap-1">
+                                <i class="fa-solid fa-circle-check text-[9px]"></i>
+                                <span>Privacy is Our #1 Priority</span>
                             </p>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800/80 text-[10px]">
-                        <div class="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center gap-2">
-                            <div class="w-7 h-7 rounded-xl bg-indigo-500/15 text-indigo-300 flex items-center justify-center shrink-0">
-                                <i class="fa-solid fa-microchip text-xs"></i>
-                            </div>
-                            <div class="min-w-0">
-                                <span class="text-slate-400 font-medium block truncate">Developer Platform</span>
-                                <span class="font-extrabold text-white text-xs truncate block">AiVisionMind</span>
-                            </div>
-                        </div>
-                        <div class="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center gap-2">
-                            <div class="w-7 h-7 rounded-xl bg-emerald-500/15 text-emerald-300 flex items-center justify-center shrink-0">
-                                <i class="fa-solid fa-shield-halved text-xs"></i>
-                            </div>
-                            <div class="min-w-0">
-                                <span class="text-slate-400 font-medium block truncate">Privacy Trust Status</span>
-                                <span class="font-extrabold text-emerald-300 text-xs truncate block">100% Trusted</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 2. Privacy Policy & Terms Bento Card -->
-                <div class="bento-card rounded-3xl p-4 sm:p-5 space-y-3.5 border border-indigo-500/40 bg-gradient-to-b from-[#080d1e] to-slate-950">
-                    <div class="flex items-center justify-between gap-2">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-9 h-9 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400 shrink-0">
-                                <i class="fa-solid fa-shield-heart text-base"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-sm font-black text-white">Privacy &amp; Terms Policy</h3>
-                                <p class="text-[10px] text-emerald-300 font-bold">Privacy is Our #1 Priority</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-1.5 shrink-0">
-                            <button type="button" onclick="openPrivacyPolicyModal()"
-                                class="AirClickable px-2.5 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 text-[10px] font-black active:scale-95 transition flex items-center gap-1">
-                                <span>Privacy</span>
-                                <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
-                            </button>
-                            <button type="button" onclick="openTermsConditionsModal()"
-                                class="AirClickable px-2.5 py-1.5 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/40 text-indigo-300 text-[10px] font-black active:scale-95 transition flex items-center gap-1">
-                                <span>Terms</span>
-                                <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
-                            </button>
-                        </div>
+                    <!-- Action Buttons in a dedicated, balanced 2-column grid -->
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" onclick="openPrivacyPolicyModal()"
+                            class="AirClickable py-2 px-2.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 text-[11px] font-black active:scale-95 transition flex items-center justify-center gap-1.5 shadow-sm">
+                            <i class="fa-solid fa-shield-halved text-[10px]"></i>
+                            <span>Privacy Policy</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[8px] opacity-70"></i>
+                        </button>
+                        <button type="button" onclick="openTermsConditionsModal()"
+                            class="AirClickable py-2 px-2.5 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 border border-indigo-500/40 text-indigo-300 text-[11px] font-black active:scale-95 transition flex items-center justify-center gap-1.5 shadow-sm">
+                            <i class="fa-solid fa-file-contract text-[10px]"></i>
+                            <span>Terms Policy</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[8px] opacity-70"></i>
+                        </button>
                     </div>
 
                     <!-- Privacy Quick Highlights -->
                     <div class="space-y-2 text-xs">
                         <!-- 1. Google Analytics Transparency -->
                         <div class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-start gap-2.5">
-                            <span class="text-base leading-none">📊</span>
-                            <div>
-                                <div class="flex items-center gap-1.5">
-                                    <span class="font-bold text-white text-[11px] block">Google Analytics (App Improvement Only)</span>
-                                    <span class="px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 text-[8px] font-black">Anonymous</span>
+                            <div class="w-8 h-8 rounded-xl bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 flex items-center justify-center shrink-0 mt-0.5">
+                                <i class="fa-solid fa-chart-line text-xs"></i>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center justify-between gap-1.5 flex-wrap">
+                                    <span class="font-black text-white text-xs">Google Analytics</span>
+                                    <span class="px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 text-[8px] font-black uppercase tracking-wider">Anonymous</span>
                                 </div>
-                                <p class="text-slate-400 text-[10px] leading-relaxed mt-0.5">
+                                <p class="text-cyan-400 font-extrabold text-[9px] mt-0.5">App Stability &amp; Performance Only</p>
+                                <p class="text-slate-400 text-[10px] leading-relaxed mt-1">
                                     We use Google Analytics (Firebase) strictly to improve app performance and user experience. It helps us optimize gesture accuracy, ensure app stability, and deliver enhanced features.
                                 </p>
                             </div>
@@ -1792,10 +1733,16 @@
 
                         <!-- 2. Zero 3rd-Party Sharing -->
                         <div class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-start gap-2.5">
-                            <span class="text-base leading-none">🔒</span>
-                            <div>
-                                <span class="font-bold text-white text-[11px] block">No 3rd-Party Data Sharing</span>
-                                <p class="text-slate-400 text-[10px] leading-relaxed mt-0.5">
+                            <div class="w-8 h-8 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 flex items-center justify-center shrink-0 mt-0.5">
+                                <i class="fa-solid fa-lock text-xs"></i>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center justify-between gap-1.5 flex-wrap">
+                                    <span class="font-black text-white text-xs">No 3rd-Party Data Sharing</span>
+                                    <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[8px] font-black uppercase tracking-wider">100% Private</span>
+                                </div>
+                                <p class="text-emerald-400 font-extrabold text-[9px] mt-0.5">AiVisionMind Trust Guarantee</p>
+                                <p class="text-slate-400 text-[10px] leading-relaxed mt-1">
                                     <strong>AiVisionMind</strong> is a trusted platform. We never share, sell, or disclose user data or personal information to third-party companies or advertisers.
                                 </p>
                             </div>
@@ -1803,10 +1750,16 @@
 
                         <!-- 3. Realtime On-Device AI Vision -->
                         <div class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-start gap-2.5">
-                            <span class="text-base leading-none">⚡</span>
-                            <div>
-                                <span class="font-bold text-white text-[11px] block">100% On-Device AI Vision (Zero Recording)</span>
-                                <p class="text-slate-400 text-[10px] leading-relaxed mt-0.5">
+                            <div class="w-8 h-8 rounded-xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 flex items-center justify-center shrink-0 mt-0.5">
+                                <i class="fa-solid fa-bolt text-xs"></i>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center justify-between gap-1.5 flex-wrap">
+                                    <span class="font-black text-white text-xs">On-Device AI Vision</span>
+                                    <span class="px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 text-[8px] font-black uppercase tracking-wider">Zero Recording</span>
+                                </div>
+                                <p class="text-indigo-400 font-extrabold text-[9px] mt-0.5">Local RAM Processing Only</p>
+                                <p class="text-slate-400 text-[10px] leading-relaxed mt-1">
                                     Camera feed is strictly processed in volatile device RAM in real time to track hand landmarks via MediaPipe. No photos or videos are ever saved or uploaded to any server.
                                 </p>
                             </div>
@@ -1814,30 +1767,90 @@
                     </div>
                 </div>
 
-                <!-- 3. System Permissions Overview Card -->
-                <div class="bento-card rounded-3xl p-4 space-y-2.5">
-                    <h3 class="text-xs font-black uppercase tracking-wider text-slate-400">Permissions Required</h3>
-                    <div class="space-y-1.5 text-[11px]">
-                        <div class="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
-                            <div class="flex items-center gap-2">
-                                <i class="fa-solid fa-camera text-cyan-400 text-xs w-4"></i>
-                                <span class="font-bold text-white">Camera</span>
-                            </div>
-                            <span class="text-[10px] text-slate-400">Hand tracking only (local RAM)</span>
+                <!-- 3. System Permissions Overview Card with Real On/Off Toggles -->
+                <div class="bento-card rounded-3xl p-4 sm:p-5 space-y-3 border border-slate-800 bg-[#070c1d]/90">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-xs font-black uppercase tracking-wider text-white flex items-center gap-1.5">
+                                <i class="fa-solid fa-sliders text-cyan-400"></i>
+                                <span>System Permissions</span>
+                            </h3>
+                            <p class="text-[10px] text-slate-400 font-medium mt-0.5">Toggle live Android permissions on or off</p>
                         </div>
-                        <div class="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
-                            <div class="flex items-center gap-2">
-                                <i class="fa-solid fa-universal-access text-purple-400 text-xs w-4"></i>
-                                <span class="font-bold text-white">Accessibility</span>
+                        <button type="button" onclick="openNativeAppSettings()" class="AirClickable px-2 py-1 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-cyan-300 text-[10px] font-extrabold flex items-center gap-1 active:scale-95 transition" title="Open Phone Settings">
+                            <i class="fa-solid fa-gear text-[9px]"></i>
+                            <span>Settings</span>
+                        </button>
+                    </div>
+
+                    <div class="space-y-2">
+                        <!-- 1. Camera Permission Row -->
+                        <div class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                                <div class="w-8 h-8 rounded-xl bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-camera text-xs"></i>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="font-black text-white text-xs">Camera</span>
+                                        <span id="more-perm-cam-badge" class="px-1.5 py-0.2 rounded-full text-[8px] font-black uppercase bg-slate-800 text-slate-400">Checking...</span>
+                                    </div>
+                                    <p class="text-[10px] text-slate-400 truncate mt-0.5">Real-time hand tracking (local RAM)</p>
+                                </div>
                             </div>
-                            <span class="text-[10px] text-slate-400">System Back, Home &amp; Swipes</span>
+                            <button type="button" id="more-perm-cam-toggle" onclick="toggleCameraPermissionFromMore()"
+                                class="AirClickable shrink-0 w-12 h-6 rounded-full p-0.5 transition-colors duration-200 flex items-center bg-slate-800 justify-start"
+                                title="Toggle Camera Permission">
+                                <div id="more-perm-cam-thumb" class="w-5 h-5 rounded-full bg-white shadow-md flex items-center justify-center text-[9px] font-black text-slate-900 transition-transform duration-200">
+                                    <i id="more-perm-cam-thumb-icon" class="fa-solid fa-xmark text-rose-500 text-[8px]"></i>
+                                </div>
+                            </button>
                         </div>
-                        <div class="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
-                            <div class="flex items-center gap-2">
-                                <i class="fa-solid fa-layer-group text-emerald-400 text-xs w-4"></i>
-                                <span class="font-bold text-white">Display Over Apps</span>
+
+                        <!-- 2. Accessibility Permission Row -->
+                        <div class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                                <div class="w-8 h-8 rounded-xl bg-purple-500/15 border border-purple-500/30 text-purple-300 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-universal-access text-xs"></i>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="font-black text-white text-xs">Accessibility</span>
+                                        <span id="more-perm-acc-badge" class="px-1.5 py-0.2 rounded-full text-[8px] font-black uppercase bg-slate-800 text-slate-400">Checking...</span>
+                                    </div>
+                                    <p class="text-[10px] text-slate-400 truncate mt-0.5">System Back, Home &amp; Swipes</p>
+                                </div>
                             </div>
-                            <span class="text-[10px] text-slate-400">Touchless Air Cursor HUD</span>
+                            <button type="button" id="more-perm-acc-toggle" onclick="toggleAccessibilityPermissionFromMore()"
+                                class="AirClickable shrink-0 w-12 h-6 rounded-full p-0.5 transition-colors duration-200 flex items-center bg-slate-800 justify-start"
+                                title="Toggle Accessibility Service">
+                                <div id="more-perm-acc-thumb" class="w-5 h-5 rounded-full bg-white shadow-md flex items-center justify-center text-[9px] font-black text-slate-900 transition-transform duration-200">
+                                    <i id="more-perm-acc-thumb-icon" class="fa-solid fa-xmark text-rose-500 text-[8px]"></i>
+                                </div>
+                            </button>
+                        </div>
+
+                        <!-- 3. Display Over Apps (Overlay) Row -->
+                        <div class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                                <div class="w-8 h-8 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-layer-group text-xs"></i>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="font-black text-white text-xs">Display Over Apps</span>
+                                        <span id="more-perm-ov-badge" class="px-1.5 py-0.2 rounded-full text-[8px] font-black uppercase bg-slate-800 text-slate-400">Checking...</span>
+                                    </div>
+                                    <p class="text-[10px] text-slate-400 truncate mt-0.5">Touchless Air Cursor HUD overlay</p>
+                                </div>
+                            </div>
+                            <button type="button" id="more-perm-ov-toggle" onclick="toggleOverlayPermissionFromMore()"
+                                class="AirClickable shrink-0 w-12 h-6 rounded-full p-0.5 transition-colors duration-200 flex items-center bg-slate-800 justify-start"
+                                title="Toggle Overlay Permission">
+                                <div id="more-perm-ov-thumb" class="w-5 h-5 rounded-full bg-white shadow-md flex items-center justify-center text-[9px] font-black text-slate-900 transition-transform duration-200">
+                                    <i id="more-perm-ov-thumb-icon" class="fa-solid fa-xmark text-rose-500 text-[8px]"></i>
+                                </div>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -1907,24 +1920,24 @@
                     <span class="font-bold text-purple-300">✌️ 2-Finger Fold & Open</span>
                     <span class="text-slate-300">Previous Reel</span>
                 </div>
-                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-rose-500/30 flex justify-between">
+                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-rose-500/30 flex justify-between items-center">
                     <span class="font-bold text-rose-300">👍 Thumbs-Up Gesture</span>
                     <span class="text-slate-200 font-bold">Like Video / Reel</span>
                 </div>
-                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-blue-500/30 flex justify-between">
-                    <span class="font-bold text-blue-300">👌 Air Cursor & Pinch</span>
+                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-blue-500/30 flex justify-between items-center">
+                    <span class="font-bold text-blue-300">👌 Air Cursor &amp; Pinch</span>
                     <span class="text-slate-200 font-bold">Tap / Click anywhere</span>
                 </div>
-                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-amber-500/30 flex justify-between">
+                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-amber-500/30 flex justify-between items-center">
                     <span class="font-bold text-amber-300">⬅️ 3-Step Back (✋➔🤘➔✋)</span>
                     <span class="text-slate-200 font-bold">System Back</span>
                 </div>
-                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-emerald-500/30 flex justify-between">
+                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-emerald-500/30 flex justify-between items-center">
                     <span class="font-bold text-emerald-300">🏠 3-Step Home (✋➔✊➔✋)</span>
                     <span class="text-slate-200 font-bold">System Home</span>
                 </div>
-                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-indigo-500/30 flex justify-between">
-                    <span class="font-bold text-indigo-300">⏱️ Long Pinch Hold (2.5s)</span>
+                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-indigo-500/30 flex justify-between items-center">
+                    <span class="font-bold text-indigo-300">⏱️ Long Pinch Hold (1.8s)</span>
                     <span class="text-slate-300">Open Quick Action Menu</span>
                 </div>
             </div>
@@ -2327,6 +2340,52 @@
             </div>
             <div id="device-picker-list" class="space-y-1.5 overflow-y-auto no-scrollbar flex-1"></div>
             <button onclick="closeDeviceAppPickerModal()" class="AirClickable w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-black text-xs shadow-lg shadow-cyan-500/20 active:scale-95 transition">Done</button>
+        </div>
+    </div>
+
+    <!-- CLOUD NOTIFICATIONS & ANNOUNCEMENTS MODAL -->
+    <div id="notifications-modal" style="display: none;" onclick="if(event.target === this) closeNotificationsModal()" class="fixed inset-0 z-[9600] bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bento-card rounded-3xl max-w-sm w-full p-4 space-y-3 border border-amber-500/40 max-h-[85dvh] flex flex-col shadow-2xl shadow-amber-500/10">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-800/80">
+                <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs border border-amber-500/30">
+                        <i class="fa-solid fa-bell"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xs font-black text-white tracking-wide">Notifications</h3>
+                        <p class="text-[9px] text-slate-400 font-medium">Broadcasts & Cloud Updates</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <button onclick="fetchCloudNotifications(true)" class="AirClickable w-7 h-7 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center text-xs active:scale-95 transition" title="Refresh">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                    </button>
+                    <button onclick="closeNotificationsModal()" class="AirClickable w-7 h-7 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-xs active:scale-95 transition" title="Close">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Action Bar -->
+            <div class="flex items-center justify-between text-[10px] px-0.5">
+                <span id="notif-modal-counter" class="text-slate-400 font-bold">0 unread</span>
+                <button onclick="markAllNotificationsAsRead()" class="AirClickable text-amber-400 hover:text-amber-300 font-bold underline-offset-2 hover:underline active:scale-95 transition">
+                    Mark all read
+                </button>
+            </div>
+
+            <!-- Scrollable Notification List -->
+            <div id="notifications-list" class="space-y-2 overflow-y-auto no-scrollbar flex-1 max-h-[50dvh] py-1">
+                <div class="text-center py-8 text-slate-500 text-xs">
+                    <i class="fa-solid fa-spinner fa-spin text-amber-400 text-base mb-2"></i>
+                    <p>Loading notifications...</p>
+                </div>
+            </div>
+
+            <!-- Footer Close Button -->
+            <button onclick="closeNotificationsModal()" class="AirClickable w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/20 active:scale-95 transition">
+                Close
+            </button>
         </div>
     </div>
 
@@ -3237,6 +3296,11 @@
             const deviceAppModal = document.getElementById('device-app-modal');
             if (deviceAppModal && !deviceAppModal.classList.contains('hidden')) {
                 closeDeviceAppPickerModal();
+                handled = true;
+            }
+            const notifModal = document.getElementById('notifications-modal');
+            if (notifModal && (!notifModal.classList.contains('hidden') || notifModal.style.display === 'flex')) {
+                closeNotificationsModal();
                 handled = true;
             }
             const guideModal = document.getElementById('gesture-guide-modal');
@@ -4344,19 +4408,14 @@
                             // 🤘 Rock / Horns sign: Index and Pinky extended, Middle and Ring folded
                             const isRockSign = f.isIndexExt && f.isPinkyExt && f.isMiddleFold && f.isRingFold;
 
-                            // 👍 Social Media Like Gesture: Open Palm 🖐 ➔ Thumbs-Up 👍 ➔ 1.5s Hold
+                            // 👍 Social Media Like Gesture: User simply shows Thumb 👍
                             const likeHoldSec = (typeof aeroConfig.likeHoldDuration === 'number') ? aeroConfig.likeHoldDuration : 1.5;
                             const likeHoldMs = likeHoldSec * 1000;
 
                             // Protect active Home/Back sequence (Step 2 is Fist/Rock waiting for Palm)
                             const inMultiStepSequence = (homeGestureStep === 2 || backGestureStep === 2);
 
-                            // Timeout for Open Palm -> Thumbs Up transition (2200ms)
-                            if (likeGestureArmed && (now - likeStepTime > 2200)) {
-                                likeGestureArmed = false;
-                            }
-
-                            if (isThumbsUp && likeGestureArmed && !isGestureSleeping && !inMultiStepSequence) {
+                            if (isThumbsUp && !isGestureSleeping && !inMultiStepSequence) {
                                 wasIndexArmed = false;
                                 wasTwoArmed = false;
                                 isContinuousHolding = false;
@@ -4373,7 +4432,6 @@
                                 if (elapsed >= likeHoldMs && !thumbsUpTriggered) {
                                     thumbsUpTriggered = true;
                                     spatialFlashTime = now;
-                                    likeGestureArmed = false;
                                     executeAction('LIKE');
                                     playGestureTone(880, 0.08);
                                     setTimeout(() => playGestureTone(1100, 0.10), 90);
@@ -4636,7 +4694,7 @@
                                 gestureState = 'SLEEP';
                             } else if (isCleanPinch) {
                                 gestureState = 'PINCH';
-                            } else if (isThumbsUp && likeGestureArmed && homeGestureStep === 0 && backGestureStep === 0) {
+                            } else if (isThumbsUp && homeGestureStep === 0 && backGestureStep === 0) {
                                 gestureState = 'THUMBS_UP';
                             } else if (lastActionName === 'HOME' && (now - spatialFlashTime) < 320) {
                                 gestureState = 'HOME';
@@ -5244,6 +5302,40 @@
                         }
                     }
 
+                    // More screen system permissions interactive toggles
+                    const updateMoreToggleUI = (toggleId, badgeId, thumbIconId, isGranted, activeLabel) => {
+                        const toggleEl = document.getElementById(toggleId);
+                        const badgeEl = document.getElementById(badgeId);
+                        const iconEl = document.getElementById(thumbIconId);
+                        if (toggleEl) {
+                            if (isGranted) {
+                                toggleEl.className = 'AirClickable shrink-0 w-12 h-6 rounded-full p-0.5 transition-colors duration-200 flex items-center bg-emerald-500 justify-end cursor-pointer shadow-sm';
+                            } else {
+                                toggleEl.className = 'AirClickable shrink-0 w-12 h-6 rounded-full p-0.5 transition-colors duration-200 flex items-center bg-slate-800 justify-start cursor-pointer';
+                            }
+                        }
+                        if (badgeEl) {
+                            if (isGranted) {
+                                badgeEl.textContent = activeLabel || 'ON ✓';
+                                badgeEl.className = 'px-1.5 py-0.5 rounded-full text-[8px] font-black uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+                            } else {
+                                badgeEl.textContent = 'OFF ✕';
+                                badgeEl.className = 'px-1.5 py-0.5 rounded-full text-[8px] font-black uppercase bg-rose-500/20 text-rose-300 border border-rose-500/30';
+                            }
+                        }
+                        if (iconEl) {
+                            if (isGranted) {
+                                iconEl.className = 'fa-solid fa-check text-emerald-600 text-[8px]';
+                            } else {
+                                iconEl.className = 'fa-solid fa-xmark text-rose-500 text-[8px]';
+                            }
+                        }
+                    };
+
+                    updateMoreToggleUI('more-perm-cam-toggle', 'more-perm-cam-badge', 'more-perm-cam-thumb-icon', !!st.camera, 'GRANTED ✓');
+                    updateMoreToggleUI('more-perm-acc-toggle', 'more-perm-acc-badge', 'more-perm-acc-thumb-icon', !!st.accessibility, 'ACTIVE ✓');
+                    updateMoreToggleUI('more-perm-ov-toggle', 'more-perm-ov-badge', 'more-perm-ov-thumb-icon', !!st.overlay, 'ACTIVE ✓');
+
                     if (showToastNotice) {
                         showToast('🔄', 'Permissions Refreshed', `Gesture: ${st.accessibility ? 'ACTIVE ✓' : 'OFF'} • Overlay: ${st.overlay ? 'ACTIVE ✓' : 'OFF'}`);
                     }
@@ -5251,6 +5343,46 @@
             }
             if (typeof updateAutoSkipAdsUI === 'function') updateAutoSkipAdsUI();
         };
+
+        function toggleCameraPermissionFromMore() {
+            let isGranted = false;
+            if (window.AndroidBridge && window.AndroidBridge.checkPermissionsJson) {
+                try {
+                    const st = JSON.parse(window.AndroidBridge.checkPermissionsJson());
+                    isGranted = !!st.camera;
+                } catch (e) {}
+            }
+            if (isGranted) {
+                showToast('📷', 'Camera Settings', 'Manage Camera permission in App Settings');
+                openNativeAppSettings();
+            } else {
+                requestNativeCameraPermission();
+            }
+        }
+
+        function toggleAccessibilityPermissionFromMore() {
+            let isActive = false;
+            if (window.AndroidBridge && window.AndroidBridge.checkPermissionsJson) {
+                try {
+                    const st = JSON.parse(window.AndroidBridge.checkPermissionsJson());
+                    isActive = !!st.accessibility;
+                } catch (e) {}
+            }
+            showToast('♿', 'Accessibility Service', isActive ? 'Toggle AeroSense AI OFF in Settings' : 'Turn ON AeroSense AI in Settings');
+            requestNativeAccessibilityPermission();
+        }
+
+        function toggleOverlayPermissionFromMore() {
+            let isActive = false;
+            if (window.AndroidBridge && window.AndroidBridge.checkPermissionsJson) {
+                try {
+                    const st = JSON.parse(window.AndroidBridge.checkPermissionsJson());
+                    isActive = !!st.overlay;
+                } catch (e) {}
+            }
+            showToast('🪟', 'Display Over Apps', isActive ? 'Turn OFF overlay permission in Settings' : 'Turn ON overlay permission in Settings');
+            requestNativeOverlayPermission();
+        }
 
         function requestNativeAccessibilityPermission() {
             if (window.AndroidBridge && window.AndroidBridge.openAccessibilitySettings) {
@@ -5328,6 +5460,9 @@
             }
             if (tab === 'skipads') {
                 updateAutoSkipAdsUI();
+            }
+            if (tab === 'more') {
+                refreshNativePermissionStatus();
             }
 
             const tabs = ['launcher', 'skipads', 'settings', 'guide', 'more'];
@@ -5504,9 +5639,17 @@
                     if (window.aeroTrackEvent) {
                         window.aeroTrackEvent('auto_skip_ads_started', { timestamp: Date.now() });
                     }
+                    if (window.AeroAnalytics && window.AeroAnalytics.logEvent) {
+                        window.AeroAnalytics.logEvent('SKIP_ADS_ACTIVE', { appName: 'YouTube', action: 'Auto-Skip Ads Started' });
+                    }
                 } catch (e) {}
             } else {
                 showToast('🛑', 'Auto Skip Ads Stopped', 'Engine paused');
+                try {
+                    if (window.AeroAnalytics && window.AeroAnalytics.logEvent) {
+                        window.AeroAnalytics.logEvent('SKIP_ADS_STOPPED', { appName: 'YouTube', action: 'Auto-Skip Ads Paused' });
+                    }
+                } catch (e) {}
             }
         }
 
@@ -5528,6 +5671,14 @@
 
                 if (window.aeroTrackEvent) {
                     window.aeroTrackEvent('ad_skipped', { total_skipped: newCount });
+                }
+
+                if (window.AeroAnalytics && window.AeroAnalytics.logEvent) {
+                    window.AeroAnalytics.logEvent('AD_SKIPPED', {
+                        totalAdsSkipped: newCount,
+                        appName: 'YouTube',
+                        action: `Auto-Skipped Ad #${newCount}`
+                    });
                 }
             } catch (e) {}
         };
@@ -5633,7 +5784,7 @@
         const HAND_GESTURE_GUIDE = [
             { id: 'FOLD_1', category: 'FOLD', badge: 'Reels / Shorts', badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40', title: '☝️ 1-Finger Fold & Open', actionLabel: 'Scroll Next Reel (Swipe Up)', howTo: 'Keep palm facing camera, bend ONLY Index finger down and open back up.', actionCode: 'NEXT', stageHtml: buildMinimalGestureStage('FOLD_1') },
             { id: 'FOLD_2', category: 'FOLD', badge: 'Reels / Shorts', badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/40', title: '✌️ 2-Finger Fold & Open', actionLabel: 'Previous Reel (Swipe Down)', howTo: 'Bend Index and Middle fingers down together and open back up.', actionCode: 'PREV', stageHtml: buildMinimalGestureStage('FOLD_2') },
-            { id: 'THUMBS_LIKE', category: 'SYSTEM', badge: 'YouTube & Insta', badgeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/40', title: '👍 Like Gesture (🖐➔👍 1.5s)', actionLabel: 'Like Video / Reel', howTo: 'Show Open Palm 🖐, then form Thumbs-Up 👍 and hold for 1.5s towards camera to like YouTube videos or send Heart reaction on Instagram Reels.', actionCode: 'LIKE', stageHtml: buildMinimalGestureStage('LIKE') },
+            { id: 'THUMBS_LIKE', category: 'SYSTEM', badge: 'YouTube & Insta', badgeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/40', title: '👍 Thumbs-Up Gesture', actionLabel: 'Like Video / Reel', howTo: 'Simply show your Thumbs-Up 👍 sign facing the camera to instantly trigger Like / Heart reaction on YouTube, Instagram Reels & TikTok.', actionCode: 'LIKE', stageHtml: buildMinimalGestureStage('LIKE') },
             { id: 'PINCH_TAP', category: 'FOLD', badge: 'Air Pointer', badgeColor: 'bg-blue-500/20 text-blue-300 border-blue-500/40', title: '👌 Air Cursor & Pinch Tap', actionLabel: 'Click / Tap Anywhere on Screen', howTo: 'Move your hand to guide the neon Air Cursor, then pinch Thumb + Index fingertips together to tap any app icon, reel footer, or button.', actionCode: 'PLAY_PAUSE', stageHtml: buildMinimalGestureStage('PINCH') },
             { id: 'FOLD_3_BACK', category: 'SYSTEM', badge: 'System OS', badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40', title: '⬅️ 3-Step Back (✋➔🤘➔✋)', actionLabel: 'System Back Navigation', howTo: 'Show Open Palm ✋, make Rock sign 🤘 (Index & Pinky open, Middle & Ring folded), then open back to Palm ✋ to trigger Back.', actionCode: 'BACK', stageHtml: buildMinimalGestureStage('FOLD_3') },
             { id: 'FOLD_4_HOME', category: 'SYSTEM', badge: 'System OS', badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40', title: '🏠 3-Step Home (✋➔✊➔✋)', actionLabel: 'Go to Phone Home Screen', howTo: 'Show Open Palm ✋, curl hand into Fist ✊, then open back to Palm ✋ to trigger Home.', actionCode: 'HOME', stageHtml: buildMinimalGestureStage('FOLD_4') },
@@ -5886,17 +6037,23 @@
 
             init() {
                 try {
-                    this.deviceId = localStorage.getItem('aero_client_device_id');
-                    if (!this.deviceId) {
-                        this.deviceId = 'dev_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now().toString(36);
-                        localStorage.setItem('aero_client_device_id', this.deviceId);
-                    }
-
                     let nativeDetails = {};
                     if (window.AndroidBridge && window.AndroidBridge.getDeviceInfoJson) {
                         try {
                             nativeDetails = JSON.parse(window.AndroidBridge.getDeviceInfoJson()) || {};
                         } catch (e) {}
+                    }
+
+                    // Use persistent Android hardware ID if available to prevent duplicate devices
+                    if (nativeDetails.deviceId && nativeDetails.deviceId !== 'unknown') {
+                        this.deviceId = 'dev_' + nativeDetails.deviceId;
+                        localStorage.setItem('aero_client_device_id', this.deviceId);
+                    } else {
+                        this.deviceId = localStorage.getItem('aero_client_device_id');
+                        if (!this.deviceId) {
+                            this.deviceId = 'dev_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now().toString(36);
+                            localStorage.setItem('aero_client_device_id', this.deviceId);
+                        }
                     }
 
                     const ua = navigator.userAgent || '';
@@ -5936,6 +6093,12 @@
                 try {
                     const projectId = this.getProjectId();
                     const now = new Date().toISOString();
+                    const skipAdsCount = parseInt(localStorage.getItem('aero_skip_ads_count') || '0');
+                    let isSkipAdsOn = false;
+                    if (window.AndroidBridge && window.AndroidBridge.isAutoSkipAdsEnabled) {
+                        try { isSkipAdsOn = !!window.AndroidBridge.isAutoSkipAdsEnabled(); } catch (e) {}
+                    }
+
                     const payload = {
                         fields: {
                             deviceId: { stringValue: this.deviceId },
@@ -5948,6 +6111,8 @@
                             lastSeen: { stringValue: now },
                             lastAction: { stringValue: statusMessage || 'Active' },
                             totalGestures: { integerValue: String(this.totalGestures || 0) },
+                            totalAdsSkipped: { integerValue: String(skipAdsCount) },
+                            skipAdsEnabled: { booleanValue: isSkipAdsOn },
                             engineActive: { booleanValue: !!engineRunning }
                         }
                     };
@@ -5995,6 +6160,7 @@
                             if (eventData.appName) docFields.appName = { stringValue: String(eventData.appName) };
                             if (eventData.packageName) docFields.packageName = { stringValue: String(eventData.packageName) };
                             if (eventData.status) docFields.status = { stringValue: String(eventData.status) };
+                            if (eventData.totalAdsSkipped !== undefined) docFields.totalAdsSkipped = { integerValue: String(eventData.totalAdsSkipped) };
 
                             const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/aerosense_events`;
                             await fetch(url, {
@@ -6005,7 +6171,7 @@
                             }).catch(() => {});
 
                             // Update device doc lastAction
-                            const actionSummary = eventData.gesture || eventData.appName || eventType;
+                            const actionSummary = eventData.action || eventData.gesture || eventData.appName || eventType;
                             this.syncDevicePresence(true, actionSummary);
                         } catch (e) {}
                     }, 20);
@@ -6149,6 +6315,219 @@
             }
         }
 
+        // =====================================================================
+        // CLOUD NOTIFICATIONS & ANNOUNCEMENTS ENGINE
+        // =====================================================================
+        let cloudNotificationsCache = [];
+
+        function getReadNotificationIds() {
+            try {
+                return JSON.parse(localStorage.getItem('aero_read_notifications') || '[]');
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function markNotificationRead(id) {
+            try {
+                const readIds = getReadNotificationIds();
+                if (!readIds.includes(id)) {
+                    readIds.push(id);
+                    localStorage.setItem('aero_read_notifications', JSON.stringify(readIds));
+                }
+                updateNotificationBadge();
+                renderNotificationsUI();
+            } catch (e) {}
+        }
+
+        function markAllNotificationsAsRead() {
+            try {
+                const allIds = cloudNotificationsCache.map(n => n.id);
+                localStorage.setItem('aero_read_notifications', JSON.stringify(allIds));
+                updateNotificationBadge();
+                renderNotificationsUI();
+                showToast('✓', 'Notifications', 'All announcements marked as read');
+            } catch (e) {}
+        }
+
+        function parseNotificationDate(tsStr, createTime) {
+            if (tsStr) {
+                const normalized = String(tsStr).replace(/T(\d{2})\.(\d{2})\.(\d{2})/, 'T$1:$2:$3');
+                const d = new Date(normalized);
+                if (!isNaN(d.getTime())) return d;
+            }
+            if (createTime) {
+                const d = new Date(createTime);
+                if (!isNaN(d.getTime())) return d;
+            }
+            return new Date();
+        }
+
+        function formatNotificationTime(d) {
+            try {
+                const now = new Date();
+                const diffMs = now - d;
+                const diffSec = Math.floor(diffMs / 1000);
+                if (diffSec < 45) return 'Just now';
+                const diffMin = Math.floor(diffSec / 60);
+                if (diffMin < 60) return `${diffMin}m ago`;
+                const diffHour = Math.floor(diffMin / 60);
+                if (diffHour < 24) return `${diffHour}h ago`;
+                const diffDay = Math.floor(diffHour / 24);
+                if (diffDay < 7) return `${diffDay}d ago`;
+                return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+            } catch (e) {
+                return '';
+            }
+        }
+
+        function escapeNotifText(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        async function fetchCloudNotifications(showToastNotice = false) {
+            try {
+                const projectId = localStorage.getItem('aero_fb_project_id') || AERO_DEFAULT_FB_PROJECT;
+                const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/aerosense_notifications`;
+                const res = await fetch(url, { cache: 'no-store' });
+                if (!res.ok) {
+                    if (showToastNotice) showToast('⚠️', 'Notifications', 'Failed to refresh announcements');
+                    return;
+                }
+                const data = await res.json();
+                const rawDocs = data.documents || [];
+                const parsed = rawDocs.map(doc => {
+                    const id = doc.name ? doc.name.split('/').pop() : ('notif_' + Math.random().toString(36).substring(2, 8));
+                    const f = doc.fields || {};
+                    const tsStr = f.timestamp?.stringValue || '';
+                    const parsedDate = parseNotificationDate(tsStr, doc.createTime);
+                    return {
+                        id: id,
+                        title: f.title?.stringValue || 'Announcement',
+                        body: f.body?.stringValue || '',
+                        date: parsedDate,
+                        audience: f.audience?.stringValue || 'all',
+                        sender: f.sender?.stringValue || 'Admin',
+                        active: f.active ? f.active.booleanValue !== false : true
+                    };
+                }).filter(n => n.active !== false);
+
+                parsed.sort((a, b) => b.date.getTime() - a.date.getTime());
+                cloudNotificationsCache = parsed;
+                updateNotificationBadge();
+
+                const modal = document.getElementById('notifications-modal');
+                if (modal && !modal.classList.contains('hidden') && modal.style.display !== 'none') {
+                    renderNotificationsUI();
+                }
+
+                if (showToastNotice) {
+                    showToast('🔔', 'Synced', `${parsed.length} announcements updated`);
+                }
+            } catch (e) {
+                console.error('[Notifications] Sync error:', e);
+            }
+        }
+
+        function updateNotificationBadge() {
+            const readIds = getReadNotificationIds();
+            const unreadCount = cloudNotificationsCache.filter(n => !readIds.includes(n.id)).length;
+            const badgeDot = document.getElementById('notif-badge-dot');
+            const counter = document.getElementById('notif-modal-counter');
+
+            if (badgeDot) {
+                if (unreadCount > 0) {
+                    badgeDot.textContent = unreadCount > 9 ? '9+' : unreadCount;
+                    badgeDot.classList.remove('hidden');
+                } else {
+                    badgeDot.classList.add('hidden');
+                }
+            }
+            if (counter) {
+                counter.textContent = `${unreadCount} unread • ${cloudNotificationsCache.length} total`;
+            }
+        }
+
+        function renderNotificationsUI() {
+            const listEl = document.getElementById('notifications-list');
+            if (!listEl) return;
+            const readIds = getReadNotificationIds();
+
+            if (cloudNotificationsCache.length === 0) {
+                listEl.innerHTML = `
+                    <div class="text-center py-10 px-4">
+                        <div class="w-12 h-12 rounded-2xl bg-slate-900 border border-slate-800 text-slate-500 mx-auto flex items-center justify-center text-xl mb-3 shadow-inner">
+                            <i class="fa-regular fa-bell-slash"></i>
+                        </div>
+                        <h4 class="text-xs font-bold text-slate-300">No Announcements</h4>
+                        <p class="text-[10px] text-slate-500 mt-1 max-w-[220px] mx-auto">Push announcements & tips dispatched from the Admin Panel will appear here.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            cloudNotificationsCache.forEach(item => {
+                const isUnread = !readIds.includes(item.id);
+                const timeText = formatNotificationTime(item.date);
+                const safeTitle = escapeNotifText(item.title);
+                const safeBody = escapeNotifText(item.body);
+
+                html += `
+                    <div onclick="markNotificationRead('${item.id}')"
+                        class="AirClickable p-3 rounded-2xl transition active:scale-[0.98] cursor-pointer ${isUnread ? 'bg-amber-950/25 border-amber-500/40 ring-1 ring-amber-500/20' : 'bg-slate-900/60 hover:bg-slate-900 border-slate-800/80'} border flex flex-col gap-1.5 shadow-sm">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                ${isUnread ? '<span class="w-2 h-2 rounded-full bg-amber-400 shrink-0"></span>' : ''}
+                                <h4 class="text-xs font-bold ${isUnread ? 'text-amber-200' : 'text-slate-200'} truncate">${safeTitle}</h4>
+                            </div>
+                            <span class="text-[9px] text-slate-400 shrink-0 font-medium whitespace-nowrap">${timeText}</span>
+                        </div>
+                        <p class="text-[11px] ${isUnread ? 'text-slate-200' : 'text-slate-400'} leading-relaxed break-words">${safeBody}</p>
+                        ${isUnread ? '<div class="self-end"><span class="text-[8px] uppercase tracking-wider font-extrabold text-amber-400/90 bg-amber-500/15 px-1.5 py-0.5 rounded-full border border-amber-500/30">Tap to mark read</span></div>' : ''}
+                    </div>
+                `;
+            });
+
+            listEl.innerHTML = html;
+        }
+
+        function openNotificationsModal() {
+            const modal = document.getElementById('notifications-modal');
+            if (!modal) return;
+            if (window.AndroidBridge && window.AndroidBridge.setModalState) {
+                window.AndroidBridge.setModalState(true);
+            }
+            modal.style.display = 'flex';
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            renderNotificationsUI();
+            fetchCloudNotifications(false);
+        }
+
+        function closeNotificationsModal() {
+            const modal = document.getElementById('notifications-modal');
+            if (!modal) return;
+            modal.style.display = 'none';
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            if (window.AndroidBridge && window.AndroidBridge.setModalState) {
+                window.AndroidBridge.setModalState(false);
+            }
+        }
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                fetchCloudNotifications();
+            }
+        });
+
         function updateAdminViewStats() {
             const elGest = document.getElementById('admin-session-gestures');
             if (elGest) elGest.textContent = aeroRealGestureCount.toString();
@@ -6194,7 +6573,11 @@
             setTimeout(() => {
                 syncAeroRemoteConfig();
                 checkAeroOtaUpdate();
+                fetchCloudNotifications();
             }, 2500);
+            setInterval(() => {
+                fetchCloudNotifications();
+            }, 60000);
         };
     </script>
 </body>

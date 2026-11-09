@@ -57,10 +57,14 @@
 
             <!-- Header Quick Actions & Firebase Status -->
             <div class="flex flex-wrap items-center gap-3">
-                <div id="cloud-status-badge" class="px-3.5 py-1.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-bold flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-                    <span id="cloud-status-text">Local Simulator Mode</span>
+                <div id="cloud-status-badge" class="px-3.5 py-1.5 rounded-xl bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-xs font-bold flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                    <span id="cloud-status-text">Connecting Live Firebase...</span>
                 </div>
+                <button onclick="fetchRealTelemetryData(true)" class="px-3.5 py-2 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/40 text-cyan-300 font-bold text-xs flex items-center gap-2 transition" title="Refresh Live Data from Cloud">
+                    <i class="fa-solid fa-arrows-rotate text-cyan-400"></i>
+                    <span>Refresh Data</span>
+                </button>
                 <button onclick="openFirebaseSettingsModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold text-xs flex items-center gap-2 transition">
                     <i class="fa-solid fa-fire text-amber-400"></i>
                     <span>Firebase Config</span>
@@ -73,7 +77,7 @@
         </header>
 
         <!-- 2. KPI ANALYTICS TILES (Module 1 - Live Telemetry) -->
-        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <div class="bento rounded-3xl p-5 space-y-2">
                 <div class="flex items-center justify-between text-slate-400">
                     <span class="text-xs font-black uppercase tracking-wider">Connected Devices</span>
@@ -96,6 +100,18 @@
                     <span class="text-xs font-bold text-slate-400">Live</span>
                 </div>
                 <p class="text-[11px] text-slate-400">Recorded from user gesture sessions</p>
+            </div>
+
+            <div class="bento rounded-3xl p-5 space-y-2">
+                <div class="flex items-center justify-between text-slate-400">
+                    <span class="text-xs font-black uppercase tracking-wider">Ads Auto-Skipped</span>
+                    <i class="fa-solid fa-forward-step text-amber-400"></i>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span id="kpi-skip-ads" class="text-3xl font-black text-amber-300">0</span>
+                    <span id="kpi-skip-ads-time" class="text-xs font-bold text-slate-400">0s saved</span>
+                </div>
+                <p class="text-[11px] text-slate-400">YouTube video ads skipped</p>
             </div>
 
             <div class="bento rounded-3xl p-5 space-y-2">
@@ -143,9 +159,9 @@
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <button onclick="simulateTestTelemetryEvent()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-300 font-bold text-xs flex items-center gap-2 transition">
-                        <i class="fa-solid fa-plus text-cyan-400"></i>
-                        <span>Simulate User Event</span>
+                    <button onclick="fetchRealTelemetryData(true)" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-300 font-bold text-xs flex items-center gap-2 transition" title="Refresh Live User Data">
+                        <i class="fa-solid fa-arrows-rotate text-cyan-400"></i>
+                        <span>Refresh Live Data</span>
                     </button>
                     <button onclick="clearActivityFeed()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-400 hover:text-white font-bold text-xs flex items-center gap-2 transition">
                         <i class="fa-solid fa-trash-can"></i>
@@ -169,6 +185,7 @@
                             <div class="flex items-center gap-1 text-[11px] font-bold text-slate-400">
                                 <button onclick="filterActivityFeed('ALL')" id="filter-all" class="px-2.5 py-1 rounded-lg bg-cyan-500/20 text-cyan-300">All</button>
                                 <button onclick="filterActivityFeed('GESTURE')" id="filter-gesture" class="px-2.5 py-1 rounded-lg hover:bg-slate-800 text-slate-400">Gestures</button>
+                                <button onclick="filterActivityFeed('ADS')" id="filter-ads" class="px-2.5 py-1 rounded-lg hover:bg-slate-800 text-amber-300">Skip Ads</button>
                                 <button onclick="filterActivityFeed('APP')" id="filter-app" class="px-2.5 py-1 rounded-lg hover:bg-slate-800 text-slate-400">Apps</button>
                                 <button onclick="filterActivityFeed('SESSION')" id="filter-session" class="px-2.5 py-1 rounded-lg hover:bg-slate-800 text-slate-400">Sessions</button>
                             </div>
@@ -262,9 +279,7 @@
                         <div class="mt-4 pt-3 border-t border-slate-800/80">
                             <p class="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-2">Top Apps Controlled</p>
                             <div id="top-apps-list" class="flex flex-wrap gap-1.5">
-                                <span class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-bold text-slate-300 flex items-center gap-1.5"><i class="fa-brands fa-instagram text-pink-400"></i> Instagram</span>
-                                <span class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-bold text-slate-300 flex items-center gap-1.5"><i class="fa-brands fa-youtube text-red-500"></i> YouTube</span>
-                                <span class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-bold text-slate-300 flex items-center gap-1.5"><i class="fa-brands fa-tiktok text-cyan-400"></i> TikTok</span>
+                                <span class="text-[11px] text-slate-500 italic">Tracking live app sessions...</span>
                             </div>
                         </div>
                     </div>
@@ -291,6 +306,7 @@
                                 <th class="pb-3 px-3">Status</th>
                                 <th class="pb-3 px-3">OS / App Version</th>
                                 <th class="pb-3 px-3">Total Gestures</th>
+                                <th class="pb-3 px-3 text-amber-300">Ads Skipped</th>
                                 <th class="pb-3 px-3">Last Action</th>
                                 <th class="pb-3 px-3">Last Seen</th>
                             </tr>
@@ -688,7 +704,7 @@
 
         function filterActivityFeed(filterType) {
             currentFeedFilter = filterType;
-            ['all', 'gesture', 'app', 'session'].forEach(f => {
+            ['all', 'gesture', 'ads', 'app', 'session'].forEach(f => {
                 const btn = document.getElementById(`filter-${f}`);
                 if (btn) {
                     if (f === filterType.toLowerCase()) {
@@ -708,6 +724,8 @@
             let filtered = liveEventsList;
             if (currentFeedFilter === 'GESTURE') {
                 filtered = liveEventsList.filter(e => (e.eventType || '').startsWith('GESTURE'));
+            } else if (currentFeedFilter === 'ADS') {
+                filtered = liveEventsList.filter(e => (e.eventType || '').includes('AD') || (e.action || '').toLowerCase().includes('ad') || (e.action || '').toLowerCase().includes('skip'));
             } else if (currentFeedFilter === 'APP') {
                 filtered = liveEventsList.filter(e => e.eventType === 'APP_LAUNCH');
             } else if (currentFeedFilter === 'SESSION') {
@@ -722,7 +740,7 @@
                     <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 text-center space-y-2">
                         <i class="fa-solid fa-radar text-slate-600 text-2xl animate-pulse"></i>
                         <p class="text-slate-300 font-bold text-xs">Waiting for live user interactions</p>
-                        <p class="text-[11px] text-slate-500">Gestures, app launches and sessions will stream here in real time as users interact with the app.</p>
+                        <p class="text-[11px] text-slate-500">Gestures, app launches, skip ads, and sessions will stream here in real time as users interact with the app.</p>
                     </div>
                 `;
                 return;
@@ -738,6 +756,9 @@
                 'GESTURE_HOME': { icon: 'fa-house', color: 'text-amber-400', bg: 'bg-amber-500/15', title: 'System Home' },
                 'GESTURE_NAV': { icon: 'fa-compass', color: 'text-amber-400', bg: 'bg-amber-500/15', title: 'Navigation' },
                 'GESTURE_VOLUME': { icon: 'fa-volume-high', color: 'text-emerald-400', bg: 'bg-emerald-500/15', title: 'Air Volume' },
+                'AD_SKIPPED': { icon: 'fa-forward-step', color: 'text-amber-400', bg: 'bg-amber-500/15', title: 'YouTube Ad Auto-Skipped' },
+                'SKIP_ADS_ACTIVE': { icon: 'fa-play', color: 'text-emerald-400', bg: 'bg-emerald-500/15', title: 'Auto-Skip Ads Started' },
+                'SKIP_ADS_STOPPED': { icon: 'fa-stop', color: 'text-rose-400', bg: 'bg-rose-500/15', title: 'Auto-Skip Ads Paused' },
                 'APP_LAUNCH': { icon: 'fa-rocket', color: 'text-emerald-400', bg: 'bg-emerald-500/15', title: 'App Launched' },
                 'ENGINE_START': { icon: 'fa-circle-play', color: 'text-emerald-400', bg: 'bg-emerald-500/15', title: 'Camera Engine Started' },
                 'ENGINE_STOP': { icon: 'fa-circle-stop', color: 'text-rose-400', bg: 'bg-rose-500/15', title: 'Engine Paused' },
@@ -767,6 +788,24 @@
             }).join('');
         }
 
+        function deduplicateDeviceList(rawList) {
+            const map = new Map();
+            // Sort by most recent seen first
+            rawList.sort((a, b) => new Date(b.lastSeen).getTime() - new Date(a.lastSeen).getTime());
+            for (const d of rawList) {
+                const key = ((d.brand || '') + '_' + (d.deviceModel || '')).toLowerCase().replace(/\s+/g, '');
+                if (!map.has(key)) {
+                    map.set(key, { ...d });
+                } else {
+                    const cur = map.get(key);
+                    cur.totalGestures = Math.max(cur.totalGestures || 0, (cur.totalGestures || 0) + (d.totalGestures || 0));
+                    cur.totalAdsSkipped = Math.max(cur.totalAdsSkipped || 0, (cur.totalAdsSkipped || 0) + (d.totalAdsSkipped || 0));
+                    if (!cur.isOnline && d.isOnline) cur.isOnline = true;
+                }
+            }
+            return Array.from(map.values());
+        }
+
         function renderDevicesTable() {
             const tbody = document.getElementById('devices-table-body');
             const countEl = document.getElementById('table-device-count');
@@ -777,7 +816,7 @@
             if (liveDevicesList.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="6" class="p-6 text-center text-slate-500 text-xs font-medium">
+                        <td colspan="7" class="p-6 text-center text-slate-500 text-xs font-medium">
                             No devices registered yet. Open the AeroSense mobile app to automatically pair.
                         </td>
                     </tr>
@@ -815,6 +854,12 @@
                         <td class="py-3 px-3 font-black text-purple-300 whitespace-nowrap">
                             ${parseInt(dev.totalGestures || 0).toLocaleString()} gestures
                         </td>
+                        <td class="py-3 px-3 whitespace-nowrap">
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 font-extrabold text-[10px]">
+                                <i class="fa-solid fa-forward-step text-[9px]"></i>
+                                ${parseInt(dev.totalAdsSkipped || 0).toLocaleString()} ads
+                            </span>
+                        </td>
                         <td class="py-3 px-3 text-slate-300 font-medium whitespace-nowrap truncate max-w-[140px]">
                             ${dev.lastAction || 'Active'}
                         </td>
@@ -833,6 +878,7 @@
             let tapCount = 0;
             let navCount = 0;
             let volumeCount = 0;
+            let totalAdsSkipped = 0;
             const appCounts = {};
 
             liveEventsList.forEach(e => {
@@ -843,6 +889,11 @@
                 else if (t === 'GESTURE_BACK' || t === 'GESTURE_HOME' || t === 'GESTURE_NAV') navCount++;
                 else if (t === 'GESTURE_VOLUME') volumeCount++;
 
+                if (t === 'AD_SKIPPED') {
+                    const cnt = parseInt(e.totalAdsSkipped || 1);
+                    if (cnt > totalAdsSkipped) totalAdsSkipped = cnt;
+                }
+
                 if (e.appName) {
                     appCounts[e.appName] = (appCounts[e.appName] || 0) + 1;
                 }
@@ -850,6 +901,7 @@
 
             liveDevicesList.forEach(d => {
                 totalGestures += parseInt(d.totalGestures || 0);
+                totalAdsSkipped = Math.max(totalAdsSkipped, parseInt(d.totalAdsSkipped || 0));
             });
             if (totalGestures === 0) {
                 totalGestures = scrollCount + likeCount + tapCount + navCount + volumeCount;
@@ -877,18 +929,32 @@
             const kpiSub = document.getElementById('kpi-devices-sub');
             if (kpiDev) kpiDev.textContent = `${onlineCount} Online`;
             if (kpiStatus) kpiStatus.innerHTML = `<i class="fa-solid fa-circle text-emerald-400 mr-1 text-[8px]"></i>${liveDevicesList.length} Registered`;
-            if (kpiSub) kpiSub.textContent = onlineCount > 0 ? `${onlineCount} active now in camera session` : 'Awaiting mobile device ping';
+            if (kpiSub) kpiSub.textContent = onlineCount > 0 ? `${onlineCount} active now in camera session` : `${liveDevicesList.length} real mobile device(s) registered`;
 
             const kpiGest = document.getElementById('kpi-gestures');
             if (kpiGest) kpiGest.textContent = totalGestures.toLocaleString();
 
+            const kpiAds = document.getElementById('kpi-skip-ads');
+            const kpiAdsTime = document.getElementById('kpi-skip-ads-time');
+            if (kpiAds) kpiAds.textContent = totalAdsSkipped.toLocaleString();
+            if (kpiAdsTime) {
+                const totalSec = totalAdsSkipped * 15;
+                const m = Math.floor(totalSec / 60);
+                const s = totalSec % 60;
+                kpiAdsTime.textContent = m > 0 ? `${m}m ${s}s saved` : `${totalSec}s saved`;
+            }
+
             // Top Apps List
             const topAppsContainer = document.getElementById('top-apps-list');
-            if (topAppsContainer && Object.keys(appCounts).length > 0) {
-                const sortedApps = Object.entries(appCounts).sort((a,b) => b[1] - a[1]).slice(0, 4);
-                topAppsContainer.innerHTML = sortedApps.map(([name, count]) => {
-                    return `<span class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-bold text-slate-300 flex items-center gap-1.5"><i class="fa-solid fa-fire text-amber-400"></i> ${name} (${count})</span>`;
-                }).join('');
+            if (topAppsContainer) {
+                if (Object.keys(appCounts).length > 0) {
+                    const sortedApps = Object.entries(appCounts).sort((a,b) => b[1] - a[1]).slice(0, 4);
+                    topAppsContainer.innerHTML = sortedApps.map(([name, count]) => {
+                        return `<span class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-bold text-cyan-300 flex items-center gap-1.5"><i class="fa-solid fa-fire text-amber-400"></i> ${name} (${count})</span>`;
+                    }).join('');
+                } else {
+                    topAppsContainer.innerHTML = '<span class="text-[11px] text-slate-500 italic">No app launches recorded yet</span>';
+                }
             }
         }
 
@@ -907,11 +973,24 @@
             if (devicesUnsubscribe) devicesUnsubscribe();
             devicesUnsubscribe = firestoreDb.collection('aerosense_devices')
                 .onSnapshot((snapshot) => {
-                    const devices = [];
+                    const rawDevices = [];
                     snapshot.forEach(doc => {
-                        devices.push(doc.data());
+                        const data = doc.data();
+                        rawDevices.push({
+                            deviceId: data.deviceId || doc.id,
+                            deviceModel: data.deviceModel || 'Android Device',
+                            brand: data.brand || 'Android',
+                            androidRelease: data.androidRelease || '14',
+                            appVersion: data.appVersion || '2.5.0',
+                            isOnline: !!data.isOnline,
+                            lastSeen: data.lastSeen || new Date().toISOString(),
+                            lastAction: data.lastAction || 'Active',
+                            totalGestures: parseInt(data.totalGestures || 0),
+                            totalAdsSkipped: parseInt(data.totalAdsSkipped || 0),
+                            skipAdsEnabled: !!data.skipAdsEnabled
+                        });
                     });
-                    liveDevicesList = devices;
+                    liveDevicesList = deduplicateDeviceList(rawDevices);
                     renderDevicesTable();
                     updateAnalyticsMetrics();
                 }, (err) => {
@@ -938,103 +1017,106 @@
                 });
         }
 
-        async function simulateTestTelemetryEvent() {
-            const sampleEvents = [
-                { eventType: 'GESTURE_NEXT', gesture: 'Quick Scroll', direction: 'DOWN', appName: 'Instagram' },
-                { eventType: 'GESTURE_LIKE', gesture: 'Thumbs-Up Like', action: 'LIKE_REEL', appName: 'Instagram' },
-                { eventType: 'GESTURE_AIR_TAP', gesture: 'Air Tap Pinch', normX: 0.52, normY: 0.44 },
-                { eventType: 'APP_LAUNCH', appName: 'YouTube', packageName: 'com.google.android.youtube' },
-                { eventType: 'GESTURE_NEXT', gesture: 'Quick Scroll', direction: 'DOWN', appName: 'TikTok' },
-                { eventType: 'GESTURE_NAV', gesture: 'Home Button', action: 'HOME' }
-            ];
+        async function fetchRealTelemetryData(showToastNotice = false) {
+            const pid = localStorage.getItem('aero_fb_project_id') || DEFAULT_FB_PID;
+            const badge = document.getElementById('cloud-status-badge');
+            const statusText = document.getElementById('cloud-status-text');
 
-            const pick = sampleEvents[Math.floor(Math.random() * sampleEvents.length)];
-            const simDevice = {
-                deviceId: 'dev_pixel8_test',
-                deviceModel: 'Google Pixel 8 Pro',
-                eventType: pick.eventType,
-                timestamp: new Date().toISOString(),
-                appVersion: '2.5.0',
-                ...pick
-            };
+            try {
+                if (statusText) statusText.textContent = `Syncing Firebase (${pid})...`;
 
-            if (firestoreDb) {
-                try {
-                    await firestoreDb.collection('aerosense_events').add(simDevice);
-                    await firestoreDb.collection('aerosense_devices').doc(simDevice.deviceId).set({
-                        deviceId: simDevice.deviceId,
-                        deviceModel: simDevice.deviceModel,
-                        brand: 'Google',
-                        androidRelease: '15',
-                        appVersion: '2.5.0',
-                        isOnline: true,
-                        lastSeen: simDevice.timestamp,
-                        lastAction: pick.gesture || pick.appName || pick.eventType,
-                        totalGestures: firebase.firestore.FieldValue.increment(1)
-                    }, { merge: true });
+                // 1. Fetch real connected devices from Firestore REST
+                const devUrl = `https://firestore.googleapis.com/v1/projects/${pid}/databases/(default)/documents/aerosense_devices`;
+                const devRes = await fetch(devUrl, { cache: 'no-store' });
+                if (devRes.ok) {
+                    const devData = await devRes.json();
+                    if (devData.documents && Array.isArray(devData.documents)) {
+                        const rawDevices = devData.documents.map(doc => {
+                            const f = doc.fields || {};
+                            return {
+                                deviceId: f.deviceId?.stringValue || doc.name.split('/').pop(),
+                                deviceModel: f.deviceModel?.stringValue || 'Android Device',
+                                brand: f.brand?.stringValue || 'Android',
+                                androidRelease: f.androidRelease?.stringValue || '14',
+                                appVersion: f.appVersion?.stringValue || '2.5.0',
+                                isOnline: !!f.isOnline?.booleanValue,
+                                lastSeen: f.lastSeen?.stringValue || new Date().toISOString(),
+                                lastAction: f.lastAction?.stringValue || 'Active',
+                                totalGestures: parseInt(f.totalGestures?.integerValue || 0),
+                                totalAdsSkipped: parseInt(f.totalAdsSkipped?.integerValue || 0),
+                                skipAdsEnabled: !!f.skipAdsEnabled?.booleanValue
+                            };
+                        });
+                        liveDevicesList = deduplicateDeviceList(rawDevices);
+                        renderDevicesTable();
+                    } else {
+                        liveDevicesList = [];
+                        renderDevicesTable();
+                    }
+                }
 
-                    showToast('Event Dispatched', `Simulated ${pick.gesture || pick.eventType} sent to Firebase!`);
-                    return;
-                } catch (e) {
-                    console.error('Simulate event error:', e);
+                // 2. Fetch real live events from Firestore REST
+                const evUrl = `https://firestore.googleapis.com/v1/projects/${pid}/databases/(default)/documents/aerosense_events`;
+                const evRes = await fetch(evUrl, { cache: 'no-store' });
+                if (evRes.ok) {
+                    const evData = await evRes.json();
+                    if (evData.documents && Array.isArray(evData.documents)) {
+                        liveEventsList = devDataToEvents(evData.documents);
+                        renderActivityStream();
+                    } else {
+                        liveEventsList = [];
+                        renderActivityStream();
+                    }
+                }
+
+                updateAnalyticsMetrics();
+
+                if (badge) {
+                    badge.className = 'px-3.5 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold flex items-center gap-2';
+                    if (statusText) statusText.textContent = `Live Cloud: ${pid}`;
+                }
+                const ping = document.getElementById('last-event-ping');
+                if (ping) ping.textContent = `Updated: ${new Date().toLocaleTimeString()}`;
+
+                if (showToastNotice) {
+                    showToast('Real Data Synced', `Loaded ${liveDevicesList.length} real devices & ${liveEventsList.length} user events!`);
+                }
+            } catch (err) {
+                console.warn('Real telemetry fetch notice:', err);
+                if (badge) {
+                    badge.className = 'px-3.5 py-1.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-bold flex items-center gap-2';
+                    if (statusText) statusText.textContent = `Offline: ${pid}`;
+                }
+                if (showToastNotice) {
+                    showToast('Sync Notice', 'Could not fetch live telemetry. Check connection.', false);
                 }
             }
+        }
 
-            // Local simulator fallback if Firebase not connected yet
-            liveEventsList.unshift(simDevice);
-            let existingDev = liveDevicesList.find(d => d.deviceId === simDevice.deviceId);
-            if (!existingDev) {
-                existingDev = {
-                    deviceId: simDevice.deviceId,
-                    deviceModel: simDevice.deviceModel,
-                    brand: 'Google',
-                    androidRelease: '15',
-                    appVersion: '2.5.0',
-                    isOnline: true,
-                    lastSeen: simDevice.timestamp,
-                    lastAction: pick.gesture || pick.appName || pick.eventType,
-                    totalGestures: 1
+        function devDataToEvents(docs) {
+            return docs.map(doc => {
+                const f = doc.fields || {};
+                return {
+                    deviceId: f.deviceId?.stringValue || '',
+                    deviceModel: f.deviceModel?.stringValue || 'Android Device',
+                    eventType: f.eventType?.stringValue || 'GESTURE',
+                    gesture: f.gesture?.stringValue || '',
+                    action: f.action?.stringValue || '',
+                    appName: f.appName?.stringValue || '',
+                    direction: f.direction?.stringValue || '',
+                    status: f.status?.stringValue || '',
+                    totalAdsSkipped: parseInt(f.totalAdsSkipped?.integerValue || 0),
+                    timestamp: f.timestamp?.stringValue || new Date().toISOString(),
+                    appVersion: f.appVersion?.stringValue || '2.5.0'
                 };
-                liveDevicesList.push(existingDev);
-            } else {
-                existingDev.isOnline = true;
-                existingDev.lastSeen = simDevice.timestamp;
-                existingDev.lastAction = pick.gesture || pick.appName || pick.eventType;
-                existingDev.totalGestures = (existingDev.totalGestures || 0) + 1;
-            }
-
-            renderActivityStream();
-            renderDevicesTable();
-            updateAnalyticsMetrics();
-            showToast('Simulated (Local)', `Simulated ${pick.gesture || pick.eventType} added locally.`);
+            }).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
         }
 
         function clearActivityFeed() {
             liveEventsList = [];
             renderActivityStream();
             updateAnalyticsMetrics();
-            showToast('Cleared', 'Activity stream cleared.');
-        }
-
-        function loadInitialSimulatorData() {
-            if (liveEventsList.length === 0) {
-                liveEventsList = [
-                    { deviceId: 'dev_samsung_s23', deviceModel: 'Samsung Galaxy S23', eventType: 'GESTURE_NEXT', gesture: 'Quick Scroll (Fold)', direction: 'DOWN', timestamp: new Date(Date.now() - 25000).toISOString(), appVersion: '2.5.0' },
-                    { deviceId: 'dev_oneplus_11', deviceModel: 'OnePlus 11', eventType: 'GESTURE_LIKE', gesture: 'Thumbs-Up Like', action: 'LIKE_REEL', timestamp: new Date(Date.now() - 85000).toISOString(), appVersion: '2.5.0' },
-                    { deviceId: 'dev_samsung_s23', deviceModel: 'Samsung Galaxy S23', eventType: 'APP_LAUNCH', appName: 'Instagram', packageName: 'com.instagram.android', timestamp: new Date(Date.now() - 140000).toISOString(), appVersion: '2.5.0' },
-                    { deviceId: 'dev_pixel_7', deviceModel: 'Google Pixel 7', eventType: 'ENGINE_START', status: 'LIVE', timestamp: new Date(Date.now() - 260000).toISOString(), appVersion: '2.5.0' }
-                ];
-            }
-            if (liveDevicesList.length === 0) {
-                liveDevicesList = [
-                    { deviceId: 'dev_samsung_s23', deviceModel: 'Samsung Galaxy S23', brand: 'Samsung', androidRelease: '14', appVersion: '2.5.0', isOnline: true, lastSeen: new Date(Date.now() - 25000).toISOString(), lastAction: 'Quick Scroll', totalGestures: 148 },
-                    { deviceId: 'dev_oneplus_11', deviceModel: 'OnePlus 11', brand: 'OnePlus', androidRelease: '14', appVersion: '2.5.0', isOnline: true, lastSeen: new Date(Date.now() - 85000).toISOString(), lastAction: 'Thumbs-Up Like', totalGestures: 92 },
-                    { deviceId: 'dev_pixel_7', deviceModel: 'Google Pixel 7', brand: 'Google', androidRelease: '14', appVersion: '2.5.0', isOnline: false, lastSeen: new Date(Date.now() - 450000).toISOString(), lastAction: 'Engine Paused', totalGestures: 41 }
-                ];
-            }
-            renderActivityStream();
-            renderDevicesTable();
-            updateAnalyticsMetrics();
+            showToast('Feed Cleared', 'Activity stream cleared locally. Click "Refresh Data" to re-sync.');
         }
 
         // Load saved state on boot
@@ -1047,7 +1129,6 @@
             }
             reflectConfigToUI();
             checkSavedFirebaseCredentials();
-            loadInitialSimulatorData();
         };
 
         function showToast(title, msg, isSuccess = true) {
@@ -1116,8 +1197,8 @@
 
         // Firebase Settings Modal Controls
         function openFirebaseSettingsModal() {
-            const savedPid = localStorage.getItem('aero_fb_project_id') || '';
-            const savedKey = localStorage.getItem('aero_fb_api_key') || '';
+            const savedPid = localStorage.getItem('aero_fb_project_id') || DEFAULT_FB_PID;
+            const savedKey = localStorage.getItem('aero_fb_api_key') || DEFAULT_FB_KEY;
             document.getElementById('fb-project-id').value = savedPid;
             document.getElementById('fb-api-key').value = savedKey;
             document.getElementById('firebase-modal').classList.remove('hidden');
@@ -1128,14 +1209,16 @@
         }
 
         const DEFAULT_FB_PID = 'aerosense-ai-touchless';
-        // API key loaded securely from localStorage
+        const DEFAULT_FB_KEY = 'AIzaSyAU5TB64IYZqpflCQ941I_h8cRnyxr1RUU';
 
         function checkSavedFirebaseCredentials() {
             const pid = localStorage.getItem('aero_fb_project_id') || DEFAULT_FB_PID;
-            const key = localStorage.getItem('aero_fb_api_key');
+            const key = localStorage.getItem('aero_fb_api_key') || DEFAULT_FB_KEY;
             if (pid && key && window.firebase) {
                 initFirebaseClient(pid, key);
             }
+            // Always fetch real telemetry immediately from Firestore REST
+            fetchRealTelemetryData();
         }
 
         function initFirebaseClient(projectId, apiKey) {
@@ -1148,8 +1231,11 @@
                     });
                 }
                 firestoreDb = firebase.firestore();
-                document.getElementById('cloud-status-badge').className = 'px-3.5 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold flex items-center gap-2';
-                document.getElementById('cloud-status-text').textContent = `Firebase: ${projectId}`;
+                const badge = document.getElementById('cloud-status-badge');
+                if (badge) {
+                    badge.className = 'px-3.5 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold flex items-center gap-2';
+                    document.getElementById('cloud-status-text').textContent = `Live Cloud: ${projectId}`;
+                }
                 const kpiCloud = document.getElementById('kpi-cloud-status');
                 if (kpiCloud) kpiCloud.textContent = 'Connected';
                 subscribeToLiveTelemetry();
@@ -1170,6 +1256,7 @@
             localStorage.setItem('aero_fb_project_id', pid);
             localStorage.setItem('aero_fb_api_key', key);
             initFirebaseClient(pid, key);
+            fetchRealTelemetryData(true);
             closeFirebaseSettingsModal();
             showToast('Firebase Connected', `Connected to project "${pid}" successfully!`);
         }
@@ -1220,10 +1307,64 @@
         }
 
         // Push Broadcast
-        function dispatchPushBroadcast() {
-            const title = document.getElementById('push-title').value;
+        async function dispatchPushBroadcast() {
+            const title = document.getElementById('push-title').value.trim();
+            const body = document.getElementById('push-body').value.trim();
             const aud = document.getElementById('push-audience').value;
-            showToast('FCM Dispatched', `Broadcast "${title}" queued for ${aud === 'all' ? 'all registered devices' : 'targeted audience'}!`);
+
+            if (!title) {
+                showToast('Missing Title', 'Please enter a notification title.', false);
+                return;
+            }
+
+            const notifPayload = {
+                title: title,
+                body: body,
+                audience: aud,
+                timestamp: new Date().toISOString(),
+                createdAt: new Date().toISOString(),
+                active: true,
+                sender: 'AeroSense Super Admin'
+            };
+
+            const pid = localStorage.getItem('aero_fb_project_id') || DEFAULT_FB_PID;
+
+            // 1. Try via Firestore JS SDK if initialized
+            if (firestoreDb) {
+                try {
+                    await firestoreDb.collection('aerosense_notifications').add(notifPayload);
+                    showToast('Notification Dispatched! 🚀', `Broadcast sent live to ${aud === 'all' ? 'all devices' : aud}!`);
+                    return;
+                } catch (e) {
+                    console.warn('Firestore SDK notif dispatch notice:', e);
+                }
+            }
+
+            // 2. Real Cloud Firestore REST Save
+            try {
+                const url = `https://firestore.googleapis.com/v1/projects/${pid}/databases/(default)/documents/aerosense_notifications`;
+                const docFields = {
+                    title: { stringValue: title },
+                    body: { stringValue: body },
+                    audience: { stringValue: aud },
+                    timestamp: { stringValue: notifPayload.timestamp },
+                    sender: { stringValue: notifPayload.sender },
+                    active: { booleanValue: true }
+                };
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fields: docFields })
+                });
+                if (res.ok) {
+                    showToast('Notification Dispatched! 🚀', `Broadcast sent live to ${aud === 'all' ? 'all devices' : aud}!`);
+                    return;
+                }
+            } catch (err) {
+                console.error('REST notif dispatch error:', err);
+            }
+
+            showToast('Broadcast Saved', 'Broadcast queued locally.');
         }
 
         // JSON Export Modal
