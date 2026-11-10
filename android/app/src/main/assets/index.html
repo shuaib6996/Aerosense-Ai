@@ -549,7 +549,7 @@
     <div id="fold-hold-menu">
         <div class="relative w-[320px] h-[340px] flex items-center justify-center select-none" onclick="event.stopPropagation()" ontouchstart="event.stopPropagation()">
             <!-- Center: Close Menu -->
-            <button onclick="event.stopPropagation(); closeFoldHoldMenu()" ontouchstart="event.stopPropagation()" class="AirClickable absolute z-20 w-[72px] h-[72px] rounded-full bg-transparent border-2 border-rose-500/70 text-slate-200 font-black flex flex-col items-center justify-center hover:bg-rose-500/20 hover:border-rose-400 hover:text-white transition active:scale-95 overflow-hidden p-1">
+            <button onclick="event.stopPropagation(); closeFoldHoldMenu(true)" ontouchstart="event.stopPropagation()" class="AirClickable absolute z-20 w-[72px] h-[72px] rounded-full bg-transparent border-2 border-rose-500/70 text-slate-200 font-black flex flex-col items-center justify-center hover:bg-rose-500/20 hover:border-rose-400 hover:text-white transition active:scale-95 overflow-hidden p-1">
                 <i class="fa-solid fa-xmark text-base text-rose-400 leading-none mb-1 pointer-events-none"></i>
                 <span class="text-[8.5px] font-extrabold uppercase tracking-widest text-slate-300 leading-none pointer-events-none">Close</span>
             </button>
@@ -3353,7 +3353,41 @@
             const el = document.getElementById('admin-session-gestures');
             if (el) el.textContent = aeroRealGestureCount.toString();
             if (window.AeroAnalytics) {
-                window.AeroAnalytics.logEvent('GESTURE_' + actionName, { gesture: actionName });
+                let eventType = 'GESTURE_' + actionName;
+                let gestureLabel = actionName;
+                let gestureDir = '';
+                if (actionName === 'VOL_UP' || actionName === 'VOLUME_UP') {
+                    eventType = 'GESTURE_VOL_UP';
+                    gestureLabel = 'Volume Up';
+                    gestureDir = 'UP';
+                } else if (actionName === 'VOL_DOWN' || actionName === 'VOLUME_DOWN') {
+                    eventType = 'GESTURE_VOL_DOWN';
+                    gestureLabel = 'Volume Down';
+                    gestureDir = 'DOWN';
+                } else if (actionName === 'VOLUME') {
+                    eventType = 'GESTURE_VOLUME';
+                    gestureLabel = 'Air Volume';
+                } else if (actionName === 'RECENTS') {
+                    eventType = 'GESTURE_RECENTS';
+                    gestureLabel = 'Recent Apps';
+                } else if (actionName === 'NOTIFICATIONS') {
+                    eventType = 'GESTURE_NOTIFICATIONS';
+                    gestureLabel = 'Notification Panel';
+                } else if (actionName === 'SLEEP_TOGGLE') {
+                    eventType = 'GESTURE_SLEEP';
+                    gestureLabel = isGestureSleeping ? 'Gesture Sleep' : 'Gesture Wake';
+                } else if (actionName === 'HOLD_MENU' || actionName === 'MENU_OPEN') {
+                    eventType = 'GESTURE_HOLD_MENU';
+                    gestureLabel = 'Long Pinch Menu';
+                } else if (actionName === 'MENU_CLOSE') {
+                    eventType = 'GESTURE_MENU_CLOSE';
+                    gestureLabel = 'Close Menu';
+                }
+                window.AeroAnalytics.logEvent(eventType, {
+                    gesture: gestureLabel,
+                    action: gestureLabel,
+                    direction: gestureDir
+                });
             }
         }
 
@@ -3418,18 +3452,24 @@
             else if (type === 'FOLD_4_HOME') executeSystemNavigation('HOME');
         }
 
+        let lastHoldMenuLogTime = 0;
         function openFoldHoldMenu() {
             document.body.classList.add('menu-open');
             const menu = document.getElementById('fold-hold-menu');
             if (menu) menu.classList.add('active');
             smoothX = smoothNormX * window.innerWidth;
             smoothY = smoothNormY * window.innerHeight;
+            const now = Date.now();
+            if (now - lastHoldMenuLogTime >= 1500) {
+                lastHoldMenuLogTime = now;
+                recordRealGesture('HOLD_MENU');
+            }
             if (window.AndroidBridge && window.AndroidBridge.showSystemHoldMenu) {
                 window.AndroidBridge.showSystemHoldMenu(true);
             }
         }
 
-        function closeFoldHoldMenu() {
+        function closeFoldHoldMenu(userTapped = false) {
             document.body.classList.remove('menu-open');
             const menu = document.getElementById('fold-hold-menu');
             if (menu) menu.classList.remove('active');
@@ -3438,6 +3478,10 @@
             clearRapidVolumeHighlight();
             smoothX = smoothNormX * window.innerWidth;
             smoothY = smoothNormY * window.innerHeight;
+            if (userTapped) {
+                recordRealGesture('MENU_CLOSE');
+                playGestureTone(400, 0.05);
+            }
             if (window.AndroidBridge && window.AndroidBridge.showSystemHoldMenu) {
                 window.AndroidBridge.showSystemHoldMenu(false);
             }
@@ -3500,8 +3544,14 @@
             return null;
         }
 
+        let lastRapidVolumeLogTime = 0;
         function executeRapidVolume(direction) {
             try {
+                const now = Date.now();
+                if (now - lastRapidVolumeLogTime >= 1000) {
+                    lastRapidVolumeLogTime = now;
+                    recordRealGesture(direction);
+                }
                 if (direction === 'VOL_UP') {
                     if (window.AndroidBridge && typeof window.AndroidBridge.adjustSystemVolume === 'function') {
                         window.AndroidBridge.adjustSystemVolume('UP');
@@ -3540,6 +3590,7 @@
         }
 
         let lastVolumeTriggerTime = 0;
+        let lastVolumeLogTime = 0;
         let _volBusy = false;
         function triggerHoldMenuOption(opt) {
             if (opt === 'VOL_UP' || opt === 'VOL_DOWN') {
@@ -3551,8 +3602,13 @@
                 _volBusy = true;
                 setTimeout(() => { _volBusy = false; }, 200);
 
+                if (now - lastVolumeLogTime >= 500) {
+                    lastVolumeLogTime = now;
+                    recordRealGesture(opt);
+                }
+
                 if (opt === 'VOL_UP') {
-                    showToast('', 'Volume Up', '+1 Step');
+                    showToast('🔊', 'Volume Up', '+1 Step');
                     playGestureTone(840, 0.04);
                     try {
                         if (window.AndroidBridge && typeof window.AndroidBridge.adjustSystemVolume === 'function') {
@@ -3560,7 +3616,7 @@
                         }
                     } catch(e) { console.warn('VOL_UP bridge error', e); }
                 } else {
-                    showToast('', 'Volume Down', '-1 Step');
+                    showToast('🔉', 'Volume Down', '-1 Step');
                     playGestureTone(540, 0.04);
                     try {
                         if (window.AndroidBridge && typeof window.AndroidBridge.adjustSystemVolume === 'function') {
@@ -3572,32 +3628,38 @@
                 return;
             } else if (opt === 'BACK') {
                 closeFoldHoldMenu();
-                showToast('', 'System Back', 'Back Executed');
+                showToast('↩️', 'System Back', 'Back Executed');
                 playGestureTone(440, 0.08);
                 executeSystemNavigation('BACK');
             } else if (opt === 'RECENTS') {
                 closeFoldHoldMenu();
-                showToast('', 'Recent Apps', 'Opened Multitasking');
+                showToast('📱', 'Recent Apps', 'Opened Multitasking');
+                playGestureTone(600, 0.08);
+                recordRealGesture('RECENTS');
                 if (window.AndroidBridge && window.AndroidBridge.performSystemAction) {
                     window.AndroidBridge.performSystemAction('RECENTS');
                 }
             } else if (opt === 'NOTIFICATIONS') {
                 closeFoldHoldMenu();
-                showToast('', 'Notifications', 'Opened Panel');
+                showToast('🔔', 'Notifications', 'Opened Panel');
+                playGestureTone(650, 0.08);
+                recordRealGesture('NOTIFICATIONS');
                 if (window.AndroidBridge && window.AndroidBridge.performSystemAction) {
                     window.AndroidBridge.performSystemAction('NOTIFICATIONS');
                 }
             } else if (opt === 'SLEEP_TOGGLE') {
                 isGestureSleeping = !isGestureSleeping;
+                recordRealGesture('SLEEP_TOGGLE');
                 const icon = document.getElementById('icon-gesture-sleep');
                 const lblSleep = document.getElementById('lbl-gesture-sleep');
                 if (icon && lblSleep) {
                     icon.className = isGestureSleeping ? 'fa-solid fa-sun text-sm mb-0.5 text-amber-400' : 'fa-solid fa-moon text-sm mb-0.5 text-purple-400';
                     lblSleep.textContent = isGestureSleeping ? 'Wake' : 'Sleep';
                 }
-                showToast('', 'Gesture Engine', isGestureSleeping ? 'Gestures Sleeping (Paused)' : 'Gestures Awake & Active');
+                playGestureTone(isGestureSleeping ? 380 : 720, 0.08);
+                showToast(isGestureSleeping ? '🌙' : '☀️', 'Gesture Engine', isGestureSleeping ? 'Gestures Sleeping (Paused)' : 'Gestures Awake & Active');
             } else {
-                closeFoldHoldMenu();
+                closeFoldHoldMenu(true);
             }
         }
 

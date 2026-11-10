@@ -275,6 +275,82 @@
                             </div>
                         </div>
 
+                        <!-- ⏱️ Long Pinch Radial Menu Telemetry Breakdown -->
+                        <div class="mt-4 pt-3.5 border-t border-slate-800/80 space-y-2.5">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[11px] font-black text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
+                                    <i class="fa-solid fa-up-down-left-right text-[10px]"></i>
+                                    Long Pinch Menu Actions
+                                </span>
+                                <span id="hold-menu-total-badge" class="px-2 py-0.5 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-[10px] font-bold">0 actions</span>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                <!-- Menu Opened -->
+                                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between">
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <i class="fa-solid fa-circle-dot text-indigo-400 text-xs shrink-0"></i>
+                                        <span class="text-slate-300 font-bold truncate text-[11px]">Menu Opened</span>
+                                    </div>
+                                    <span id="metric-menu-open" class="font-black text-indigo-300 text-xs shrink-0">0</span>
+                                </div>
+
+                                <!-- Volume Up / Down -->
+                                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between">
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <i class="fa-solid fa-volume-high text-emerald-400 text-xs shrink-0"></i>
+                                        <span class="text-slate-300 font-bold truncate text-[11px]">Vol Up / Down</span>
+                                    </div>
+                                    <span id="metric-vol-total" class="font-black text-emerald-300 text-xs shrink-0">0</span>
+                                </div>
+
+                                <!-- Recent Apps -->
+                                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between">
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <i class="fa-solid fa-table-cells-large text-amber-400 text-xs shrink-0"></i>
+                                        <span class="text-slate-300 font-bold truncate text-[11px]">Recent Apps</span>
+                                    </div>
+                                    <span id="metric-recents" class="font-black text-amber-300 text-xs shrink-0">0</span>
+                                </div>
+
+                                <!-- System Back -->
+                                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between">
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <i class="fa-solid fa-arrow-left text-cyan-400 text-xs shrink-0"></i>
+                                        <span class="text-slate-300 font-bold truncate text-[11px]">Menu Back</span>
+                                    </div>
+                                    <span id="metric-menu-back" class="font-black text-cyan-300 text-xs shrink-0">0</span>
+                                </div>
+
+                                <!-- Notification Panel -->
+                                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between">
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <i class="fa-solid fa-bell text-blue-400 text-xs shrink-0"></i>
+                                        <span class="text-slate-300 font-bold truncate text-[11px]">Notifications</span>
+                                    </div>
+                                    <span id="metric-notifs" class="font-black text-blue-300 text-xs shrink-0">0</span>
+                                </div>
+
+                                <!-- Sleep / Wake -->
+                                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between">
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <i class="fa-solid fa-moon text-purple-400 text-xs shrink-0"></i>
+                                        <span class="text-slate-300 font-bold truncate text-[11px]">Sleep / Wake</span>
+                                    </div>
+                                    <span id="metric-sleep" class="font-black text-purple-300 text-xs shrink-0">0</span>
+                                </div>
+
+                                <!-- Menu Close (Full Width) -->
+                                <div class="col-span-2 p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between">
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <i class="fa-solid fa-xmark text-rose-400 text-xs shrink-0"></i>
+                                        <span class="text-slate-300 font-bold truncate text-[11px]">Menu Closed / Cancelled</span>
+                                    </div>
+                                    <span id="metric-menu-close" class="font-black text-rose-300 text-xs shrink-0">0</span>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Top Apps Controlled -->
                         <div class="mt-4 pt-3 border-t border-slate-800/80">
                             <p class="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-2">Top Apps Controlled</p>
@@ -756,6 +832,13 @@
                 'GESTURE_HOME': { icon: 'fa-house', color: 'text-amber-400', bg: 'bg-amber-500/15', title: 'System Home' },
                 'GESTURE_NAV': { icon: 'fa-compass', color: 'text-amber-400', bg: 'bg-amber-500/15', title: 'Navigation' },
                 'GESTURE_VOLUME': { icon: 'fa-volume-high', color: 'text-emerald-400', bg: 'bg-emerald-500/15', title: 'Air Volume' },
+                'GESTURE_VOL_UP': { icon: 'fa-volume-high', color: 'text-emerald-400', bg: 'bg-emerald-500/15', title: 'Volume Up' },
+                'GESTURE_VOL_DOWN': { icon: 'fa-volume-low', color: 'text-emerald-400', bg: 'bg-emerald-500/15', title: 'Volume Down' },
+                'GESTURE_HOLD_MENU': { icon: 'fa-up-down-left-right', color: 'text-indigo-400', bg: 'bg-indigo-500/15', title: 'Hold Menu Opened' },
+                'GESTURE_MENU_CLOSE': { icon: 'fa-xmark', color: 'text-rose-400', bg: 'bg-rose-500/15', title: 'Hold Menu Closed' },
+                'GESTURE_RECENTS': { icon: 'fa-table-cells-large', color: 'text-amber-400', bg: 'bg-amber-500/15', title: 'Recent Apps' },
+                'GESTURE_NOTIFICATIONS': { icon: 'fa-bell', color: 'text-blue-400', bg: 'bg-blue-500/15', title: 'Notification Shade' },
+                'GESTURE_SLEEP': { icon: 'fa-moon', color: 'text-purple-400', bg: 'bg-purple-500/15', title: 'Gesture Sleep / Wake' },
                 'AD_SKIPPED': { icon: 'fa-forward-step', color: 'text-amber-400', bg: 'bg-amber-500/15', title: 'YouTube Ad Auto-Skipped' },
                 'SKIP_ADS_ACTIVE': { icon: 'fa-play', color: 'text-emerald-400', bg: 'bg-emerald-500/15', title: 'Auto-Skip Ads Started' },
                 'SKIP_ADS_STOPPED': { icon: 'fa-stop', color: 'text-rose-400', bg: 'bg-rose-500/15', title: 'Auto-Skip Ads Paused' },
@@ -881,13 +964,52 @@
             let totalAdsSkipped = 0;
             const appCounts = {};
 
+            // Radial Hold Menu Action Counters
+            let menuOpenCount = 0;
+            let volUpCount = 0;
+            let volDownCount = 0;
+            let recentsCount = 0;
+            let notifsCount = 0;
+            let sleepCount = 0;
+            let menuCloseCount = 0;
+            let menuBackCount = 0;
+
             liveEventsList.forEach(e => {
-                const t = e.eventType || '';
+                const t = (e.eventType || '').toUpperCase();
+                const gest = (e.gesture || '').toLowerCase();
+                const act = (e.action || '').toLowerCase();
+
                 if (t === 'GESTURE_NEXT' || t === 'GESTURE_PREV' || t === 'GESTURE_SCROLL') scrollCount++;
                 else if (t === 'GESTURE_LIKE') likeCount++;
                 else if (t === 'GESTURE_AIR_TAP') tapCount++;
                 else if (t === 'GESTURE_BACK' || t === 'GESTURE_HOME' || t === 'GESTURE_NAV') navCount++;
-                else if (t === 'GESTURE_VOLUME') volumeCount++;
+                else if (t === 'GESTURE_VOLUME' || t === 'GESTURE_VOL_UP' || t === 'GESTURE_VOL_DOWN' || t.includes('VOL') || gest.includes('volume') || act.includes('volume')) volumeCount++;
+
+                // Hold Menu Specific Actions
+                if (t === 'GESTURE_HOLD_MENU' || gest.includes('hold menu') || act.includes('hold menu') || gest.includes('radial') || gest.includes('pinch menu')) {
+                    menuOpenCount++;
+                }
+                if (t === 'GESTURE_MENU_CLOSE' || gest.includes('close menu') || act.includes('close menu')) {
+                    menuCloseCount++;
+                }
+                if (t === 'GESTURE_VOL_UP' || act.includes('volume up') || gest.includes('volume up')) {
+                    volUpCount++;
+                }
+                if (t === 'GESTURE_VOL_DOWN' || act.includes('volume down') || gest.includes('volume down')) {
+                    volDownCount++;
+                }
+                if (t === 'GESTURE_RECENTS' || act.includes('recent') || gest.includes('recent') || act.includes('multitask')) {
+                    recentsCount++;
+                }
+                if (t === 'GESTURE_NOTIFICATIONS' || act.includes('notification') || gest.includes('notification')) {
+                    notifsCount++;
+                }
+                if (t === 'GESTURE_SLEEP' || act.includes('sleep') || gest.includes('sleep') || act.includes('wake') || gest.includes('wake')) {
+                    sleepCount++;
+                }
+                if (t === 'GESTURE_BACK') {
+                    menuBackCount++;
+                }
 
                 if (t === 'AD_SKIPPED') {
                     const cnt = parseInt(e.totalAdsSkipped || 1);
@@ -908,18 +1030,50 @@
             }
 
             const totalGestureEvents = Math.max(1, scrollCount + likeCount + tapCount + navCount + volumeCount);
-            const pScroll = Math.round((scrollCount / totalGestureEvents) * 100);
-            const pLike = Math.round((likeCount / totalGestureEvents) * 100);
-            const pTap = Math.round((tapCount / totalGestureEvents) * 100);
-            const pNav = Math.round((navCount / totalGestureEvents) * 100);
-            const pVol = Math.round((volumeCount / totalGestureEvents) * 100);
+            const calcPct = (cnt) => {
+                if (cnt <= 0) return 0;
+                const raw = (cnt / totalGestureEvents) * 100;
+                return Math.max(1, Math.round(raw));
+            };
+
+            const pScroll = calcPct(scrollCount);
+            const pLike = calcPct(likeCount);
+            const pTap = calcPct(tapCount);
+            const pNav = calcPct(navCount);
+            const pVol = calcPct(volumeCount);
 
             // Progress Bars
-            setMetricBar('scroll', pScroll);
-            setMetricBar('like', pLike);
-            setMetricBar('tap', pTap);
-            setMetricBar('nav', pNav);
-            setMetricBar('volume', pVol);
+            setMetricBar('scroll', pScroll, scrollCount);
+            setMetricBar('like', pLike, likeCount);
+            setMetricBar('tap', pTap, tapCount);
+            setMetricBar('nav', pNav, navCount);
+            setMetricBar('volume', pVol, volumeCount);
+
+            // Radial Hold Menu Breakdown Values
+            const elMenuOpen = document.getElementById('metric-menu-open');
+            if (elMenuOpen) elMenuOpen.textContent = menuOpenCount;
+
+            const elVolTotal = document.getElementById('metric-vol-total');
+            if (elVolTotal) elVolTotal.textContent = `${volUpCount + volDownCount} (↑${volUpCount} ↓${volDownCount})`;
+
+            const elRecents = document.getElementById('metric-recents');
+            if (elRecents) elRecents.textContent = recentsCount;
+
+            const elMenuBack = document.getElementById('metric-menu-back');
+            if (elMenuBack) elMenuBack.textContent = menuBackCount;
+
+            const elNotifs = document.getElementById('metric-notifs');
+            if (elNotifs) elNotifs.textContent = notifsCount;
+
+            const elSleep = document.getElementById('metric-sleep');
+            if (elSleep) elSleep.textContent = sleepCount;
+
+            const elMenuClose = document.getElementById('metric-menu-close');
+            if (elMenuClose) elMenuClose.textContent = menuCloseCount;
+
+            const totalHoldActions = menuOpenCount + volUpCount + volDownCount + recentsCount + notifsCount + sleepCount + menuCloseCount;
+            const elHoldTotal = document.getElementById('hold-menu-total-badge');
+            if (elHoldTotal) elHoldTotal.textContent = `${totalHoldActions} actions`;
 
             // KPI Tiles
             const now = Date.now();
@@ -958,12 +1112,20 @@
             }
         }
 
-        function setMetricBar(type, pct) {
+        function setMetricBar(type, pct, count = 0) {
             const valPct = isNaN(pct) ? 0 : pct;
             const lbl = document.getElementById(`pct-${type}`);
             const bar = document.getElementById(`bar-${type}`);
-            if (lbl) lbl.textContent = `${valPct}%`;
-            if (bar) bar.style.width = `${valPct}%`;
+            if (lbl) {
+                if (count > 0) {
+                    lbl.textContent = `${valPct}% (${count})`;
+                } else {
+                    lbl.textContent = `0%`;
+                }
+            }
+            if (bar) {
+                bar.style.width = `${Math.min(100, Math.max(count > 0 ? 3 : 0, valPct))}%`;
+            }
         }
 
         function subscribeToLiveTelemetry() {
@@ -1001,7 +1163,7 @@
             if (eventsUnsubscribe) eventsUnsubscribe();
             eventsUnsubscribe = firestoreDb.collection('aerosense_events')
                 .orderBy('timestamp', 'desc')
-                .limit(50)
+                .limit(150)
                 .onSnapshot((snapshot) => {
                     const events = [];
                     snapshot.forEach(doc => {
@@ -1055,19 +1217,49 @@
                     }
                 }
 
-                // 2. Fetch real live events from Firestore REST
-                const evUrl = `https://firestore.googleapis.com/v1/projects/${pid}/databases/(default)/documents/aerosense_events`;
-                const evRes = await fetch(evUrl, { cache: 'no-store' });
-                if (evRes.ok) {
-                    const evData = await evRes.json();
-                    if (evData.documents && Array.isArray(evData.documents)) {
-                        liveEventsList = devDataToEvents(evData.documents);
-                        renderActivityStream();
-                    } else {
-                        liveEventsList = [];
-                        renderActivityStream();
+                // 2. Fetch real live events from Firestore REST (query newest 150 events in timestamp descending order)
+                let rawDocs = [];
+                try {
+                    const queryUrl = `https://firestore.googleapis.com/v1/projects/${pid}/databases/(default)/documents:runQuery`;
+                    const queryBody = {
+                        structuredQuery: {
+                            from: [{ collectionId: 'aerosense_events' }],
+                            orderBy: [{ field: { fieldPath: 'timestamp' }, direction: 'DESCENDING' }],
+                            limit: 150
+                        }
+                    };
+                    const qRes = await fetch(queryUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(queryBody),
+                        cache: 'no-store'
+                    });
+                    if (qRes.ok) {
+                        const qResults = await qRes.json();
+                        rawDocs = qResults.filter(r => r.document).map(r => r.document);
+                    }
+                } catch (qErr) {
+                    console.warn('runQuery fetch notice:', qErr);
+                }
+
+                if (!rawDocs || rawDocs.length === 0) {
+                    // Fallback to direct GET documents list
+                    const evUrl = `https://firestore.googleapis.com/v1/projects/${pid}/databases/(default)/documents/aerosense_events?pageSize=300`;
+                    const evRes = await fetch(evUrl, { cache: 'no-store' });
+                    if (evRes.ok) {
+                        const evData = await evRes.json();
+                        if (evData.documents && Array.isArray(evData.documents)) {
+                            rawDocs = evData.documents;
+                        }
                     }
                 }
+
+                if (rawDocs && rawDocs.length > 0) {
+                    liveEventsList = devDataToEvents(rawDocs);
+                } else {
+                    liveEventsList = [];
+                }
+                renderActivityStream();
 
                 updateAnalyticsMetrics();
 
@@ -1129,6 +1321,11 @@
             }
             reflectConfigToUI();
             checkSavedFirebaseCredentials();
+
+            // Auto-refresh real-time cloud telemetry every 8 seconds
+            setInterval(() => {
+                fetchRealTelemetryData(false);
+            }, 8000);
         };
 
         function showToast(title, msg, isSuccess = true) {
