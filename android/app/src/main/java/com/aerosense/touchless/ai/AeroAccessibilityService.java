@@ -58,21 +58,12 @@ public class AeroAccessibilityService extends AccessibilityService {
 
     public static volatile boolean isAutoSkipAdsEnabled = false;
     public static volatile int totalAdsSkippedCount = 0;
-    private static final String PREFS_NAME = "aero_skip_ads_prefs";
-    private static final String KEY_SKIP_ADS_ENABLED = "skip_ads_enabled";
-    private static final String KEY_TOTAL_ADS_SKIPPED = "total_ads_skipped";
-    private long lastAdSkipAttemptTime = 0;
 
     @Override
     protected void onServiceConnected() {
         super.onServiceConnected();
         instance = this;
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        try {
-            android.content.SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-            isAutoSkipAdsEnabled = prefs.getBoolean(KEY_SKIP_ADS_ENABLED, false);
-            totalAdsSkippedCount = prefs.getInt(KEY_TOTAL_ADS_SKIPPED, 0);
-        } catch (Exception ignored) {}
         updateScreenDimensions();
         smoothX = screenWidth / 2f;
         smoothY = screenHeight / 2f;
@@ -740,202 +731,16 @@ public class AeroAccessibilityService extends AccessibilityService {
     }
 
     public void setAutoSkipAdsEnabled(boolean enabled) {
-        isAutoSkipAdsEnabled = enabled;
-        try {
-            android.content.SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-            prefs.edit().putBoolean(KEY_SKIP_ADS_ENABLED, enabled).apply();
-        } catch (Exception ignored) {}
+        isAutoSkipAdsEnabled = false;
     }
 
     public void resetAdsSkippedCount() {
         totalAdsSkippedCount = 0;
-        try {
-            android.content.SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-            prefs.edit().putInt(KEY_TOTAL_ADS_SKIPPED, 0).apply();
-        } catch (Exception ignored) {}
     }
-
-    private void persistSkippedCount() {
-        try {
-            android.content.SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-            prefs.edit().putInt(KEY_TOTAL_ADS_SKIPPED, totalAdsSkippedCount).apply();
-        } catch (Exception ignored) {}
-    }
-
-    private void notifyAdSkipped() {
-        mainHandler.post(() -> {
-            try {
-                if (MainActivity.instance != null) {
-                    MainActivity.instance.onAdSkippedFromService(totalAdsSkippedCount);
-                }
-            } catch (Exception ignored) {}
-        });
-    }
-
-    private static final String[] KNOWN_YT_SKIP_IDS = new String[] {
-        "com.google.android.youtube:id/skip_ad_button",
-        "com.google.android.youtube:id/skip_ad_button_container",
-        "com.google.android.youtube:id/modern_skip_ad_button",
-        "com.google.android.youtube:id/modern_skip_ad_button_text",
-        "com.google.android.youtube:id/ad_skip_button",
-        "com.google.android.youtube:id/ad_skip_button_container",
-        "com.google.android.youtube:id/countdown_skip_ad_button",
-        "com.google.android.youtube:id/player_ad_skip_button",
-        "com.google.android.youtube:id/ad_skip_container",
-        "com.google.android.youtube:id/skip_ad_button_modern",
-        "com.google.android.youtube:id/action_bar_close_button",
-        "com.google.android.youtube:id/ad_close_button"
-    };
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
-        if (!isAutoSkipAdsEnabled) return;
-        if (event == null) return;
-
-        int eventType = event.getEventType();
-        if (eventType != AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED &&
-            eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED &&
-            eventType != AccessibilityEvent.TYPE_VIEW_CLICKED) {
-            return;
-        }
-
-        long now = System.currentTimeMillis();
-        if (now - lastAdSkipAttemptTime < 600) return;
-
-        CharSequence pkgSeq = event.getPackageName();
-        String pkg = pkgSeq != null ? pkgSeq.toString().toLowerCase() : "";
-        if (pkg.equals(getPackageName().toLowerCase())) {
-            return;
-        }
-
-        mainHandler.post(() -> {
-            try {
-                long currentTime = System.currentTimeMillis();
-                if (currentTime - lastAdSkipAttemptTime < 600) return;
-
-                AccessibilityNodeInfo root = null;
-                try {
-                    root = getRootInActiveWindow();
-                } catch (Exception ignored) {}
-
-                if (root == null) {
-                    try {
-                        root = event.getSource();
-                    } catch (Exception ignored) {}
-                }
-
-                if (root != null) {
-                    try {
-                        boolean skipped = scanAndSkipAds(root, pkg);
-                        if (skipped) {
-                            lastAdSkipAttemptTime = System.currentTimeMillis();
-                            totalAdsSkippedCount++;
-                            persistSkippedCount();
-                            notifyAdSkipped();
-                        }
-                    } finally {
-                        try { root.recycle(); } catch (Exception ignored) {}
-                    }
-                }
-            } catch (Exception ignored) {}
-        });
-    }
-
-    private boolean scanAndSkipAds(AccessibilityNodeInfo root, String pkg) {
-        if (root == null) return false;
-        try {
-            // 1. Direct fast lookup for known YouTube / Video ad skip IDs
-            for (String skipId : KNOWN_YT_SKIP_IDS) {
-                try {
-                    List<AccessibilityNodeInfo> nodes = root.findAccessibilityNodeInfosByViewId(skipId);
-                    if (nodes != null && !nodes.isEmpty()) {
-                        for (AccessibilityNodeInfo n : nodes) {
-                            if (isClickableSkipAdNode(n)) {
-                                boolean ok = clickNodeOrCoordinates(n);
-                                n.recycle();
-                                if (ok) return true;
-                            } else {
-                                n.recycle();
-                            }
-                        }
-                    }
-                } catch (Exception ignored) {}
-            }
-
-            // 2. Recursive hierarchical search across view tree
-            return searchAndClickSkipAdNode(root, 0);
-        } catch (Exception ignored) {}
-        return false;
-    }
-
-    private boolean isClickableSkipAdNode(AccessibilityNodeInfo node) {
-        if (node == null) return false;
-        try {
-            Rect bounds = new Rect();
-            node.getBoundsInScreen(bounds);
-            if (bounds.width() <= 0 || bounds.height() <= 0) return false;
-            if (bounds.bottom <= 0 || bounds.top >= screenHeight) return false;
-
-            CharSequence textSeq = node.getText();
-            CharSequence descSeq = node.getContentDescription();
-            String text = textSeq != null ? textSeq.toString().toLowerCase().trim() : "";
-            String desc = descSeq != null ? descSeq.toString().toLowerCase().trim() : "";
-            String id = node.getViewIdResourceName() != null ? node.getViewIdResourceName().toLowerCase() : "";
-
-            // Strictly reject countdown timer states (e.g. "Skip ad in 5s", "You can skip in 4s", "Ad 1 of 2")
-            if (text.contains("in ") || text.contains("seconds") || text.contains("sec") ||
-                desc.contains("in ") || desc.contains("seconds")) {
-                if (text.matches(".*\\b\\d+\\b.*") || desc.matches(".*\\b\\d+\\b.*")) {
-                    return false;
-                }
-            }
-
-            // Match known skip ID tokens
-            if (id.contains("skip_ad") || id.contains("ad_skip") || id.contains("modern_skip") || 
-                id.contains("countdown_skip") || id.contains("player_ad_skip")) {
-                return true;
-            }
-
-            // Match exact skip keywords in English and Hindi
-            if (text.equals("skip ad") || text.equals("skip ads") || text.equals("skip") ||
-                text.equals("skip advertisement") || text.equals("skip video") ||
-                text.equals("विज्ञापन छोड़ें") || text.equals("स्किप करें") || text.equals("स्किप") ||
-                desc.equals("skip ad") || desc.equals("skip ads") || desc.equals("skip") ||
-                desc.equals("skip advertisement") || desc.equals("विज्ञापन छोड़ें")) {
-                return true;
-            }
-
-            // Clean prefix matching with max length to avoid false positives
-            if ((text.startsWith("skip ad") || desc.startsWith("skip ad")) && text.length() <= 20) {
-                return true;
-            }
-
-            // YouTube / App overlay close buttons for banner ads
-            if (id.contains("ad_close_button") || id.contains("action_bar_close_button")) {
-                return true;
-            }
-        } catch (Exception ignored) {}
-        return false;
-    }
-
-    private boolean searchAndClickSkipAdNode(AccessibilityNodeInfo node, int depth) {
-        if (node == null || depth > 25) return false;
-        try {
-            if (isClickableSkipAdNode(node)) {
-                return clickNodeOrCoordinates(node);
-            }
-
-            int count = node.getChildCount();
-            for (int i = 0; i < count; i++) {
-                AccessibilityNodeInfo child = node.getChild(i);
-                if (child != null) {
-                    boolean found = searchAndClickSkipAdNode(child, depth + 1);
-                    child.recycle();
-                    if (found) return true;
-                }
-            }
-        } catch (Exception ignored) {}
-        return false;
+        // Skip Ads removed as requested
     }
 
     @Override

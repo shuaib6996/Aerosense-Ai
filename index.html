@@ -707,25 +707,6 @@
                     </div>
                 </div>
 
-                <!-- Dedicated Auto Skip Ads Quick Card -->
-                <div onclick="switchTab('skipads')" class="AirClickable bento-card rounded-3xl p-3 sm:p-3.5 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-slate-900 border border-amber-500/30 flex items-center justify-between cursor-pointer hover:border-amber-500/60 transition active:scale-[0.98] shrink-0">
-                    <div class="flex items-center gap-3 min-w-0">
-                        <div class="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg border border-amber-500/30 shrink-0">
-                            <i class="fa-solid fa-forward-fast"></i>
-                        </div>
-                        <div class="min-w-0">
-                            <div class="flex items-center gap-2">
-                                <h4 class="text-xs font-black text-white truncate">Auto Skip Ads Engine</h4>
-                                <span id="home-skipads-status-badge" class="px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 text-[8px] font-black uppercase tracking-wider shrink-0">Inactive</span>
-                            </div>
-                            <p class="text-[10px] text-slate-400 truncate mt-0.5">Skip YouTube ads automatically • No Camera needed</p>
-                        </div>
-                    </div>
-                    <div class="w-7 h-7 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center text-xs shrink-0 ml-2">
-                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
-                    </div>
-                </div>
-
                 <!-- 2. System Control Permissions Card -->
                 <div class="bento-card rounded-3xl p-3.5 sm:p-4 space-y-3 shrink-0">
                     <div class="flex items-center justify-between gap-2">
@@ -777,130 +758,7 @@
                 </div>
             </section>
 
-            <!-- VIEW 2: AUTO SKIP ADS ENGINE (Dedicated Section) -->
-            <section id="view-skipads" class="hidden space-y-3">
-                <!-- 1. Skip Ads Engine Header Card (Compact & Mobile-Optimized) -->
-                <div class="bento-card rounded-2xl p-3 sm:p-3.5 border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-[#0a0d18] to-slate-950 flex items-center justify-between gap-2.5 shrink-0 shadow-lg shadow-amber-950/20">
-                    <div class="flex items-center gap-2.5 min-w-0 flex-1">
-                        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-slate-950 text-sm font-black shadow-md shadow-amber-500/30 shrink-0">
-                            <i class="fa-solid fa-forward-fast"></i>
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <div class="flex items-center gap-1.5">
-                                <h2 class="text-xs sm:text-sm font-black text-white truncate">Auto Skip Ads</h2>
-                                <span class="px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[8px] font-black uppercase shrink-0">v1.0</span>
-                            </div>
-                            <p class="text-[10px] text-amber-300/80 font-semibold truncate mt-0.5">Auto-clicks "Skip Ad" on YouTube & video apps</p>
-                        </div>
-                    </div>
-                    <span id="skipads-active-pill" class="px-2.5 py-1 rounded-xl bg-slate-800 text-slate-400 border border-slate-700 font-black text-[10px] flex items-center gap-1.5 shrink-0 transition">
-                        <span id="skipads-dot" class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
-                        <span id="skipads-pill-text">Inactive</span>
-                    </span>
-                </div>
-
-                <!-- 2. Main Start/Stop Engine Action Center -->
-                <div class="bento-card rounded-3xl p-5 flex flex-col items-center justify-center text-center gap-3 border border-slate-800 bg-gradient-to-b from-slate-900/90 to-slate-950 relative overflow-hidden">
-                    <div id="skipads-glow-ring" class="absolute -inset-1 rounded-3xl bg-amber-500/10 blur-xl opacity-0 transition-opacity duration-500 pointer-events-none"></div>
-
-                    <!-- Skip Engine Big Button -->
-                    <button id="btn-toggle-skipads" onclick="toggleAutoSkipAdsEngine()"
-                        class="AirClickable w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-gradient-to-tr from-amber-500 via-orange-500 to-yellow-400 text-slate-950 flex flex-col items-center justify-center shadow-2xl shadow-amber-500/30 transition-all duration-300 active:scale-95 hover:scale-105 border-4 border-slate-900/80 my-1 shrink-0 overflow-hidden relative">
-                        <i id="skipads-btn-icon" class="fa-solid fa-forward-fast text-4xl mb-1"></i>
-                        <span id="skipads-btn-label" class="text-xs font-black uppercase tracking-wider">START SKIP</span>
-                        <span class="text-[8px] font-extrabold text-slate-900/80 uppercase tracking-tight">ENGINE</span>
-                    </button>
-
-                    <div class="space-y-0.5 max-w-xs">
-                        <h3 id="skipads-status-title" class="text-sm font-black text-white">Tap START to Enable Auto Skip Ads</h3>
-                        <p id="skipads-status-desc" class="text-[10px] text-slate-400">Runs quietly in background • 0% Camera • 0% Extra Battery</p>
-                    </div>
-
-                    <!-- Accessibility Service Alert (shown if permission is missing) -->
-                    <div id="skipads-perm-alert" class="hidden w-full p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 items-center justify-between gap-2 text-left">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-triangle-exclamation text-amber-400 text-base shrink-0"></i>
-                            <div>
-                                <span class="text-xs font-black text-amber-300 block">Accessibility Service Required</span>
-                                <span class="text-[10px] text-slate-400 block">Enable Gesture Service in Accessibility Settings to allow auto-skipping ads</span>
-                            </div>
-                        </div>
-                        <button onclick="requestNativeAccessibilityPermission()" class="px-2.5 py-1.5 rounded-xl bg-amber-500 text-slate-950 font-black text-[10px] shrink-0 active:scale-95 transition">
-                            Enable
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 3. Real-Time Stats Card -->
-                <div class="grid grid-cols-2 gap-2.5">
-                    <div class="bento-card rounded-2xl p-3.5 space-y-1 bg-slate-900/90 border border-slate-800">
-                        <span class="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">Total Ads Skipped</span>
-                        <div class="flex items-baseline gap-1.5">
-                            <span id="skipads-counter" class="text-2xl font-black text-amber-400 transition-all duration-300">0</span>
-                            <span class="text-[10px] text-slate-500 font-bold">Ads</span>
-                        </div>
-                        <span class="text-[9px] text-slate-500 font-medium block">Across all apps</span>
-                    </div>
-
-                    <div class="bento-card rounded-2xl p-3.5 space-y-1 bg-slate-900/90 border border-slate-800">
-                        <span class="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">Estimated Time Saved</span>
-                        <div class="flex items-baseline gap-1.5">
-                            <span id="skipads-time-saved" class="text-2xl font-black text-emerald-400">0s</span>
-                        </div>
-                        <span class="text-[9px] text-slate-500 font-medium block">~15 sec per ad</span>
-                    </div>
-                </div>
-
-                <!-- 4. Supported Features & Platforms Bento -->
-                <div class="bento-card rounded-3xl p-4 sm:p-5 space-y-3 border border-slate-800 bg-slate-900/80">
-                    <h3 class="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                        <i class="fa-solid fa-circle-check text-emerald-400"></i>
-                        Engine Capabilities &amp; Coverage
-                    </h3>
-
-                    <div class="space-y-2 text-xs">
-                        <div class="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800/80 flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-xl bg-red-500/15 text-red-400 flex items-center justify-center shrink-0">
-                                <i class="fa-brands fa-youtube text-base"></i>
-                            </div>
-                            <div class="min-w-0">
-                                <h4 class="font-bold text-white text-[11px]">YouTube Video Ads (Pre-roll &amp; Mid-roll)</h4>
-                                <p class="text-slate-400 text-[10px]">Instantly clicks the "Skip Ad" button as soon as the countdown finishes.</p>
-                            </div>
-                        </div>
-
-                        <div class="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800/80 flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-xl bg-rose-500/15 text-rose-400 flex items-center justify-center shrink-0">
-                                <i class="fa-solid fa-music text-sm"></i>
-                            </div>
-                            <div class="min-w-0">
-                                <h4 class="font-bold text-white text-[11px]">YouTube Music &amp; Streaming Apps</h4>
-                                <p class="text-slate-400 text-[10px]">Auto-skips skippable commercial and promotional ads in media streams.</p>
-                            </div>
-                        </div>
-
-                        <div class="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800/80 flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
-                                <i class="fa-solid fa-battery-full text-sm"></i>
-                            </div>
-                            <div class="min-w-0">
-                                <h4 class="font-bold text-white text-[11px]">Zero Camera &amp; Ultra-Low Battery</h4>
-                                <p class="text-slate-400 text-[10px]">Runs purely through Accessibility Service — no camera or hand gestures required.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 5. Reset Stats / Action Button -->
-                <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-900/60 border border-slate-800 text-[11px]">
-                    <span class="text-slate-400">Want to clear your skip history?</span>
-                    <button onclick="resetAutoSkipStats()" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold active:scale-95 transition">
-                        Reset Stats
-                    </button>
-                </div>
-            </section>
-
-            <!-- VIEW 3: SPATIAL SETTINGS -->
+            <!-- VIEW 2: SPATIAL SETTINGS -->
             <section id="view-settings" class="hidden space-y-4">
                 <!-- Top Title -->
                 <div class="flex items-center justify-between gap-2">
@@ -1877,16 +1735,12 @@
 
         </main>
 
-        <!-- 4. BOTTOM NAVIGATION (Home | Skip Ads | Settings | Gestures | More) -->
+        <!-- 4. BOTTOM NAVIGATION (Home | Settings | Gestures | More) -->
         <nav class="shrink-0 bg-[#04070f] border-t border-slate-800 px-2 sm:px-3 py-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] z-[9000] relative select-none">
-            <div class="grid grid-cols-5 gap-1 sm:gap-1.5">
+            <div class="grid grid-cols-4 gap-1 sm:gap-1.5">
                 <button type="button" onclick="switchTab('launcher')" id="nav-launcher" class="AirClickable min-h-[48px] py-2 px-0.5 rounded-xl bg-cyan-500/15 text-cyan-400 font-extrabold text-[9px] sm:text-[10px] flex flex-col items-center justify-center gap-0.5 active:scale-95 transition cursor-pointer select-none touch-manipulation">
                     <i class="fa-solid fa-house text-sm pointer-events-none"></i>
                     <span class="pointer-events-none truncate">Home</span>
-                </button>
-                <button type="button" onclick="switchTab('skipads')" id="nav-skipads" class="AirClickable min-h-[48px] py-2 px-0.5 rounded-xl text-slate-400 font-bold text-[9px] sm:text-[10px] flex flex-col items-center justify-center gap-0.5 active:scale-95 transition cursor-pointer select-none touch-manipulation">
-                    <i class="fa-solid fa-forward-fast text-sm pointer-events-none"></i>
-                    <span class="pointer-events-none truncate">Skip Ads</span>
                 </button>
                 <button type="button" onclick="switchTab('settings')" id="nav-settings" class="AirClickable min-h-[48px] py-2 px-0.5 rounded-xl text-slate-400 font-bold text-[9px] sm:text-[10px] flex flex-col items-center justify-center gap-0.5 active:scale-95 transition cursor-pointer select-none touch-manipulation">
                     <i class="fa-solid fa-sliders text-sm pointer-events-none"></i>
@@ -5403,7 +5257,6 @@
                     }
                 } catch (e) {}
             }
-            if (typeof updateAutoSkipAdsUI === 'function') updateAutoSkipAdsUI();
         };
 
         function toggleCameraPermissionFromMore() {
@@ -5507,8 +5360,6 @@
             document.getElementById('view-launcher').classList.toggle('hidden', tab !== 'launcher');
             const vStream = document.getElementById('view-stream');
             if (vStream) vStream.classList.toggle('hidden', tab !== 'stream');
-            const vSkipAds = document.getElementById('view-skipads');
-            if (vSkipAds) vSkipAds.classList.toggle('hidden', tab !== 'skipads');
             document.getElementById('view-settings').classList.toggle('hidden', tab !== 'settings');
             const vGuide = document.getElementById('view-guide');
             if (vGuide) vGuide.classList.toggle('hidden', tab !== 'guide');
@@ -5520,14 +5371,11 @@
             } else if (hasUnsavedSettings) {
                 discardPendingSettings(true);
             }
-            if (tab === 'skipads') {
-                updateAutoSkipAdsUI();
-            }
             if (tab === 'more') {
                 refreshNativePermissionStatus();
             }
 
-            const tabs = ['launcher', 'skipads', 'settings', 'guide', 'more'];
+            const tabs = ['launcher', 'settings', 'guide', 'more'];
             tabs.forEach(t => {
                 const navBtn = document.getElementById(`nav-${t}`);
                 if (navBtn) {
@@ -5537,224 +5385,6 @@
                 }
             });
         }
-
-        // =====================================================================
-        // AUTO SKIP ADS ENGINE LOGIC (AiVisionMind • Mr. Shuaib)
-        // =====================================================================
-        let isAutoSkipAdsRunning = false;
-        const getNativeBridge = () => window.AndroidBridge || window.Android || null;
-
-        function initAutoSkipAdsEngine() {
-            try {
-                const bridge = getNativeBridge();
-                if (bridge && typeof bridge.isAutoSkipAdsEnabled === 'function') {
-                    isAutoSkipAdsRunning = bridge.isAutoSkipAdsEnabled();
-                } else {
-                    isAutoSkipAdsRunning = localStorage.getItem('aero_skip_ads_enabled') === 'true';
-                }
-            } catch (e) {
-                isAutoSkipAdsRunning = false;
-            }
-            updateAutoSkipAdsUI();
-        }
-
-        function getAutoSkipAdsCount() {
-            try {
-                const bridge = getNativeBridge();
-                if (bridge && typeof bridge.getTotalAdsSkippedCount === 'function') {
-                    return bridge.getTotalAdsSkippedCount();
-                }
-                return parseInt(localStorage.getItem('aero_skip_ads_count') || '0', 10);
-            } catch (e) {
-                return 0;
-            }
-        }
-
-        function formatTimeSaved(seconds) {
-            if (seconds < 60) {
-                return `${seconds}s`;
-            }
-            const mins = Math.floor(seconds / 60);
-            const remSecs = seconds % 60;
-            return remSecs > 0 ? `${mins}m ${remSecs}s` : `${mins}m`;
-        }
-
-        function updateAutoSkipAdsUI() {
-            const count = getAutoSkipAdsCount();
-            const counterEl = document.getElementById('skipads-counter');
-            if (counterEl) counterEl.textContent = count;
-
-            const timeSavedEl = document.getElementById('skipads-time-saved');
-            if (timeSavedEl) timeSavedEl.textContent = formatTimeSaved(count * 15);
-
-            const activePill = document.getElementById('skipads-active-pill');
-            const dotEl = document.getElementById('skipads-dot');
-            const pillText = document.getElementById('skipads-pill-text');
-            const glowRing = document.getElementById('skipads-glow-ring');
-            const btnEl = document.getElementById('btn-toggle-skipads');
-            const btnIcon = document.getElementById('skipads-btn-icon');
-            const btnLabel = document.getElementById('skipads-btn-label');
-            const titleEl = document.getElementById('skipads-status-title');
-            const descEl = document.getElementById('skipads-status-desc');
-            const homeBadge = document.getElementById('home-skipads-status-badge');
-
-            // Check if accessibility service is enabled
-            let hasAccessibility = true;
-            try {
-                const bridge = getNativeBridge();
-                if (bridge && typeof bridge.checkPermissionsJson === 'function') {
-                    const json = JSON.parse(bridge.checkPermissionsJson());
-                    hasAccessibility = !!json.accessibility;
-                }
-            } catch (e) {}
-
-            const permAlert = document.getElementById('skipads-perm-alert');
-            if (permAlert) {
-                if (!hasAccessibility) {
-                    permAlert.classList.remove('hidden');
-                    permAlert.classList.add('flex');
-                } else {
-                    permAlert.classList.add('hidden');
-                    permAlert.classList.remove('flex');
-                }
-            }
-
-            if (isAutoSkipAdsRunning) {
-                if (activePill) {
-                    activePill.className = 'px-2.5 py-1 rounded-xl bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 font-black text-[10px] flex items-center gap-1.5 shadow-sm';
-                }
-                if (dotEl) {
-                    dotEl.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-ping';
-                }
-                if (pillText) pillText.textContent = 'Active • Monitoring';
-                if (glowRing) glowRing.classList.remove('opacity-0');
-
-                if (btnEl) {
-                    btnEl.className = 'AirClickable w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-gradient-to-tr from-rose-500 via-red-500 to-amber-500 text-white flex flex-col items-center justify-center shadow-2xl shadow-rose-500/40 transition-all duration-300 active:scale-95 hover:scale-105 border-4 border-slate-900/80 my-1 shrink-0 overflow-hidden relative ring-4 ring-emerald-500/40 animate-pulse';
-                }
-                if (btnIcon) btnIcon.className = 'fa-solid fa-stop text-4xl mb-1';
-                if (btnLabel) btnLabel.textContent = 'STOP SKIP';
-
-                if (titleEl) titleEl.textContent = 'Auto Skip Engine is ACTIVE';
-                if (descEl) descEl.textContent = 'Monitoring YouTube & apps in background • Ready to skip ads';
-
-                if (homeBadge) {
-                    homeBadge.className = 'px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[8px] font-black uppercase tracking-wider shrink-0 flex items-center gap-1';
-                    homeBadge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>Active';
-                }
-            } else {
-                if (activePill) {
-                    activePill.className = 'px-2.5 py-1 rounded-xl bg-slate-800 text-slate-400 border border-slate-700 font-black text-[10px] flex items-center gap-1.5 transition';
-                }
-                if (dotEl) {
-                    dotEl.className = 'w-2 h-2 rounded-full bg-slate-500';
-                }
-                if (pillText) pillText.textContent = 'Inactive';
-                if (glowRing) glowRing.classList.add('opacity-0');
-
-                if (btnEl) {
-                    btnEl.className = 'AirClickable w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-gradient-to-tr from-amber-500 via-orange-500 to-yellow-400 text-slate-950 flex flex-col items-center justify-center shadow-2xl shadow-amber-500/30 transition-all duration-300 active:scale-95 hover:scale-105 border-4 border-slate-900/80 my-1 shrink-0 overflow-hidden relative';
-                }
-                if (btnIcon) btnIcon.className = 'fa-solid fa-forward-fast text-4xl mb-1';
-                if (btnLabel) btnLabel.textContent = 'START SKIP';
-
-                if (titleEl) titleEl.textContent = 'Tap START to Enable Auto Skip Ads';
-                if (descEl) descEl.textContent = 'Runs quietly in background • 0% Camera • 0% Extra Battery';
-
-                if (homeBadge) {
-                    homeBadge.className = 'px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 text-[8px] font-black uppercase tracking-wider shrink-0';
-                    homeBadge.textContent = 'Inactive';
-                }
-            }
-        }
-
-        function toggleAutoSkipAdsEngine() {
-            let hasAccessibility = true;
-            const bridge = getNativeBridge();
-            try {
-                if (bridge && typeof bridge.checkPermissionsJson === 'function') {
-                    const json = JSON.parse(bridge.checkPermissionsJson());
-                    hasAccessibility = !!json.accessibility;
-                }
-            } catch (e) {}
-
-            if (!isAutoSkipAdsRunning && !hasAccessibility) {
-                showToast('⚠️', 'Permission Required', 'Enable Gesture Service in Accessibility Settings');
-                if (bridge && typeof bridge.openAccessibilitySettings === 'function') {
-                    bridge.openAccessibilitySettings();
-                }
-                return;
-            }
-
-            isAutoSkipAdsRunning = !isAutoSkipAdsRunning;
-            localStorage.setItem('aero_skip_ads_enabled', isAutoSkipAdsRunning ? 'true' : 'false');
-
-            if (bridge && typeof bridge.setAutoSkipAdsEnabled === 'function') {
-                bridge.setAutoSkipAdsEnabled(isAutoSkipAdsRunning);
-            }
-
-            updateAutoSkipAdsUI();
-
-            if (isAutoSkipAdsRunning) {
-                showToast('⚡', 'Auto Skip Ads ACTIVE', 'Now YouTube and video ads will be skipped automatically!');
-                try {
-                    if (window.aeroTrackEvent) {
-                        window.aeroTrackEvent('auto_skip_ads_started', { timestamp: Date.now() });
-                    }
-                    if (window.AeroAnalytics && window.AeroAnalytics.logEvent) {
-                        window.AeroAnalytics.logEvent('SKIP_ADS_ACTIVE', { appName: 'YouTube', action: 'Auto-Skip Ads Started' });
-                    }
-                } catch (e) {}
-            } else {
-                showToast('🛑', 'Auto Skip Ads Stopped', 'Engine paused');
-                try {
-                    if (window.AeroAnalytics && window.AeroAnalytics.logEvent) {
-                        window.AeroAnalytics.logEvent('SKIP_ADS_STOPPED', { appName: 'YouTube', action: 'Auto-Skip Ads Paused' });
-                    }
-                } catch (e) {}
-            }
-        }
-
-        window.onAdSkippedNotification = function(newCount) {
-            try {
-                localStorage.setItem('aero_skip_ads_count', String(newCount));
-                const counterEl = document.getElementById('skipads-counter');
-                if (counterEl) {
-                    counterEl.textContent = newCount;
-                    counterEl.classList.add('scale-125', 'text-emerald-400');
-                    setTimeout(() => {
-                        counterEl.classList.remove('scale-125', 'text-emerald-400');
-                    }, 500);
-                }
-                const timeSavedEl = document.getElementById('skipads-time-saved');
-                if (timeSavedEl) timeSavedEl.textContent = formatTimeSaved(newCount * 15);
-
-                showToast('⏩', 'Ad Skipped!', `Auto-skipped YouTube Ad #${newCount}`);
-
-                if (window.aeroTrackEvent) {
-                    window.aeroTrackEvent('ad_skipped', { total_skipped: newCount });
-                }
-
-                if (window.AeroAnalytics && window.AeroAnalytics.logEvent) {
-                    window.AeroAnalytics.logEvent('AD_SKIPPED', {
-                        totalAdsSkipped: newCount,
-                        appName: 'YouTube',
-                        action: `Auto-Skipped Ad #${newCount}`
-                    });
-                }
-            } catch (e) {}
-        };
-
-        function resetAutoSkipStats() {
-            const bridge = getNativeBridge();
-            if (bridge && typeof bridge.resetAdsSkippedCount === 'function') {
-                bridge.resetAdsSkippedCount();
-            }
-            localStorage.setItem('aero_skip_ads_count', '0');
-            updateAutoSkipAdsUI();
-            showToast('🔄', 'Stats Reset', 'Ad skip counter set to 0');
-        }
-
 
         // =====================================================================
         // 7. INTERACTIVE AIR GESTURE GUIDE ENGINE
@@ -6155,11 +5785,6 @@
                 try {
                     const projectId = this.getProjectId();
                     const now = new Date().toISOString();
-                    const skipAdsCount = parseInt(localStorage.getItem('aero_skip_ads_count') || '0');
-                    let isSkipAdsOn = false;
-                    if (window.AndroidBridge && window.AndroidBridge.isAutoSkipAdsEnabled) {
-                        try { isSkipAdsOn = !!window.AndroidBridge.isAutoSkipAdsEnabled(); } catch (e) {}
-                    }
 
                     const payload = {
                         fields: {
@@ -6173,8 +5798,6 @@
                             lastSeen: { stringValue: now },
                             lastAction: { stringValue: statusMessage || 'Active' },
                             totalGestures: { integerValue: String(this.totalGestures || 0) },
-                            totalAdsSkipped: { integerValue: String(skipAdsCount) },
-                            skipAdsEnabled: { booleanValue: isSkipAdsOn },
                             engineActive: { booleanValue: !!engineRunning }
                         }
                     };
@@ -6222,7 +5845,6 @@
                             if (eventData.appName) docFields.appName = { stringValue: String(eventData.appName) };
                             if (eventData.packageName) docFields.packageName = { stringValue: String(eventData.packageName) };
                             if (eventData.status) docFields.status = { stringValue: String(eventData.status) };
-                            if (eventData.totalAdsSkipped !== undefined) docFields.totalAdsSkipped = { integerValue: String(eventData.totalAdsSkipped) };
 
                             const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/aerosense_events`;
                             await fetch(url, {
@@ -6608,7 +6230,6 @@
                 window.AeroAnalytics.init();
             }
             switchTab('launcher');
-            initAutoSkipAdsEngine();
             renderUserApps();
             refreshNativePermissionStatus();
                         renderSettingsUI();

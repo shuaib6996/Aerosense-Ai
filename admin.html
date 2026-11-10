@@ -77,7 +77,7 @@
         </header>
 
         <!-- 2. KPI ANALYTICS TILES (Module 1 - Live Telemetry) -->
-        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bento rounded-3xl p-5 space-y-2">
                 <div class="flex items-center justify-between text-slate-400">
                     <span class="text-xs font-black uppercase tracking-wider">Connected Devices</span>
@@ -100,18 +100,6 @@
                     <span class="text-xs font-bold text-slate-400">Live</span>
                 </div>
                 <p class="text-[11px] text-slate-400">Recorded from user gesture sessions</p>
-            </div>
-
-            <div class="bento rounded-3xl p-5 space-y-2">
-                <div class="flex items-center justify-between text-slate-400">
-                    <span class="text-xs font-black uppercase tracking-wider">Ads Auto-Skipped</span>
-                    <i class="fa-solid fa-forward-step text-amber-400"></i>
-                </div>
-                <div class="flex items-baseline gap-2">
-                    <span id="kpi-skip-ads" class="text-3xl font-black text-amber-300">0</span>
-                    <span id="kpi-skip-ads-time" class="text-xs font-bold text-slate-400">0s saved</span>
-                </div>
-                <p class="text-[11px] text-slate-400">YouTube video ads skipped</p>
             </div>
 
             <div class="bento rounded-3xl p-5 space-y-2">
@@ -163,9 +151,9 @@
                         <i class="fa-solid fa-arrows-rotate text-cyan-400"></i>
                         <span>Refresh Live Data</span>
                     </button>
-                    <button onclick="clearActivityFeed()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-400 hover:text-white font-bold text-xs flex items-center gap-2 transition">
+                    <button id="btn-clear-feed" onclick="clearActivityFeed()" class="px-3.5 py-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 hover:text-white font-bold text-xs flex items-center gap-2 transition" title="Clear and delete all feed and telemetry data">
                         <i class="fa-solid fa-trash-can"></i>
-                        <span>Clear Feed</span>
+                        <span>Clear All Data</span>
                     </button>
                 </div>
             </div>
@@ -185,7 +173,6 @@
                             <div class="flex items-center gap-1 text-[11px] font-bold text-slate-400">
                                 <button onclick="filterActivityFeed('ALL')" id="filter-all" class="px-2.5 py-1 rounded-lg bg-cyan-500/20 text-cyan-300">All</button>
                                 <button onclick="filterActivityFeed('GESTURE')" id="filter-gesture" class="px-2.5 py-1 rounded-lg hover:bg-slate-800 text-slate-400">Gestures</button>
-                                <button onclick="filterActivityFeed('ADS')" id="filter-ads" class="px-2.5 py-1 rounded-lg hover:bg-slate-800 text-amber-300">Skip Ads</button>
                                 <button onclick="filterActivityFeed('APP')" id="filter-app" class="px-2.5 py-1 rounded-lg hover:bg-slate-800 text-slate-400">Apps</button>
                                 <button onclick="filterActivityFeed('SESSION')" id="filter-session" class="px-2.5 py-1 rounded-lg hover:bg-slate-800 text-slate-400">Sessions</button>
                             </div>
@@ -382,7 +369,6 @@
                                 <th class="pb-3 px-3">Status</th>
                                 <th class="pb-3 px-3">OS / App Version</th>
                                 <th class="pb-3 px-3">Total Gestures</th>
-                                <th class="pb-3 px-3 text-amber-300">Ads Skipped</th>
                                 <th class="pb-3 px-3">Last Action</th>
                                 <th class="pb-3 px-3">Last Seen</th>
                             </tr>
@@ -780,7 +766,7 @@
 
         function filterActivityFeed(filterType) {
             currentFeedFilter = filterType;
-            ['all', 'gesture', 'ads', 'app', 'session'].forEach(f => {
+            ['all', 'gesture', 'app', 'session'].forEach(f => {
                 const btn = document.getElementById(`filter-${f}`);
                 if (btn) {
                     if (f === filterType.toLowerCase()) {
@@ -800,8 +786,6 @@
             let filtered = liveEventsList;
             if (currentFeedFilter === 'GESTURE') {
                 filtered = liveEventsList.filter(e => (e.eventType || '').startsWith('GESTURE'));
-            } else if (currentFeedFilter === 'ADS') {
-                filtered = liveEventsList.filter(e => (e.eventType || '').includes('AD') || (e.action || '').toLowerCase().includes('ad') || (e.action || '').toLowerCase().includes('skip'));
             } else if (currentFeedFilter === 'APP') {
                 filtered = liveEventsList.filter(e => e.eventType === 'APP_LAUNCH');
             } else if (currentFeedFilter === 'SESSION') {
@@ -812,13 +796,24 @@
             if (countBadge) countBadge.textContent = `${filtered.length} events`;
 
             if (filtered.length === 0) {
-                container.innerHTML = `
-                    <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 text-center space-y-2">
-                        <i class="fa-solid fa-radar text-slate-600 text-2xl animate-pulse"></i>
-                        <p class="text-slate-300 font-bold text-xs">Waiting for live user interactions</p>
-                        <p class="text-[11px] text-slate-500">Gestures, app launches, skip ads, and sessions will stream here in real time as users interact with the app.</p>
-                    </div>
-                `;
+                const clearedAt = parseInt(localStorage.getItem('aero_feed_cleared_timestamp') || '0', 10);
+                if (clearedAt > 0) {
+                    container.innerHTML = `
+                        <div class="p-6 rounded-2xl bg-slate-900/60 border border-emerald-500/30 text-center space-y-2">
+                            <i class="fa-solid fa-circle-check text-emerald-400 text-2xl animate-pulse"></i>
+                            <p class="text-white font-bold text-xs">All Activity Feed Cleared</p>
+                            <p class="text-[11px] text-slate-400">Previous telemetry data has been deleted. New user hand gestures will stream here live as they occur.</p>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = `
+                        <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 text-center space-y-2">
+                            <i class="fa-solid fa-radar text-slate-600 text-2xl animate-pulse"></i>
+                            <p class="text-slate-300 font-bold text-xs">Waiting for live user interactions</p>
+                            <p class="text-[11px] text-slate-500">Gestures, app launches, and sessions will stream here in real time as users interact with the app.</p>
+                        </div>
+                    `;
+                }
                 return;
             }
 
@@ -839,9 +834,6 @@
                 'GESTURE_RECENTS': { icon: 'fa-table-cells-large', color: 'text-amber-400', bg: 'bg-amber-500/15', title: 'Recent Apps' },
                 'GESTURE_NOTIFICATIONS': { icon: 'fa-bell', color: 'text-blue-400', bg: 'bg-blue-500/15', title: 'Notification Shade' },
                 'GESTURE_SLEEP': { icon: 'fa-moon', color: 'text-purple-400', bg: 'bg-purple-500/15', title: 'Gesture Sleep / Wake' },
-                'AD_SKIPPED': { icon: 'fa-forward-step', color: 'text-amber-400', bg: 'bg-amber-500/15', title: 'YouTube Ad Auto-Skipped' },
-                'SKIP_ADS_ACTIVE': { icon: 'fa-play', color: 'text-emerald-400', bg: 'bg-emerald-500/15', title: 'Auto-Skip Ads Started' },
-                'SKIP_ADS_STOPPED': { icon: 'fa-stop', color: 'text-rose-400', bg: 'bg-rose-500/15', title: 'Auto-Skip Ads Paused' },
                 'APP_LAUNCH': { icon: 'fa-rocket', color: 'text-emerald-400', bg: 'bg-emerald-500/15', title: 'App Launched' },
                 'ENGINE_START': { icon: 'fa-circle-play', color: 'text-emerald-400', bg: 'bg-emerald-500/15', title: 'Camera Engine Started' },
                 'ENGINE_STOP': { icon: 'fa-circle-stop', color: 'text-rose-400', bg: 'bg-rose-500/15', title: 'Engine Paused' },
@@ -882,7 +874,6 @@
                 } else {
                     const cur = map.get(key);
                     cur.totalGestures = Math.max(cur.totalGestures || 0, (cur.totalGestures || 0) + (d.totalGestures || 0));
-                    cur.totalAdsSkipped = Math.max(cur.totalAdsSkipped || 0, (cur.totalAdsSkipped || 0) + (d.totalAdsSkipped || 0));
                     if (!cur.isOnline && d.isOnline) cur.isOnline = true;
                 }
             }
@@ -899,7 +890,7 @@
             if (liveDevicesList.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="7" class="p-6 text-center text-slate-500 text-xs font-medium">
+                        <td colspan="6" class="p-6 text-center text-slate-500 text-xs font-medium">
                             No devices registered yet. Open the AeroSense mobile app to automatically pair.
                         </td>
                     </tr>
@@ -937,12 +928,6 @@
                         <td class="py-3 px-3 font-black text-purple-300 whitespace-nowrap">
                             ${parseInt(dev.totalGestures || 0).toLocaleString()} gestures
                         </td>
-                        <td class="py-3 px-3 whitespace-nowrap">
-                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 font-extrabold text-[10px]">
-                                <i class="fa-solid fa-forward-step text-[9px]"></i>
-                                ${parseInt(dev.totalAdsSkipped || 0).toLocaleString()} ads
-                            </span>
-                        </td>
                         <td class="py-3 px-3 text-slate-300 font-medium whitespace-nowrap truncate max-w-[140px]">
                             ${dev.lastAction || 'Active'}
                         </td>
@@ -961,7 +946,6 @@
             let tapCount = 0;
             let navCount = 0;
             let volumeCount = 0;
-            let totalAdsSkipped = 0;
             const appCounts = {};
 
             // Radial Hold Menu Action Counters
@@ -1011,22 +995,21 @@
                     menuBackCount++;
                 }
 
-                if (t === 'AD_SKIPPED') {
-                    const cnt = parseInt(e.totalAdsSkipped || 1);
-                    if (cnt > totalAdsSkipped) totalAdsSkipped = cnt;
-                }
-
                 if (e.appName) {
                     appCounts[e.appName] = (appCounts[e.appName] || 0) + 1;
                 }
             });
 
-            liveDevicesList.forEach(d => {
-                totalGestures += parseInt(d.totalGestures || 0);
-                totalAdsSkipped = Math.max(totalAdsSkipped, parseInt(d.totalAdsSkipped || 0));
-            });
-            if (totalGestures === 0) {
-                totalGestures = scrollCount + likeCount + tapCount + navCount + volumeCount;
+            const clearedAt = parseInt(localStorage.getItem('aero_feed_cleared_timestamp') || '0', 10);
+            if (clearedAt > 0 && liveEventsList.length === 0) {
+                totalGestures = 0;
+            } else {
+                liveDevicesList.forEach(d => {
+                    totalGestures += parseInt(d.totalGestures || 0);
+                });
+                if (totalGestures === 0) {
+                    totalGestures = scrollCount + likeCount + tapCount + navCount + volumeCount;
+                }
             }
 
             const totalGestureEvents = Math.max(1, scrollCount + likeCount + tapCount + navCount + volumeCount);
@@ -1088,16 +1071,6 @@
             const kpiGest = document.getElementById('kpi-gestures');
             if (kpiGest) kpiGest.textContent = totalGestures.toLocaleString();
 
-            const kpiAds = document.getElementById('kpi-skip-ads');
-            const kpiAdsTime = document.getElementById('kpi-skip-ads-time');
-            if (kpiAds) kpiAds.textContent = totalAdsSkipped.toLocaleString();
-            if (kpiAdsTime) {
-                const totalSec = totalAdsSkipped * 15;
-                const m = Math.floor(totalSec / 60);
-                const s = totalSec % 60;
-                kpiAdsTime.textContent = m > 0 ? `${m}m ${s}s saved` : `${totalSec}s saved`;
-            }
-
             // Top Apps List
             const topAppsContainer = document.getElementById('top-apps-list');
             if (topAppsContainer) {
@@ -1147,9 +1120,7 @@
                             isOnline: !!data.isOnline,
                             lastSeen: data.lastSeen || new Date().toISOString(),
                             lastAction: data.lastAction || 'Active',
-                            totalGestures: parseInt(data.totalGestures || 0),
-                            totalAdsSkipped: parseInt(data.totalAdsSkipped || 0),
-                            skipAdsEnabled: !!data.skipAdsEnabled
+                            totalGestures: parseInt(data.totalGestures || 0)
                         });
                     });
                     liveDevicesList = deduplicateDeviceList(rawDevices);
@@ -1163,11 +1134,15 @@
             if (eventsUnsubscribe) eventsUnsubscribe();
             eventsUnsubscribe = firestoreDb.collection('aerosense_events')
                 .orderBy('timestamp', 'desc')
-                .limit(150)
+                .limit(50)
                 .onSnapshot((snapshot) => {
+                    const clearedAt = parseInt(localStorage.getItem('aero_feed_cleared_timestamp') || '0', 10);
                     const events = [];
                     snapshot.forEach(doc => {
-                        events.push(doc.data());
+                        const data = doc.data();
+                        if (!clearedAt || (new Date(data.timestamp || 0).getTime() > clearedAt)) {
+                            events.push(data);
+                        }
                     });
                     liveEventsList = events;
                     renderActivityStream();
@@ -1204,9 +1179,7 @@
                                 isOnline: !!f.isOnline?.booleanValue,
                                 lastSeen: f.lastSeen?.stringValue || new Date().toISOString(),
                                 lastAction: f.lastAction?.stringValue || 'Active',
-                                totalGestures: parseInt(f.totalGestures?.integerValue || 0),
-                                totalAdsSkipped: parseInt(f.totalAdsSkipped?.integerValue || 0),
-                                skipAdsEnabled: !!f.skipAdsEnabled?.booleanValue
+                                totalGestures: parseInt(f.totalGestures?.integerValue || 0)
                             };
                         });
                         liveDevicesList = deduplicateDeviceList(rawDevices);
@@ -1286,6 +1259,7 @@
         }
 
         function devDataToEvents(docs) {
+            const clearedAt = parseInt(localStorage.getItem('aero_feed_cleared_timestamp') || '0', 10);
             return docs.map(doc => {
                 const f = doc.fields || {};
                 return {
@@ -1297,18 +1271,90 @@
                     appName: f.appName?.stringValue || '',
                     direction: f.direction?.stringValue || '',
                     status: f.status?.stringValue || '',
-                    totalAdsSkipped: parseInt(f.totalAdsSkipped?.integerValue || 0),
                     timestamp: f.timestamp?.stringValue || new Date().toISOString(),
                     appVersion: f.appVersion?.stringValue || '2.5.0'
                 };
+            }).filter(e => {
+                if (clearedAt > 0) {
+                    return new Date(e.timestamp).getTime() > clearedAt;
+                }
+                return true;
             }).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
         }
 
-        function clearActivityFeed() {
+        async function clearActivityFeed() {
+            const btn = document.getElementById('btn-clear-feed');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-rose-400"></i><span>Deleting...</span>';
+            }
+
+            const nowMs = Date.now();
+            localStorage.setItem('aero_feed_cleared_timestamp', nowMs.toString());
+            liveEventsList = [];
+            liveDevicesList.forEach(d => { d.totalGestures = 0; });
+            renderActivityStream();
+            renderDevicesTable();
+            updateAnalyticsMetrics();
+
+            const pid = localStorage.getItem('aero_fb_project_id') || DEFAULT_FB_PID;
+            const key = localStorage.getItem('aero_fb_api_key') || DEFAULT_FB_KEY;
+
+            // 1. Delete events & reset devices in Firestore via SDK
+            if (firestoreDb) {
+                try {
+                    const snap = await firestoreDb.collection('aerosense_events').limit(300).get();
+                    if (!snap.empty) {
+                        const batch = firestoreDb.batch();
+                        snap.docs.forEach(doc => batch.delete(doc.ref));
+                        await batch.commit();
+                    }
+                } catch (e) {
+                    console.warn('SDK clear events error:', e);
+                }
+            }
+
+            // 2. Delete events via REST commit
+            try {
+                const qUrl = `https://firestore.googleapis.com/v1/projects/${pid}/databases/(default)/documents:runQuery?key=${key}`;
+                const qBody = {
+                    structuredQuery: {
+                        from: [{ collectionId: 'aerosense_events' }],
+                        limit: 50
+                    }
+                };
+                const qRes = await fetch(qUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(qBody)
+                });
+                if (qRes.ok) {
+                    const qData = await qRes.json();
+                    const docNames = qData.filter(r => r.document).map(r => r.document.name);
+                    if (docNames.length > 0) {
+                        const writes = docNames.map(name => ({ delete: name }));
+                        await fetch(`https://firestore.googleapis.com/v1/projects/${pid}/databases/(default)/documents:commit?key=${key}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ writes })
+                        });
+                    }
+                }
+            } catch (err) {
+                console.warn('REST delete notice:', err);
+            }
+
+            // Ensure local state and UI are completely wiped
             liveEventsList = [];
             renderActivityStream();
             updateAnalyticsMetrics();
-            showToast('Feed Cleared', 'Activity stream cleared locally. Click "Refresh Data" to re-sync.');
+
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-trash-can"></i><span>Clear All Data</span>';
+            }
+
+            showToast('All Data Cleared', 'Feed and telemetry data have been completely deleted from Admin Panel!');
         }
 
         // Load saved state on boot
@@ -1322,10 +1368,12 @@
             reflectConfigToUI();
             checkSavedFirebaseCredentials();
 
-            // Auto-refresh real-time cloud telemetry every 8 seconds
+            // Auto-refresh fallback only if firestoreDb is not active and window is visible
             setInterval(() => {
-                fetchRealTelemetryData(false);
-            }, 8000);
+                if (!firestoreDb && !document.hidden) {
+                    fetchRealTelemetryData(false);
+                }
+            }, 25000);
         };
 
         function showToast(title, msg, isSuccess = true) {
