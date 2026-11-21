@@ -18,7 +18,7 @@ public class AeroForegroundService extends Service {
 
     public static final String ACTION_START = "ACTION_START";
     public static final String ACTION_STOP = "ACTION_STOP";
-    private static final String CHANNEL_ID = "aero_gesture_service_channel";
+    private static final String CHANNEL_ID = "aero_touchless_service_v2";
     private static final int NOTIFICATION_ID = 2001;
 
     private PowerManager.WakeLock wakeLock;
@@ -69,6 +69,14 @@ public class AeroForegroundService extends Service {
                     nm.cancel(NOTIFICATION_ID);
                 }
             } catch (Exception ignored) {}
+            // Also pause gesture engine if webView is active
+            if (MainActivity.activeWebView != null) {
+                MainActivity.activeWebView.post(() -> {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                        MainActivity.activeWebView.evaluateJavascript("if(window.stopEngine) window.stopEngine();", null);
+                    }
+                });
+            }
             stopSelf();
             return START_NOT_STICKY;
         }
@@ -124,19 +132,25 @@ public class AeroForegroundService extends Service {
 
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(
-                    CHANNEL_ID,
-                    "AeroSense AI Gesture Engine",
-                    NotificationManager.IMPORTANCE_LOW
-            );
-            channel.setDescription("Keeps touchless hand gestures active in background");
-            channel.enableLights(false);
-            channel.enableVibration(false);
-            channel.setShowBadge(false);
-            channel.setLockscreenVisibility(Notification.VISIBILITY_SECRET);
-
             NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             if (nm != null) {
+                // Delete previous low-importance channel if it existed
+                try {
+                    nm.deleteNotificationChannel("aero_gesture_service_channel");
+                } catch (Exception ignored) {}
+
+                NotificationChannel channel = new NotificationChannel(
+                        CHANNEL_ID,
+                        "AeroSense AI Hand Control",
+                        NotificationManager.IMPORTANCE_DEFAULT
+                );
+                channel.setDescription("Shows status bar icon when touchless gesture tracking is active in background");
+                channel.enableLights(false);
+                channel.enableVibration(false);
+                channel.setSound(null, null); // Silent: keeps status bar icon visible without audio beeps
+                channel.setShowBadge(true);
+                channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+
                 nm.createNotificationChannel(channel);
             }
         }
@@ -154,6 +168,17 @@ public class AeroForegroundService extends Service {
                         : PendingIntent.FLAG_UPDATE_CURRENT
         );
 
+        Intent stopIntent = new Intent(this, AeroForegroundService.class);
+        stopIntent.setAction(ACTION_STOP);
+        PendingIntent stopPendingIntent = PendingIntent.getService(
+                this,
+                1,
+                stopIntent,
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                        ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                        : PendingIntent.FLAG_UPDATE_CURRENT
+        );
+
         Notification.Builder builder;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             builder = new Notification.Builder(this, CHANNEL_ID);
@@ -162,11 +187,36 @@ public class AeroForegroundService extends Service {
         }
 
         builder.setContentTitle("AeroSense AI Hand Control Active")
-                .setContentText("Touchless gesture tracking is running smoothly")
-                .setSmallIcon(android.R.drawable.ic_menu_camera)
+                .setContentText("Touchless gesture tracking is running in background")
+                .setSubText("Running in Background")
+                .setSmallIcon(R.drawable.ic_stat_touchless)
                 .setContentIntent(pendingIntent)
                 .setOngoing(true)
-                .setPriority(Notification.PRIORITY_LOW);
+                .setAutoCancel(false)
+                .setCategory(Notification.CATEGORY_SERVICE)
+                .setVisibility(Notification.VISIBILITY_PUBLIC)
+                .setPriority(Notification.PRIORITY_DEFAULT);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Notification.Action openAction = new Notification.Action.Builder(
+                    android.R.drawable.ic_menu_view,
+                    "Open App",
+                    pendingIntent
+            ).build();
+
+            Notification.Action stopAction = new Notification.Action.Builder(
+                    android.R.drawable.ic_menu_close_clear_cancel,
+                    "Stop Hand Control",
+                    stopPendingIntent
+            ).build();
+
+            builder.addAction(openAction);
+            builder.addAction(stopAction);
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            builder.setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE);
+        }
 
         return builder.build();
     }
@@ -179,7 +229,6 @@ public class AeroForegroundService extends Service {
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
-        // Only keep wake lock active if user has background engine running!
         if (isServiceRunning) {
             acquireWakeLock();
         }

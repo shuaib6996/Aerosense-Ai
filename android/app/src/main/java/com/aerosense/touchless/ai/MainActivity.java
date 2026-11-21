@@ -36,12 +36,13 @@ import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends Activity {
 
     public static MainActivity instance;
-    private static WebView activeWebView;
+    public static WebView activeWebView;
     public static volatile boolean isBackgroundEngineRunning = false;
     public static volatile boolean isFloatingOverlayAttached = false;
     private WebView webView;
@@ -169,10 +170,17 @@ public class MainActivity extends Activity {
         webView.loadUrl("file:///android_asset/index.html");
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            List<String> perms = new ArrayList<>();
             if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{
-                        Manifest.permission.CAMERA
-                }, PERMISSION_REQ_CODE);
+                perms.add(Manifest.permission.CAMERA);
+            }
+            if (Build.VERSION.SDK_INT >= 33) {
+                if (checkSelfPermission("android.permission.POST_NOTIFICATIONS") != PackageManager.PERMISSION_GRANTED) {
+                    perms.add("android.permission.POST_NOTIFICATIONS");
+                }
+            }
+            if (!perms.isEmpty()) {
+                requestPermissions(perms.toArray(new String[0]), PERMISSION_REQ_CODE);
             }
         }
     }
@@ -461,12 +469,19 @@ public class MainActivity extends Activity {
         public void requestRuntimePermissions() {
             runOnUiThread(() -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    List<String> perms = new ArrayList<>();
                     if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                        requestPermissions(new String[]{
-                                Manifest.permission.CAMERA
-                        }, PERMISSION_REQ_CODE);
+                        perms.add(Manifest.permission.CAMERA);
+                    }
+                    if (Build.VERSION.SDK_INT >= 33) {
+                        if (checkSelfPermission("android.permission.POST_NOTIFICATIONS") != PackageManager.PERMISSION_GRANTED) {
+                            perms.add("android.permission.POST_NOTIFICATIONS");
+                        }
+                    }
+                    if (!perms.isEmpty()) {
+                        requestPermissions(perms.toArray(new String[0]), PERMISSION_REQ_CODE);
                     } else {
-                        Toast.makeText(MainActivity.this, "Camera permission already granted!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "Camera & Notification permissions already granted!", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -715,9 +730,12 @@ public class MainActivity extends Activity {
                 boolean overlayEnabled = Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(MainActivity.this);
                 boolean camEnabled = Build.VERSION.SDK_INT < Build.VERSION_CODES.M ||
                         checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
+                boolean notifEnabled = Build.VERSION.SDK_INT < 33 ||
+                        checkSelfPermission("android.permission.POST_NOTIFICATIONS") == PackageManager.PERMISSION_GRANTED;
                 obj.put("accessibility", accEnabled);
                 obj.put("overlay", overlayEnabled);
                 obj.put("camera", camEnabled);
+                obj.put("notification", notifEnabled);
                 obj.put("microphone", true);
             } catch (Exception ignored) {}
             return obj.toString();
