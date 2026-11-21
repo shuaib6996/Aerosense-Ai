@@ -178,8 +178,14 @@ public class AeroAccessibilityService extends AccessibilityService {
                     smoothY = targetY;
                     hasHandHistory1 = true;
                 } else {
-                    smoothX += (targetX - smoothX) * 0.45f;
-                    smoothY += (targetY - smoothY) * 0.45f;
+                    float dist = (float) Math.hypot(targetX - smoothX, targetY - smoothY);
+                    float dynamicLerp = 0.45f;
+                    if (dist > 60f) {
+                        float speedFactor = Math.min(1.0f, dist / (screenWidth * 0.30f));
+                        dynamicLerp = 0.45f + (0.45f * speedFactor); // Up to 0.90f for ultra-responsive fast movement
+                    }
+                    smoothX += (targetX - smoothX) * dynamicLerp;
+                    smoothY += (targetY - smoothY) * dynamicLerp;
                 }
 
                 cursorParams.x = Math.max(0, Math.min(screenWidth - 70, (int) smoothX - 35));
@@ -216,8 +222,14 @@ public class AeroAccessibilityService extends AccessibilityService {
                     smoothY2 = targetY;
                     hasHandHistory2 = true;
                 } else {
-                    smoothX2 += (targetX - smoothX2) * 0.45f;
-                    smoothY2 += (targetY - smoothY2) * 0.45f;
+                    float dist = (float) Math.hypot(targetX - smoothX2, targetY - smoothY2);
+                    float dynamicLerp = 0.45f;
+                    if (dist > 60f) {
+                        float speedFactor = Math.min(1.0f, dist / (screenWidth * 0.30f));
+                        dynamicLerp = 0.45f + (0.45f * speedFactor);
+                    }
+                    smoothX2 += (targetX - smoothX2) * dynamicLerp;
+                    smoothY2 += (targetY - smoothY2) * dynamicLerp;
                 }
 
                 cursorParams2.x = Math.max(0, Math.min(screenWidth - 70, (int) smoothX2 - 35));

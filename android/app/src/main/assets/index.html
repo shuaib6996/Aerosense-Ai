@@ -2264,6 +2264,7 @@
 
         let smoothNormX = 0.5;
         let smoothNormY = 0.5;
+        let lastValidHandTimestamp = 0;
         let smoothX = window.innerWidth / 2;
         let smoothY = window.innerHeight / 2;
         let foldState = 0;
@@ -4175,9 +4176,11 @@
                             const pdy = rawLm[9].y - rawLm[0].y;
                             const palmSpan = Math.sqrt(pdx * pdx + pdy * pdy);
 
-                            if (handScore >= 0.60 && palmSpan >= 0.05 && palmSpan <= 0.75) {
+                            // High-Speed Hand Tracking: Accept hand landmarks even during rapid movement or angled orientation
+                            if ((!handedness || handScore >= 0.35) && palmSpan >= 0.035 && palmSpan <= 0.85) {
                                 hasValidHand = true;
                                 lm = rawLm;
+                                lastValidHandTimestamp = now;
                             }
                         }
 
@@ -4195,13 +4198,18 @@
                             const normX = Math.max(0, Math.min(1, (targetRawX - 0.18) / 0.64));
                             const normY = Math.max(0, Math.min(1, (targetRawY - 0.16) / 0.64));
 
-                            const lerp = 0.20 + ((aeroConfig.pointerSpeed || 3) * 0.08);
+                            const baseLerp = 0.22 + ((aeroConfig.pointerSpeed || 3) * 0.08);
 
                             if (typeof smoothNormX !== 'number' || isNaN(smoothNormX)) smoothNormX = normX;
                             if (typeof smoothNormY !== 'number' || isNaN(smoothNormY)) smoothNormY = normY;
 
-                            smoothNormX += (normX - smoothNormX) * lerp;
-                            smoothNormY += (normY - smoothNormY) * lerp;
+                            // Velocity-Adaptive Cursor Response: Instant snap during fast moves, jitter-free precision when slow
+                            const moveDist = Math.hypot(normX - smoothNormX, normY - smoothNormY);
+                            const speedBoost = Math.min(1.0, moveDist * 5.0);
+                            const adaptiveLerp = baseLerp + (1.0 - baseLerp) * (speedBoost * 0.75);
+
+                            smoothNormX += (normX - smoothNormX) * adaptiveLerp;
+                            smoothNormY += (normY - smoothNormY) * adaptiveLerp;
 
                             smoothNormX = Math.max(0, Math.min(1, smoothNormX));
                             smoothNormY = Math.max(0, Math.min(1, smoothNormY));
@@ -4631,7 +4639,15 @@
 
                             drawDynamicRealisticHand(ctx, normLm, gestureState, isFlashing, flashProg, thumbsUpProgress, pinchHoldProgress, homeGestureStep, backGestureStep);
                         } else {
-                            // Hand away from camera: screen cleanly disappears as requested by user
+                            const handLostElapsed = now - lastValidHandTimestamp;
+                            // Fast-Motion Grace Window: Hold tracking state for up to 320ms (~10 frames)
+                            // Prevents fast hand swipes/flicks from flickering off or dropping ongoing gestures!
+                            if (lastValidHandTimestamp > 0 && handLostElapsed < 320) {
+                                return;
+                            }
+
+                            // Hand truly away from camera (>320ms): cleanly disappear
+                            lastValidHandTimestamp = 0;
                             hud.classList.remove('hud-visible');
                             smoothPalmSpan = null;
                             smoothCenterRefX = null;
@@ -4692,11 +4708,12 @@
                     const h = new Hands({
                         locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
                     });
+                    // Fast Hand Detection & Tracking: 0.50 allows uninterrupted tracking during high-speed hand movements
                     h.setOptions({
                         maxNumHands: 1,
                         modelComplexity: 0,
-                        minDetectionConfidence: 0.70,
-                        minTrackingConfidence: 0.70
+                        minDetectionConfidence: 0.50,
+                        minTrackingConfidence: 0.50
                     });
                     setupHandsResults(h);
                     if (typeof h.initialize === 'function') {
@@ -4754,8 +4771,9 @@
                 onFrame: async () => {
                     if (!engineRunning || !handsInstance) return;
                     const now = Date.now();
-                    // Throttle to steady ~30 FPS (32ms) to prevent mobile CPU/GPU overheating & frame queues
-                    if (now - lastTrackingFrameTime < 32) return;
+                    // Fast Hand Optimization: 12ms throttle allows processing full 30-60 FPS camera throughput
+                    // as soon as previous frame completes, preventing skipped frames during rapid hand gestures!
+                    if (now - lastTrackingFrameTime < 12) return;
                     // Concurrency Lock: Never send frame if previous frame is still being processed
                     if (isTrackingFrameProcessing) {
                         if (now - lastTrackingFrameTime > 2500) {
@@ -4943,6 +4961,7 @@
                 wasPinching = false;
                 homeGestureStep = 0;
                 backGestureStep = 0;
+                lastValidHandTimestamp = 0;
 
                 // 4. Update UI to OFF
                 updateEngineUI('OFF');
@@ -4994,6 +5013,14 @@
 
                 if (videoEl.srcObject) {
                     setupStreamWatchdog(videoEl.srcObject);
+                    try {
+                        const tracks = videoEl.srcObject.getVideoTracks();
+                        if (tracks && tracks.length > 0) {
+                            tracks[0].applyConstraints({
+                                frameRate: { ideal: 60, min: 30 }
+                            }).catch(() => {});
+                        }
+                    } catch (e) {}
                 }
 
                 engineRunning = true;
