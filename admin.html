@@ -41,35 +41,35 @@
     <div class="max-w-7xl mx-auto space-y-6">
 
         <!-- 1. HEADER & OWNER PROFILE -->
-        <header class="bento rounded-3xl p-5 md:p-6 flex flex-wrap items-center justify-between gap-4">
-            <div class="flex items-center gap-4">
-                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 text-slate-950 flex items-center justify-center font-black text-2xl shadow-lg shadow-cyan-500/20">
+        <header class="bento rounded-3xl p-5 md:p-6 flex flex-col xl:flex-row xl:items-center justify-between gap-4 min-h-[96px]">
+            <div class="flex items-center gap-4 shrink-0">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 text-slate-950 flex items-center justify-center font-black text-2xl shadow-lg shadow-cyan-500/20 shrink-0">
                     <i class="fa-solid fa-satellite-dish"></i>
                 </div>
                 <div>
-                    <div class="flex items-center gap-2">
-                        <h1 class="text-xl md:text-2xl font-black text-white tracking-tight">AeroSense AI™ Super Admin</h1>
-                        <span class="px-2.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-[10px] font-black uppercase tracking-wider">Cloud Hub v2.5</span>
+                    <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                        <h1 class="text-xl md:text-2xl font-black text-white tracking-tight whitespace-nowrap">AeroSense AI™ Super Admin</h1>
+                        <span class="px-2.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-[10px] font-black uppercase tracking-wider shrink-0">Cloud Hub v2.5</span>
                     </div>
                     <p class="text-xs text-slate-400 mt-0.5">Owner: <span class="text-slate-200 font-bold">Shuaib Jaxon</span> | Touchless Hand Gesture OS Control</p>
                 </div>
             </div>
 
             <!-- Header Quick Actions & Firebase Status -->
-            <div class="flex flex-wrap items-center gap-3">
-                <div id="cloud-status-badge" class="px-3.5 py-1.5 rounded-xl bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-xs font-bold flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-                    <span id="cloud-status-text">Connecting Live Firebase...</span>
+            <div class="flex items-center gap-2.5 shrink-0 flex-wrap sm:flex-nowrap">
+                <div id="cloud-status-badge" class="w-[120px] px-3 py-2 rounded-xl bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-xs font-bold flex items-center justify-center gap-2 shrink-0 select-none" title="Live Firebase Cloud Engine">
+                    <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shrink-0"></span>
+                    <span id="cloud-status-text" class="truncate font-black text-[11px] uppercase tracking-wider">Connecting...</span>
                 </div>
-                <button onclick="fetchRealTelemetryData(true)" class="px-3.5 py-2 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/40 text-cyan-300 font-bold text-xs flex items-center gap-2 transition" title="Refresh Live Data from Cloud">
-                    <i class="fa-solid fa-arrows-rotate text-cyan-400"></i>
+                <button onclick="fetchRealTelemetryData(true)" class="px-3.5 py-2 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/40 text-cyan-300 font-bold text-xs flex items-center gap-2 transition shrink-0" title="Refresh Live Data from Cloud">
+                    <i id="icon-refresh-header" class="fa-solid fa-arrows-rotate text-cyan-400"></i>
                     <span>Refresh Data</span>
                 </button>
-                <button onclick="openFirebaseSettingsModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold text-xs flex items-center gap-2 transition">
+                <button onclick="openFirebaseSettingsModal()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold text-xs flex items-center gap-2 transition shrink-0">
                     <i class="fa-solid fa-fire text-amber-400"></i>
                     <span>Firebase Config</span>
                 </button>
-                <button onclick="exportFullConfigJSON()" class="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs flex items-center gap-2 shadow-lg shadow-cyan-500/20 transition">
+                <button onclick="exportFullConfigJSON()" class="px-3.5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs flex items-center gap-2 shadow-lg shadow-cyan-500/20 transition shrink-0">
                     <i class="fa-solid fa-code"></i>
                     <span>Export JSON</span>
                 </button>
@@ -78,19 +78,20 @@
 
         <!-- 2. KPI ANALYTICS TILES (Module 1 - Live Telemetry) -->
         <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bento rounded-3xl p-5 space-y-2">
+            <div class="bento rounded-3xl p-5 space-y-2 min-h-[120px] flex flex-col justify-between">
                 <div class="flex items-center justify-between text-slate-400">
                     <span class="text-xs font-black uppercase tracking-wider">Connected Devices</span>
                     <i class="fa-solid fa-mobile-screen text-cyan-400"></i>
                 </div>
                 <div class="flex items-baseline gap-2">
                     <span id="kpi-devices" class="text-3xl font-black text-white">0</span>
-                    <span id="kpi-devices-status" class="text-xs font-bold text-amber-400"><i class="fa-solid fa-satellite-dish mr-1"></i>Awaiting Ping</span>
+                    <span class="text-xs font-bold text-slate-400">Online</span>
+                    <span id="kpi-devices-status" class="text-xs font-bold text-amber-400 ml-auto"><i class="fa-solid fa-satellite-dish mr-1"></i>Awaiting Ping</span>
                 </div>
-                <p id="kpi-devices-sub" class="text-[11px] text-slate-400">No active client sessions recorded</p>
+                <p id="kpi-devices-sub" class="text-[11px] text-slate-400 truncate">No active client sessions recorded</p>
             </div>
 
-            <div class="bento rounded-3xl p-5 space-y-2">
+            <div class="bento rounded-3xl p-5 space-y-2 min-h-[120px] flex flex-col justify-between">
                 <div class="flex items-center justify-between text-slate-400">
                     <span class="text-xs font-black uppercase tracking-wider">Synced Air Gestures</span>
                     <i class="fa-solid fa-hand-sparkles text-purple-400"></i>
@@ -99,10 +100,10 @@
                     <span id="kpi-gestures" class="text-3xl font-black text-purple-300">0</span>
                     <span class="text-xs font-bold text-slate-400">Live</span>
                 </div>
-                <p class="text-[11px] text-slate-400">Recorded from user gesture sessions</p>
+                <p class="text-[11px] text-slate-400 truncate">Recorded from user gesture sessions</p>
             </div>
 
-            <div class="bento rounded-3xl p-5 space-y-2">
+            <div class="bento rounded-3xl p-5 space-y-2 min-h-[120px] flex flex-col justify-between">
                 <div class="flex items-center justify-between text-slate-400">
                     <span class="text-xs font-black uppercase tracking-wider">Crash & Vitals Monitor</span>
                     <i class="fa-solid fa-shield-heart text-emerald-400"></i>
@@ -111,10 +112,10 @@
                     <span id="kpi-crashes" class="text-2xl font-black text-emerald-300">0 Crashes</span>
                     <span class="text-xs font-bold text-emerald-400"><i class="fa-solid fa-check mr-0.5"></i>Clean</span>
                 </div>
-                <p class="text-[11px] text-slate-400">No crash logs reported to Firebase</p>
+                <p class="text-[11px] text-slate-400 truncate">No crash logs reported to Firebase</p>
             </div>
 
-            <div class="bento rounded-3xl p-5 space-y-2">
+            <div class="bento rounded-3xl p-5 space-y-2 min-h-[120px] flex flex-col justify-between">
                 <div class="flex items-center justify-between text-slate-400">
                     <span class="text-xs font-black uppercase tracking-wider">Cloud Engine Status</span>
                     <i class="fa-solid fa-cloud text-cyan-400"></i>
@@ -123,7 +124,7 @@
                     <span id="kpi-cloud-status" class="text-2xl font-black text-cyan-300">Online</span>
                     <span class="text-xs font-bold text-cyan-400">Firestore</span>
                 </div>
-                <p class="text-[11px] text-slate-400">aerosense-ai-touchless (nam5)</p>
+                <p class="text-[11px] text-slate-400 truncate">aerosense-ai-touchless (nam5)</p>
             </div>
         </section>
 
@@ -146,12 +147,12 @@
                     </div>
                 </div>
 
-                <div class="flex items-center gap-2">
-                    <button onclick="fetchRealTelemetryData(true)" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-300 font-bold text-xs flex items-center gap-2 transition" title="Refresh Live User Data">
-                        <i class="fa-solid fa-arrows-rotate text-cyan-400"></i>
+                <div class="flex items-center gap-2 shrink-0">
+                    <button onclick="fetchRealTelemetryData(true)" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-300 font-bold text-xs flex items-center gap-2 transition shrink-0" title="Refresh Live User Data">
+                        <i id="icon-refresh-feed" class="fa-solid fa-arrows-rotate text-cyan-400"></i>
                         <span>Refresh Live Data</span>
                     </button>
-                    <button id="btn-clear-feed" onclick="clearActivityFeed()" class="px-3.5 py-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 hover:text-white font-bold text-xs flex items-center gap-2 transition" title="Clear and delete all feed and telemetry data">
+                    <button id="btn-clear-feed" onclick="clearActivityFeed()" class="px-3.5 py-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 hover:text-white font-bold text-xs flex items-center gap-2 transition shrink-0" title="Clear and delete all feed and telemetry data">
                         <i class="fa-solid fa-trash-can"></i>
                         <span>Clear All Data</span>
                     </button>
@@ -159,12 +160,12 @@
             </div>
 
             <!-- Two-Column Grid: Live Feed (7 cols) + Behavior Metrics (5 cols) -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
 
                 <!-- Left Column: Real-Time Live Activity Stream -->
-                <div class="lg:col-span-7 bento rounded-3xl p-5 md:p-6 space-y-4 flex flex-col justify-between">
-                    <div>
-                        <div class="flex items-center justify-between border-b border-slate-800/80 pb-3 mb-3">
+                <div class="lg:col-span-7 bento rounded-3xl p-5 md:p-6 flex flex-col justify-between min-h-[520px]">
+                    <div class="flex flex-col flex-1">
+                        <div class="flex items-center justify-between border-b border-slate-800/80 pb-3 mb-3 shrink-0">
                             <div class="flex items-center gap-2">
                                 <i class="fa-solid fa-satellite text-cyan-400 text-sm"></i>
                                 <h3 class="text-xs font-black text-white uppercase tracking-wider">Live Action Stream</h3>
@@ -178,23 +179,23 @@
                             </div>
                         </div>
 
-                        <!-- Scrollable Live Feed Container -->
-                        <div id="live-activity-stream" class="space-y-2.5 max-h-[340px] overflow-y-auto pr-1">
+                        <!-- Scrollable Live Feed Container with Locked Fixed Height -->
+                        <div id="live-activity-stream" class="space-y-2.5 h-[380px] max-h-[380px] overflow-y-auto pr-1 flex flex-col">
                             <!-- Populated dynamically -->
                         </div>
                     </div>
 
-                    <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
+                    <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400 shrink-0 mt-3">
                         <span class="flex items-center gap-1.5">
                             <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                            <span>Auto-syncing via Firestore collection: <code class="text-cyan-300 font-mono">aerosense_events</code></span>
+                            <span>Auto-syncing via Firestore: <code class="text-cyan-300 font-mono">aerosense_events</code></span>
                         </span>
                         <span id="last-event-ping" class="text-slate-500 font-medium">Listening for events...</span>
                     </div>
                 </div>
 
                 <!-- Right Column: Gesture Adoption & Behavioral Analytics -->
-                <div class="lg:col-span-5 bento rounded-3xl p-5 md:p-6 space-y-4 flex flex-col justify-between">
+                <div class="lg:col-span-5 bento rounded-3xl p-5 md:p-6 flex flex-col justify-between min-h-[520px]">
                     <div>
                         <div class="flex items-center justify-between border-b border-slate-800/80 pb-3 mb-3">
                             <div class="flex items-center gap-2">
@@ -341,7 +342,7 @@
                         <!-- Top Apps Controlled -->
                         <div class="mt-4 pt-3 border-t border-slate-800/80">
                             <p class="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-2">Top Apps Controlled</p>
-                            <div id="top-apps-list" class="flex flex-wrap gap-1.5">
+                            <div id="top-apps-list" class="flex flex-wrap gap-1.5 min-h-[34px] items-center">
                                 <span class="text-[11px] text-slate-500 italic">Tracking live app sessions...</span>
                             </div>
                         </div>
@@ -361,16 +362,16 @@
                     </div>
                 </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs">
+                <div class="overflow-x-auto min-h-[160px]">
+                    <table class="w-full text-left text-xs table-fixed">
                         <thead>
                             <tr class="text-slate-400 border-b border-slate-800 text-[11px] uppercase tracking-wider font-extrabold">
-                                <th class="pb-3 px-3">Device & Hardware</th>
-                                <th class="pb-3 px-3">Status</th>
-                                <th class="pb-3 px-3">OS / App Version</th>
-                                <th class="pb-3 px-3">Total Gestures</th>
-                                <th class="pb-3 px-3">Last Action</th>
-                                <th class="pb-3 px-3">Last Seen</th>
+                                <th class="pb-3 px-3 w-[28%]">Device & Hardware</th>
+                                <th class="pb-3 px-3 w-[12%]">Status</th>
+                                <th class="pb-3 px-3 w-[18%]">OS / App Version</th>
+                                <th class="pb-3 px-3 w-[14%]">Total Gestures</th>
+                                <th class="pb-3 px-3 w-[16%]">Last Action</th>
+                                <th class="pb-3 px-3 w-[12%]">Last Seen</th>
                             </tr>
                         </thead>
                         <tbody id="devices-table-body" class="divide-y divide-slate-800/60 font-medium">
@@ -797,25 +798,33 @@
 
             if (filtered.length === 0) {
                 const clearedAt = parseInt(localStorage.getItem('aero_feed_cleared_timestamp') || '0', 10);
-                if (clearedAt > 0) {
-                    container.innerHTML = `
-                        <div class="p-6 rounded-2xl bg-slate-900/60 border border-emerald-500/30 text-center space-y-2">
+                const emptyHtml = clearedAt > 0
+                    ? `
+                        <div class="my-auto p-6 rounded-2xl bg-slate-900/60 border border-emerald-500/30 text-center space-y-2">
                             <i class="fa-solid fa-circle-check text-emerald-400 text-2xl animate-pulse"></i>
                             <p class="text-white font-bold text-xs">All Activity Feed Cleared</p>
                             <p class="text-[11px] text-slate-400">Previous telemetry data has been deleted. New user hand gestures will stream here live as they occur.</p>
                         </div>
-                    `;
-                } else {
-                    container.innerHTML = `
-                        <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 text-center space-y-2">
+                    `
+                    : `
+                        <div class="my-auto p-6 rounded-2xl bg-slate-900/60 border border-slate-800 text-center space-y-2">
                             <i class="fa-solid fa-radar text-slate-600 text-2xl animate-pulse"></i>
                             <p class="text-slate-300 font-bold text-xs">Waiting for live user interactions</p>
                             <p class="text-[11px] text-slate-500">Gestures, app launches, and sessions will stream here in real time as users interact with the app.</p>
                         </div>
                     `;
+                if (container.dataset.emptyState !== String(clearedAt > 0) || container.children.length !== 1) {
+                    container.innerHTML = emptyHtml;
+                    container.dataset.emptyState = String(clearedAt > 0);
+                    container.dataset.lastHash = '';
                 }
                 return;
             }
+
+            container.dataset.emptyState = '';
+            const currentHash = filtered.length + '_' + (filtered[0]?.timestamp || '') + '_' + (filtered[0]?.eventType || '');
+            if (container.dataset.lastHash === currentHash) return;
+            container.dataset.lastHash = currentHash;
 
             const iconMap = {
                 'GESTURE_NEXT': { icon: 'fa-arrow-down-up-across-line', color: 'text-cyan-400', bg: 'bg-cyan-500/15', title: 'Quick Scroll (Fold)' },
@@ -873,8 +882,13 @@
                     map.set(key, { ...d });
                 } else {
                     const cur = map.get(key);
-                    cur.totalGestures = Math.max(cur.totalGestures || 0, (cur.totalGestures || 0) + (d.totalGestures || 0));
+                    // Take the highest single reported counter, NEVER sum duplicate records!
+                    cur.totalGestures = Math.max(cur.totalGestures || 0, d.totalGestures || 0);
                     if (!cur.isOnline && d.isOnline) cur.isOnline = true;
+                    if (new Date(d.lastSeen).getTime() > new Date(cur.lastSeen).getTime()) {
+                        cur.lastSeen = d.lastSeen;
+                        cur.lastAction = d.lastAction;
+                    }
                 }
             }
             return Array.from(map.values());
@@ -888,15 +902,28 @@
             if (countEl) countEl.textContent = `${liveDevicesList.length} phones synced`;
 
             if (liveDevicesList.length === 0) {
-                tbody.innerHTML = `
+                const emptyRow = `
                     <tr>
-                        <td colspan="6" class="p-6 text-center text-slate-500 text-xs font-medium">
-                            No devices registered yet. Open the AeroSense mobile app to automatically pair.
+                        <td colspan="6" class="p-8 text-center text-slate-500 text-xs font-medium">
+                            <div class="flex flex-col items-center justify-center gap-2">
+                                <i class="fa-solid fa-mobile-screen-button text-slate-700 text-xl"></i>
+                                <span>No devices registered yet. Open the AeroSense mobile app to automatically pair.</span>
+                            </div>
                         </td>
                     </tr>
                 `;
+                if (tbody.dataset.tableEmpty !== 'true') {
+                    tbody.innerHTML = emptyRow;
+                    tbody.dataset.tableEmpty = 'true';
+                    tbody.dataset.tableHash = '';
+                }
                 return;
             }
+
+            tbody.dataset.tableEmpty = 'false';
+            const tableHash = liveDevicesList.map(d => `${d.deviceId}_${d.isOnline}_${d.totalGestures}_${d.lastAction}`).join('|');
+            if (tbody.dataset.tableHash === tableHash) return;
+            tbody.dataset.tableHash = tableHash;
 
             const now = Date.now();
             tbody.innerHTML = liveDevicesList.map(dev => {
@@ -1001,14 +1028,26 @@
             });
 
             const clearedAt = parseInt(localStorage.getItem('aero_feed_cleared_timestamp') || '0', 10);
-            if (clearedAt > 0 && liveEventsList.length === 0) {
-                totalGestures = 0;
-            } else {
+            const verifiedGestureEvents = scrollCount + likeCount + tapCount + navCount + volumeCount;
+
+            // If feed has been cleared, gesture events must be 0 unless fresh events arrive after clearedAt
+            if (clearedAt > 0) {
+                let freshDeviceGestures = 0;
                 liveDevicesList.forEach(d => {
-                    totalGestures += parseInt(d.totalGestures || 0);
+                    const seen = d.lastSeen ? new Date(d.lastSeen).getTime() : 0;
+                    if (seen > clearedAt) {
+                        freshDeviceGestures = Math.max(freshDeviceGestures, parseInt(d.totalGestures || 0));
+                    } else {
+                        d.totalGestures = 0;
+                    }
                 });
+                totalGestures = verifiedGestureEvents > 0 ? verifiedGestureEvents : freshDeviceGestures;
+            } else {
+                totalGestures = verifiedGestureEvents;
                 if (totalGestures === 0) {
-                    totalGestures = scrollCount + likeCount + tapCount + navCount + volumeCount;
+                    liveDevicesList.forEach(d => {
+                        totalGestures = Math.max(totalGestures, parseInt(d.totalGestures || 0));
+                    });
                 }
             }
 
@@ -1064,9 +1103,20 @@
             const kpiDev = document.getElementById('kpi-devices');
             const kpiStatus = document.getElementById('kpi-devices-status');
             const kpiSub = document.getElementById('kpi-devices-sub');
-            if (kpiDev) kpiDev.textContent = `${onlineCount} Online`;
-            if (kpiStatus) kpiStatus.innerHTML = `<i class="fa-solid fa-circle text-emerald-400 mr-1 text-[8px]"></i>${liveDevicesList.length} Registered`;
-            if (kpiSub) kpiSub.textContent = onlineCount > 0 ? `${onlineCount} active now in camera session` : `${liveDevicesList.length} real mobile device(s) registered`;
+            if (kpiDev) kpiDev.textContent = onlineCount;
+            if (kpiStatus) {
+                if (onlineCount > 0) {
+                    kpiStatus.innerHTML = `<i class="fa-solid fa-circle text-emerald-400 mr-1 text-[8px] animate-pulse"></i>${liveDevicesList.length} Active`;
+                    kpiStatus.className = 'text-xs font-bold text-emerald-400 ml-auto';
+                } else if (liveDevicesList.length > 0) {
+                    kpiStatus.innerHTML = `<i class="fa-solid fa-circle text-slate-500 mr-1 text-[8px]"></i>${liveDevicesList.length} Registered`;
+                    kpiStatus.className = 'text-xs font-bold text-slate-400 ml-auto';
+                } else {
+                    kpiStatus.innerHTML = `<i class="fa-solid fa-satellite-dish mr-1"></i>Awaiting Ping`;
+                    kpiStatus.className = 'text-xs font-bold text-amber-400 ml-auto';
+                }
+            }
+            if (kpiSub) kpiSub.textContent = onlineCount > 0 ? `${onlineCount} active in camera session` : (liveDevicesList.length > 0 ? `${liveDevicesList.length} real mobile device(s) registered` : 'No active client sessions recorded');
 
             const kpiGest = document.getElementById('kpi-gestures');
             if (kpiGest) kpiGest.textContent = totalGestures.toLocaleString();
@@ -1108,20 +1158,25 @@
             if (devicesUnsubscribe) devicesUnsubscribe();
             devicesUnsubscribe = firestoreDb.collection('aerosense_devices')
                 .onSnapshot((snapshot) => {
+                    const clearedAt = parseInt(localStorage.getItem('aero_feed_cleared_timestamp') || '0', 10);
                     const rawDevices = [];
                     snapshot.forEach(doc => {
                         const data = doc.data();
-                        rawDevices.push({
-                            deviceId: data.deviceId || doc.id,
-                            deviceModel: data.deviceModel || 'Android Device',
-                            brand: data.brand || 'Android',
-                            androidRelease: data.androidRelease || '14',
-                            appVersion: data.appVersion || '2.5.0',
-                            isOnline: !!data.isOnline,
-                            lastSeen: data.lastSeen || new Date().toISOString(),
-                            lastAction: data.lastAction || 'Active',
-                            totalGestures: parseInt(data.totalGestures || 0)
-                        });
+                        const lastSeen = data.lastSeen || new Date().toISOString();
+                        const isOlderThanClear = clearedAt > 0 && (new Date(lastSeen).getTime() <= clearedAt);
+                        if (!clearedAt || !isOlderThanClear) {
+                            rawDevices.push({
+                                deviceId: data.deviceId || doc.id,
+                                deviceModel: data.deviceModel || 'Android Device',
+                                brand: data.brand || 'Android',
+                                androidRelease: data.androidRelease || '14',
+                                appVersion: data.appVersion || '2.5.0',
+                                isOnline: !!data.isOnline,
+                                lastSeen: lastSeen,
+                                lastAction: data.lastAction || 'Active',
+                                totalGestures: isOlderThanClear ? 0 : parseInt(data.totalGestures || 0)
+                            });
+                        }
                     });
                     liveDevicesList = deduplicateDeviceList(rawDevices);
                     renderDevicesTable();
@@ -1158,11 +1213,21 @@
             const pid = localStorage.getItem('aero_fb_project_id') || DEFAULT_FB_PID;
             const badge = document.getElementById('cloud-status-badge');
             const statusText = document.getElementById('cloud-status-text');
+            const iconH = document.getElementById('icon-refresh-header');
+            const iconF = document.getElementById('icon-refresh-feed');
 
             try {
-                if (statusText) statusText.textContent = `Syncing Firebase (${pid})...`;
+                if (iconH) iconH.classList.add('fa-spin');
+                if (iconF) iconF.classList.add('fa-spin');
+
+                if (badge) {
+                    badge.className = 'w-[120px] px-3 py-2 rounded-xl bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-xs font-bold flex items-center justify-center gap-2 shrink-0 select-none';
+                    badge.title = `Syncing Firebase (${pid})...`;
+                }
+                if (statusText) statusText.textContent = 'SYNCING...';
 
                 // 1. Fetch real connected devices from Firestore REST
+                const clearedAt = parseInt(localStorage.getItem('aero_feed_cleared_timestamp') || '0', 10);
                 const devUrl = `https://firestore.googleapis.com/v1/projects/${pid}/databases/(default)/documents/aerosense_devices`;
                 const devRes = await fetch(devUrl, { cache: 'no-store' });
                 if (devRes.ok) {
@@ -1170,6 +1235,8 @@
                     if (devData.documents && Array.isArray(devData.documents)) {
                         const rawDevices = devData.documents.map(doc => {
                             const f = doc.fields || {};
+                            const lastSeen = f.lastSeen?.stringValue || new Date().toISOString();
+                            const isOlderThanClear = clearedAt > 0 && (new Date(lastSeen).getTime() <= clearedAt);
                             return {
                                 deviceId: f.deviceId?.stringValue || doc.name.split('/').pop(),
                                 deviceModel: f.deviceModel?.stringValue || 'Android Device',
@@ -1177,10 +1244,15 @@
                                 androidRelease: f.androidRelease?.stringValue || '14',
                                 appVersion: f.appVersion?.stringValue || '2.5.0',
                                 isOnline: !!f.isOnline?.booleanValue,
-                                lastSeen: f.lastSeen?.stringValue || new Date().toISOString(),
+                                lastSeen: lastSeen,
                                 lastAction: f.lastAction?.stringValue || 'Active',
-                                totalGestures: parseInt(f.totalGestures?.integerValue || 0)
+                                totalGestures: isOlderThanClear ? 0 : parseInt(f.totalGestures?.integerValue || 0)
                             };
+                        }).filter(d => {
+                            if (clearedAt > 0) {
+                                return new Date(d.lastSeen).getTime() > clearedAt;
+                            }
+                            return true;
                         });
                         liveDevicesList = deduplicateDeviceList(rawDevices);
                         renderDevicesTable();
@@ -1237,9 +1309,11 @@
                 updateAnalyticsMetrics();
 
                 if (badge) {
-                    badge.className = 'px-3.5 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold flex items-center gap-2';
-                    if (statusText) statusText.textContent = `Live Cloud: ${pid}`;
+                    badge.className = 'w-[120px] px-3 py-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold flex items-center justify-center gap-2 shrink-0 select-none';
+                    badge.title = `Live Cloud: ${pid}`;
                 }
+                if (statusText) statusText.textContent = 'CLOUD LIVE';
+
                 const ping = document.getElementById('last-event-ping');
                 if (ping) ping.textContent = `Updated: ${new Date().toLocaleTimeString()}`;
 
@@ -1249,12 +1323,17 @@
             } catch (err) {
                 console.warn('Real telemetry fetch notice:', err);
                 if (badge) {
-                    badge.className = 'px-3.5 py-1.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-bold flex items-center gap-2';
-                    if (statusText) statusText.textContent = `Offline: ${pid}`;
+                    badge.className = 'w-[120px] px-3 py-2 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-bold flex items-center justify-center gap-2 shrink-0 select-none';
+                    badge.title = `Offline: ${pid}`;
                 }
+                if (statusText) statusText.textContent = 'OFFLINE';
+
                 if (showToastNotice) {
                     showToast('Sync Notice', 'Could not fetch live telemetry. Check connection.', false);
                 }
+            } finally {
+                if (iconH) iconH.classList.remove('fa-spin');
+                if (iconF) iconF.classList.remove('fa-spin');
             }
         }
 
@@ -1292,7 +1371,7 @@
             const nowMs = Date.now();
             localStorage.setItem('aero_feed_cleared_timestamp', nowMs.toString());
             liveEventsList = [];
-            liveDevicesList.forEach(d => { d.totalGestures = 0; });
+            liveDevicesList = [];
             renderActivityStream();
             renderDevicesTable();
             updateAnalyticsMetrics();
@@ -1300,10 +1379,10 @@
             const pid = localStorage.getItem('aero_fb_project_id') || DEFAULT_FB_PID;
             const key = localStorage.getItem('aero_fb_api_key') || DEFAULT_FB_KEY;
 
-            // 1. Delete events & reset devices in Firestore via SDK
+            // 1. Delete events & devices in Firestore via SDK
             if (firestoreDb) {
                 try {
-                    const snap = await firestoreDb.collection('aerosense_events').limit(300).get();
+                    const snap = await firestoreDb.collection('aerosense_events').limit(500).get();
                     if (!snap.empty) {
                         const batch = firestoreDb.batch();
                         snap.docs.forEach(doc => batch.delete(doc.ref));
@@ -1312,15 +1391,27 @@
                 } catch (e) {
                     console.warn('SDK clear events error:', e);
                 }
+
+                try {
+                    const devSnap = await firestoreDb.collection('aerosense_devices').limit(100).get();
+                    if (!devSnap.empty) {
+                        const batch = firestoreDb.batch();
+                        devSnap.docs.forEach(doc => batch.delete(doc.ref));
+                        await batch.commit();
+                    }
+                } catch (e) {
+                    console.warn('SDK clear devices error:', e);
+                }
             }
 
-            // 2. Delete events via REST commit
+            // 2. Delete events & devices via REST commit
             try {
+                // Delete aerosense_events
                 const qUrl = `https://firestore.googleapis.com/v1/projects/${pid}/databases/(default)/documents:runQuery?key=${key}`;
                 const qBody = {
                     structuredQuery: {
                         from: [{ collectionId: 'aerosense_events' }],
-                        limit: 50
+                        limit: 100
                     }
                 };
                 const qRes = await fetch(qUrl, {
@@ -1340,13 +1431,32 @@
                         });
                     }
                 }
+
+                // Delete aerosense_devices
+                const devListUrl = `https://firestore.googleapis.com/v1/projects/${pid}/databases/(default)/documents/aerosense_devices?key=${key}&pageSize=100`;
+                const devRes = await fetch(devListUrl);
+                if (devRes.ok) {
+                    const devData = await devRes.json();
+                    if (devData.documents && Array.isArray(devData.documents)) {
+                        const devWrites = devData.documents.map(doc => ({ delete: doc.name }));
+                        if (devWrites.length > 0) {
+                            await fetch(`https://firestore.googleapis.com/v1/projects/${pid}/databases/(default)/documents:commit?key=${key}`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ writes: devWrites })
+                            });
+                        }
+                    }
+                }
             } catch (err) {
                 console.warn('REST delete notice:', err);
             }
 
             // Ensure local state and UI are completely wiped
             liveEventsList = [];
+            liveDevicesList = [];
             renderActivityStream();
+            renderDevicesTable();
             updateAnalyticsMetrics();
 
             if (btn) {
@@ -1354,7 +1464,7 @@
                 btn.innerHTML = '<i class="fa-solid fa-trash-can"></i><span>Clear All Data</span>';
             }
 
-            showToast('All Data Cleared', 'Feed and telemetry data have been completely deleted from Admin Panel!');
+            showToast('All Data Cleared', 'All telemetry events, devices, and gesture counts have been completely wiped!');
         }
 
         // Load saved state on boot
@@ -1478,9 +1588,11 @@
                 firestoreDb = firebase.firestore();
                 const badge = document.getElementById('cloud-status-badge');
                 if (badge) {
-                    badge.className = 'px-3.5 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold flex items-center gap-2';
-                    document.getElementById('cloud-status-text').textContent = `Live Cloud: ${projectId}`;
+                    badge.className = 'w-[120px] px-3 py-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold flex items-center justify-center gap-2 shrink-0 select-none';
+                    badge.title = `Live Cloud: ${projectId}`;
                 }
+                const statusText = document.getElementById('cloud-status-text');
+                if (statusText) statusText.textContent = 'CLOUD LIVE';
                 const kpiCloud = document.getElementById('kpi-cloud-status');
                 if (kpiCloud) kpiCloud.textContent = 'Connected';
                 subscribeToLiveTelemetry();
