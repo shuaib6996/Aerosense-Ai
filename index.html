@@ -3234,6 +3234,24 @@
             if (!handled && currentTab !== 'launcher') {
                 switchTab('launcher');
             updateTutorialUI();
+
+                    // AdMob Monetization Config Sync
+                    let admobEnabled = true;
+                    let admobBannerId = 'ca-app-pub-3940256099942544/6300978111';
+                    let admobInterstitialId = 'ca-app-pub-3940256099942544/1033173712';
+
+                    if (data.fields.admob_enabled && data.fields.admob_enabled.booleanValue !== undefined) {
+                        admobEnabled = data.fields.admob_enabled.booleanValue;
+                    }
+                    if (data.fields.admob_banner_id && data.fields.admob_banner_id.stringValue) {
+                        admobBannerId = data.fields.admob_banner_id.stringValue;
+                    }
+                    if (data.fields.admob_interstitial_id && data.fields.admob_interstitial_id.stringValue) {
+                        admobInterstitialId = data.fields.admob_interstitial_id.stringValue;
+                    }
+                    if (window.AndroidBridge && window.AndroidBridge.setAdMobConfig) {
+                        window.AndroidBridge.setAdMobConfig(admobBannerId, admobInterstitialId, admobEnabled);
+                    }
                 handled = true;
             }
             if (window.AndroidBridge && window.AndroidBridge.setModalState) {
@@ -5434,7 +5452,15 @@
         let currentTab = 'launcher';
         window.currentTab = 'launcher';
 
+        let tabSwitchCountForAd = 0;
         function switchTab(tab) {
+            tabSwitchCountForAd++;
+            // Show interstitial ad smoothly every 4th tab switch (healthy user frequency)
+            if (tabSwitchCountForAd % 4 === 0) {
+                if (window.AndroidBridge && window.AndroidBridge.showInterstitialAd) {
+                    try { window.AndroidBridge.showInterstitialAd(); } catch (e) {}
+                }
+            }
             currentTab = tab;
             window.currentTab = tab;
             document.getElementById('view-launcher').classList.toggle('hidden', tab !== 'launcher');

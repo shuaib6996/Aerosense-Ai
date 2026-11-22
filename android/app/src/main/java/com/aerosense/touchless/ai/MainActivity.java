@@ -89,6 +89,7 @@ public class MainActivity extends Activity {
         instance = this;
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         systemWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+        AeroAdManager.getInstance().init(this);
 
         if (activeWebView != null) {
             webView = activeWebView;
@@ -879,6 +880,16 @@ public class MainActivity extends Activity {
                     startActivity(launchIntent);
                 }
             });
+        }
+
+        @JavascriptInterface
+        public void showInterstitialAd() {
+            runOnUiThread(() -> AeroAdManager.getInstance().showInterstitial(MainActivity.this));
+        }
+
+        @JavascriptInterface
+        public void setAdMobConfig(String bannerId, String interstitialId, boolean enabled) {
+            runOnUiThread(() -> AeroAdManager.getInstance().updateConfig(bannerId, interstitialId, enabled));
         }
 
         @JavascriptInterface

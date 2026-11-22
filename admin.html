@@ -694,6 +694,64 @@
             </div>
         </section>
 
+        <!-- MODULE: GOOGLE ADMOB MONETIZATION SETTINGS -->
+        <section class="bento rounded-3xl p-6 space-y-5 my-6">
+            <div class="flex flex-wrap items-center justify-between border-b border-slate-800/80 pb-4 gap-2">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                        <i class="fa-solid fa-rectangle-ad text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-black text-white uppercase tracking-wider flex items-center gap-2">
+                            Google AdMob Monetization Center
+                            <span class="px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[10px] font-bold">Cloud Sync</span>
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Manage AdMob Ad Unit IDs and in-app ads display in real-time without recompiling the APK</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-[11px] font-bold text-slate-300">Enable AdMob Ads:</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input id="admob-enabled-toggle" type="checkbox" checked class="sr-only peer" onchange="updateAdMobConfig()">
+                        <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="space-y-1.5">
+                    <div class="flex items-center justify-between">
+                        <label class="text-[11px] font-bold text-slate-300">Banner Ad Unit ID</label>
+                        <span class="text-[9px] text-slate-500 font-mono">Google Test / Live ID</span>
+                    </div>
+                    <input id="admob-banner-input" type="text" placeholder="ca-app-pub-3940256099942544/6300978111" 
+                        oninput="updateAdMobConfig()"
+                        class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-amber-300 font-mono focus:border-amber-500 focus:outline-none">
+                </div>
+
+                <div class="space-y-1.5">
+                    <div class="flex items-center justify-between">
+                        <label class="text-[11px] font-bold text-slate-300">Interstitial Ad Unit ID</label>
+                        <span class="text-[9px] text-slate-500 font-mono">Full-screen Ad</span>
+                    </div>
+                    <input id="admob-interstitial-input" type="text" placeholder="ca-app-pub-3940256099942544/1033173712" 
+                        oninput="updateAdMobConfig()"
+                        class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-amber-300 font-mono focus:border-amber-500 focus:outline-none">
+                </div>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-slate-300 text-[11px] flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-amber-400 text-sm"></i>
+                    <span>Default IDs are <strong>Official Google Test IDs</strong>. When ready for production, enter your real AdMob unit IDs and click Save.</span>
+                </div>
+                <button onclick="publishAdMobConfigToFirebase()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-black text-xs flex items-center gap-1.5 shadow-md shadow-amber-500/20 active:scale-95 transition shrink-0">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <span>Save AdMob Config Live</span>
+                </button>
+            </div>
+        </section>
+
         <!-- 4. BOTTOM GRID: PUSH NOTIFICATIONS & USER FEEDBACK (Modules 5 & 6) -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
@@ -839,6 +897,9 @@
             tutorial_tag: "Official Guide (2 Min)",
             tutorial_description: "Watch how to scroll reels, air tap, home & back gestures without touching the screen.",
             tutorial_enabled: true,
+            admob_enabled: true,
+            admob_banner_id: "ca-app-pub-3940256099942544/6300978111",
+            admob_interstitial_id: "ca-app-pub-3940256099942544/1033173712",
             updatedAt: new Date().toISOString()
         };
 
@@ -1590,6 +1651,9 @@
                         if (doc.fields.tutorial_tag?.stringValue) activeConfig.tutorial_tag = doc.fields.tutorial_tag.stringValue;
                         if (doc.fields.tutorial_description?.stringValue) activeConfig.tutorial_description = doc.fields.tutorial_description.stringValue;
                         if (doc.fields.tutorial_enabled?.booleanValue !== undefined) activeConfig.tutorial_enabled = doc.fields.tutorial_enabled.booleanValue;
+                        if (doc.fields.admob_enabled?.booleanValue !== undefined) activeConfig.admob_enabled = doc.fields.admob_enabled.booleanValue;
+                        if (doc.fields.admob_banner_id?.stringValue) activeConfig.admob_banner_id = doc.fields.admob_banner_id.stringValue;
+                        if (doc.fields.admob_interstitial_id?.stringValue) activeConfig.admob_interstitial_id = doc.fields.admob_interstitial_id.stringValue;
                         reflectConfigToUI();
                     }
                 }).catch(() => {});
@@ -1711,6 +1775,34 @@
             }
         }
 
+        
+        // ==========================================
+        // ADMOB MONETIZATION MANAGER (ADMIN)
+        // ==========================================
+        function updateAdMobConfig() {
+            activeConfig.admob_enabled = document.getElementById('admob-enabled-toggle')?.checked !== false;
+            activeConfig.admob_banner_id = document.getElementById('admob-banner-input')?.value?.trim() || 'ca-app-pub-3940256099942544/6300978111';
+            activeConfig.admob_interstitial_id = document.getElementById('admob-interstitial-input')?.value?.trim() || 'ca-app-pub-3940256099942544/1033173712';
+            localStorage.setItem('aero_admin_remote_config', JSON.stringify(activeConfig));
+        }
+
+        async function publishAdMobConfigToFirebase() {
+            updateAdMobConfig();
+            activeConfig.updatedAt = new Date().toISOString();
+            localStorage.setItem('aero_admin_remote_config', JSON.stringify(activeConfig));
+
+            if (firestoreDb) {
+                try {
+                    await firestoreDb.collection('aerosense_config').doc('remote_config').set(activeConfig, { merge: true });
+                    showToast('AdMob Config Live', 'AdMob settings published live to Firebase! All mobile apps will sync live.');
+                    return;
+                } catch (e) {
+                    console.error('Firestore AdMob save error:', e);
+                }
+            }
+            showToast('AdMob Saved', 'AdMob configuration saved locally!');
+        }
+
         function reflectConfigToUI() {
             document.getElementById('slider-scroll-distance').value = activeConfig.scrollDistance;
             const distLabels = { '1': 'Calm Snap (1)', '2': 'Balanced Feed (2)', '3': 'Quick Scroll (3)' };
@@ -1745,6 +1837,14 @@
             const tutToggle = document.getElementById('tutorial-enabled-toggle');
             if (tutToggle) tutToggle.checked = activeConfig.tutorial_enabled !== false;
             updateTutorialPreviewFrame(activeConfig.tutorial_video_url || '');
+
+            // Populate AdMob fields
+            const admobToggle = document.getElementById('admob-enabled-toggle');
+            if (admobToggle) admobToggle.checked = activeConfig.admob_enabled !== false;
+            const admobBanner = document.getElementById('admob-banner-input');
+            if (admobBanner) admobBanner.value = activeConfig.admob_banner_id || 'ca-app-pub-3940256099942544/6300978111';
+            const admobInter = document.getElementById('admob-interstitial-input');
+            if (admobInter) admobInter.value = activeConfig.admob_interstitial_id || 'ca-app-pub-3940256099942544/1033173712';
         }
 
         function updateConfigValue(key, val) {
