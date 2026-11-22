@@ -707,6 +707,26 @@
                     </div>
                 </div>
 
+                <!-- How to Use Video Tutorial Banner -->
+                <div id="home-tutorial-banner" class="bento-card rounded-2xl p-3 flex items-center justify-between gap-3 border border-red-500/30 bg-gradient-to-r from-red-950/40 via-purple-950/30 to-slate-900/60 shadow-lg shadow-red-950/20 shrink-0">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="w-10 h-10 rounded-xl bg-red-500/20 border border-red-500/40 flex items-center justify-center text-red-400 shrink-0 shadow-sm">
+                            <i class="fa-brands fa-youtube text-xl"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-1.5">
+                                <span class="px-1.5 py-0.2 rounded bg-red-500/20 text-red-300 font-extrabold text-[8px] uppercase tracking-wider">Video Guide</span>
+                                <span id="home-tut-tag" class="text-[9px] font-bold text-cyan-400">2 Min Masterclass</span>
+                            </div>
+                            <h4 id="home-tut-title" class="text-xs font-black text-white truncate mt-0.5">Watch How to Use Gestures</h4>
+                        </div>
+                    </div>
+                    <button onclick="openTutorialVideoModal()" class="AirClickable px-3 py-1.5 rounded-xl bg-red-500 hover:bg-red-400 text-white font-black text-[11px] shrink-0 flex items-center gap-1.5 shadow-md shadow-red-500/30 active:scale-95 transition">
+                        <i class="fa-solid fa-play text-[9px]"></i>
+                        <span>WATCH</span>
+                    </button>
+                </div>
+
                 <!-- 2. System Control Permissions Card -->
                 <div class="bento-card rounded-3xl p-3.5 sm:p-4 space-y-3 shrink-0">
                     <div class="flex items-center justify-between gap-2">
@@ -1508,6 +1528,38 @@
                             Touchless Spatial AI
                         </span>
                         <h2 class="text-xl font-black text-white mt-0.5">Air Gesture Guide</h2>
+                    </div>
+                </div>
+
+                <!-- FEATURED VIDEO TUTORIAL SECTION -->
+                <div id="guide-tutorial-card" class="bento-card rounded-3xl p-4 sm:p-5 space-y-3.5 border border-red-500/30 bg-gradient-to-br from-red-950/30 via-slate-900/90 to-slate-900 shadow-xl shadow-red-950/15">
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-xl bg-red-500/20 border border-red-500/40 flex items-center justify-center text-red-400 shrink-0">
+                                <i class="fa-brands fa-youtube text-lg"></i>
+                            </div>
+                            <div>
+                                <span id="guide-tut-badge" class="px-2 py-0.5 rounded-full bg-red-500/15 border border-red-500/30 text-red-300 text-[9px] font-extrabold uppercase">
+                                    Official Video Tutorial
+                                </span>
+                                <h3 id="guide-tut-title" class="text-sm sm:text-base font-black text-white mt-0.5 leading-tight">
+                                    AeroSense AI™ Hand Gestures Masterclass
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                    <p id="guide-tut-desc" class="text-xs text-slate-300 leading-relaxed">
+                        Watch how to scroll reels, air tap, home &amp; back gestures without touching your phone screen.
+                    </p>
+                    <div class="flex items-center gap-2 pt-1">
+                        <button onclick="openTutorialVideoModal()" class="AirClickable flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-400 hover:to-rose-500 text-white font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-red-500/25 active:scale-95 transition">
+                            <i class="fa-solid fa-circle-play text-sm"></i>
+                            <span>Play Tutorial in App</span>
+                        </button>
+                        <button onclick="openExternalYouTubeTutorial()" class="AirClickable py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs flex items-center gap-1.5 active:scale-95 transition">
+                            <i class="fa-brands fa-youtube text-red-400"></i>
+                            <span>YouTube App</span>
+                        </button>
                     </div>
                 </div>
 
@@ -3181,6 +3233,7 @@
             
             if (!handled && currentTab !== 'launcher') {
                 switchTab('launcher');
+            updateTutorialUI();
                 handled = true;
             }
             if (window.AndroidBridge && window.AndroidBridge.setModalState) {
@@ -5890,6 +5943,87 @@
             }
         };
 
+
+        // ==========================================
+        // DYNAMIC IN-APP VIDEO TUTORIAL SYSTEM
+        // ==========================================
+        let aeroTutorialVideoUrl = localStorage.getItem('aero_tutorial_video_url') || 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+        let aeroTutorialTitle = localStorage.getItem('aero_tutorial_title') || 'AeroSense AI™ Hand Gestures Masterclass';
+        let aeroTutorialTag = localStorage.getItem('aero_tutorial_tag') || 'Official Guide (2 Min)';
+        let aeroTutorialDesc = localStorage.getItem('aero_tutorial_desc') || 'Watch how to scroll reels, air tap, home & back gestures without touching the screen.';
+        let aeroTutorialEnabled = localStorage.getItem('aero_tutorial_enabled') !== 'false';
+
+        function parseYouTubeEmbedUrl(url) {
+            if (!url || typeof url !== 'string') return '';
+            url = url.trim();
+            if (/^[a-zA-Z0-9_-]{11}$/.test(url)) {
+                return `https://www.youtube.com/embed/${url}?autoplay=1&rel=0`;
+            }
+            const shortMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
+            if (shortMatch) return `https://www.youtube.com/embed/${shortMatch[1]}?autoplay=1&rel=0`;
+            const watchMatch = url.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
+            if (watchMatch) return `https://www.youtube.com/embed/${watchMatch[1]}?autoplay=1&rel=0`;
+            const shortsMatch = url.match(/shorts\/([a-zA-Z0-9_-]{11})/);
+            if (shortsMatch) return `https://www.youtube.com/embed/${shortsMatch[1]}?autoplay=1&rel=0`;
+            const embedMatch = url.match(/embed\/([a-zA-Z0-9_-]{11})/);
+            if (embedMatch) return `https://www.youtube.com/embed/${embedMatch[1]}?autoplay=1&rel=0`;
+            return url;
+        }
+
+        function updateTutorialUI() {
+            const homeBanner = document.getElementById('home-tutorial-banner');
+            const guideCard = document.getElementById('guide-tutorial-card');
+
+            if (!aeroTutorialEnabled) {
+                if (homeBanner) homeBanner.style.display = 'none';
+                if (guideCard) guideCard.style.display = 'none';
+                return;
+            }
+
+            if (homeBanner) homeBanner.style.display = 'flex';
+            if (guideCard) guideCard.style.display = 'block';
+
+            const homeTitle = document.getElementById('home-tut-title');
+            if (homeTitle) homeTitle.textContent = aeroTutorialTitle;
+            const homeTag = document.getElementById('home-tut-tag');
+            if (homeTag) homeTag.textContent = aeroTutorialTag;
+
+            const guideTitle = document.getElementById('guide-tut-title');
+            if (guideTitle) guideTitle.textContent = aeroTutorialTitle;
+            const guideDesc = document.getElementById('guide-tut-desc');
+            if (guideDesc) guideDesc.textContent = aeroTutorialDesc;
+            const guideBadge = document.getElementById('guide-tut-badge');
+            if (guideBadge) guideBadge.textContent = aeroTutorialTag;
+
+            const modalTitle = document.getElementById('modal-tut-title');
+            if (modalTitle) modalTitle.textContent = aeroTutorialTitle;
+            const modalDesc = document.getElementById('modal-tut-desc');
+            if (modalDesc) modalDesc.textContent = aeroTutorialDesc;
+        }
+
+        function openTutorialVideoModal() {
+            const modal = document.getElementById('tutorial-video-modal');
+            const iframe = document.getElementById('tutorial-modal-iframe');
+            if (iframe) {
+                const embedUrl = parseYouTubeEmbedUrl(aeroTutorialVideoUrl);
+                iframe.src = embedUrl;
+            }
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeTutorialVideoModal() {
+            const modal = document.getElementById('tutorial-video-modal');
+            const iframe = document.getElementById('tutorial-modal-iframe');
+            if (iframe) iframe.src = '';
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function openExternalYouTubeTutorial() {
+            if (aeroTutorialVideoUrl) {
+                window.open(aeroTutorialVideoUrl, '_blank');
+            }
+        }
+
         async function syncAeroRemoteConfig() {
             try {
                 const projectId = localStorage.getItem('aero_fb_project_id') || AERO_DEFAULT_FB_PROJECT;
@@ -5938,6 +6072,28 @@
                         const val = parseInt(data.fields.hudSize.integerValue);
                         setCustomHudSize(val);
                     }
+                    // Remote Tutorial Video Config Sync
+                    if (data.fields.tutorial_video_url && data.fields.tutorial_video_url.stringValue !== undefined) {
+                        aeroTutorialVideoUrl = data.fields.tutorial_video_url.stringValue;
+                        localStorage.setItem('aero_tutorial_video_url', aeroTutorialVideoUrl);
+                    }
+                    if (data.fields.tutorial_title && data.fields.tutorial_title.stringValue !== undefined) {
+                        aeroTutorialTitle = data.fields.tutorial_title.stringValue;
+                        localStorage.setItem('aero_tutorial_title', aeroTutorialTitle);
+                    }
+                    if (data.fields.tutorial_tag && data.fields.tutorial_tag.stringValue !== undefined) {
+                        aeroTutorialTag = data.fields.tutorial_tag.stringValue;
+                        localStorage.setItem('aero_tutorial_tag', aeroTutorialTag);
+                    }
+                    if (data.fields.tutorial_description && data.fields.tutorial_description.stringValue !== undefined) {
+                        aeroTutorialDesc = data.fields.tutorial_description.stringValue;
+                        localStorage.setItem('aero_tutorial_desc', aeroTutorialDesc);
+                    }
+                    if (data.fields.tutorial_enabled && data.fields.tutorial_enabled.booleanValue !== undefined) {
+                        aeroTutorialEnabled = data.fields.tutorial_enabled.booleanValue;
+                        localStorage.setItem('aero_tutorial_enabled', String(aeroTutorialEnabled));
+                    }
+                    updateTutorialUI();
                     if (changed) {
                         saveAeroConfig();
                         renderSettingsUI();
@@ -6290,6 +6446,70 @@
             }, 60000);
         };
     </script>
+    <!-- ========================================================================= -->
+    <!-- IN-APP YOUTUBE VIDEO TUTORIAL MODAL -->
+    <!-- ========================================================================= -->
+    <div id="tutorial-video-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 hidden">
+        <div class="w-full max-w-xl bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-6 space-y-4 shadow-2xl relative max-h-[95vh] flex flex-col">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3 shrink-0">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-8 h-8 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center shrink-0">
+                        <i class="fa-brands fa-youtube text-lg"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <h3 id="modal-tut-title" class="text-sm font-black text-white truncate">AeroSense AI™ Video Guide</h3>
+                        <p class="text-[10px] text-slate-400 truncate">Touchless Hand Gestures Demo</p>
+                    </div>
+                </div>
+                <button onclick="closeTutorialVideoModal()" class="AirClickable w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-xs shrink-0 active:scale-95 transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Responsive 16:9 Video Frame -->
+            <div class="relative w-full aspect-video rounded-2xl overflow-hidden bg-black border border-slate-800 shadow-xl shrink-0">
+                <iframe id="tutorial-modal-iframe" class="w-full h-full" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+
+            <!-- Gesture Quick Reference Under Video -->
+            <div class="overflow-y-auto space-y-2 pr-1 flex-1 text-xs text-slate-300">
+                <p id="modal-tut-desc" class="text-slate-400 text-[11px] leading-relaxed">
+                    Watch how to perform touchless hand gestures at 1 to 2 feet distance from the front camera.
+                </p>
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                    <div class="p-2 rounded-xl bg-slate-950/80 border border-slate-800">
+                        <span class="font-extrabold text-cyan-300">☝️ Point &amp; Fold</span>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Next Reel Scroll</p>
+                    </div>
+                    <div class="p-2 rounded-xl bg-slate-950/80 border border-slate-800">
+                        <span class="font-extrabold text-cyan-300">✌️ 2 Fingers Fold</span>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Previous Reel</p>
+                    </div>
+                    <div class="p-2 rounded-xl bg-slate-950/80 border border-slate-800">
+                        <span class="font-extrabold text-cyan-300">🤏 Air Pinch</span>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Click &amp; Play/Pause</p>
+                    </div>
+                    <div class="p-2 rounded-xl bg-slate-950/80 border border-slate-800">
+                        <span class="font-extrabold text-cyan-300">✋ ➔ ✊ ➔ ✋</span>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Home Screen</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="flex items-center gap-2 pt-2 border-t border-slate-800 shrink-0">
+                <button onclick="openExternalYouTubeTutorial()" class="AirClickable flex-1 py-2 px-3 rounded-xl bg-red-600/20 border border-red-500/40 hover:bg-red-600/30 text-red-300 font-extrabold text-xs flex items-center justify-center gap-2 transition">
+                    <i class="fa-brands fa-youtube"></i>
+                    <span>Open in YouTube App</span>
+                </button>
+                <button onclick="closeTutorialVideoModal()" class="AirClickable py-2 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
  
