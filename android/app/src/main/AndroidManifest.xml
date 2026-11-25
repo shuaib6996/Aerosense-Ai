@@ -39,10 +39,10 @@
         android:usesCleartextTraffic="true"
         android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
 
-        <!-- Google AdMob Application ID (Official Google Test App ID for development) -->
+        <!-- Google AdMob Application ID -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713" />
+            android:value="ca-app-pub-5508096286643674~5289924388" />
 
     <!-- Main Touchless OS Activity + Floating HUD Host -->
     <activity

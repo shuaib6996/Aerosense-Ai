@@ -1,5 +1,6 @@
 package com.aerosense.touchless.ai;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
@@ -17,24 +18,26 @@ import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
+import java.lang.ref.WeakReference;
 
+@SuppressLint("StaticFieldLeak")
 public class AeroAdManager {
     private static final String TAG = "AeroAdManager";
     private static volatile AeroAdManager sInstance;
 
-    // Official Google AdMob Test Ad Unit IDs (Safe for Development & Review)
-    public static final String DEFAULT_TEST_BANNER_ID = "ca-app-pub-3940256099942544/6300978111";
-    public static final String DEFAULT_TEST_INTERSTITIAL_ID = "ca-app-pub-3940256099942544/1033173712";
+    // Production AdMob IDs
+    public static final String DEFAULT_BANNER_ID = "ca-app-pub-5508096286643674/2788331233";
+    public static final String DEFAULT_INTERSTITIAL_ID = "ca-app-pub-5508096286643674/2300285611";
 
     private boolean isAdsEnabled = true;
-    private String bannerAdUnitId = DEFAULT_TEST_BANNER_ID;
-    private String interstitialAdUnitId = DEFAULT_TEST_INTERSTITIAL_ID;
+    private String bannerAdUnitId = DEFAULT_BANNER_ID;
+    private String interstitialAdUnitId = DEFAULT_INTERSTITIAL_ID;
 
     private boolean isInitialized = false;
     private InterstitialAd mInterstitialAd = null;
     private boolean isInterstitialLoading = false;
     private AdView mBannerAdView = null;
-    private ViewGroup mBannerContainer = null;
+    private WeakReference<ViewGroup> mBannerContainerRef = null;
     private long lastInterstitialShowTime = 0;
     private static final long MIN_INTERSTITIAL_INTERVAL_MS = 60 * 1000; // 60s cooldown
 
@@ -65,10 +68,16 @@ public class AeroAdManager {
     }
 
     public void setupBanner(Activity activity, ViewGroup container) {
-        this.mBannerContainer = container;
+        if (container != null) {
+            this.mBannerContainerRef = new WeakReference<>(container);
+        }
         if (!isAdsEnabled || container == null) return;
         new Handler(Looper.getMainLooper()).post(() -> {
             try {
+                if (mBannerAdView != null && mBannerAdView.getParent() == container) {
+                    container.setVisibility(View.VISIBLE);
+                    return;
+                }
                 if (mBannerAdView != null) {
                     mBannerAdView.destroy();
                     mBannerAdView = null;
@@ -88,10 +97,13 @@ public class AeroAdManager {
     }
 
     public void setBannerVisibility(boolean visible) {
-        if (mBannerContainer != null) {
-            new Handler(Looper.getMainLooper()).post(() -> {
-                mBannerContainer.setVisibility(visible && isAdsEnabled ? View.VISIBLE : View.GONE);
-            });
+        if (mBannerContainerRef != null) {
+            ViewGroup container = mBannerContainerRef.get();
+            if (container != null) {
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    container.setVisibility(visible && isAdsEnabled ? View.VISIBLE : View.GONE);
+                });
+            }
         }
     }
 

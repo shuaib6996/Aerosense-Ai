@@ -724,7 +724,7 @@
                         <label class="text-[11px] font-bold text-slate-300">Banner Ad Unit ID</label>
                         <span class="text-[9px] text-slate-500 font-mono">Google Test / Live ID</span>
                     </div>
-                    <input id="admob-banner-input" type="text" placeholder="ca-app-pub-3940256099942544/6300978111" 
+                    <input id="admob-banner-input" type="text" placeholder="ca-app-pub-5508096286643674/2788331233" 
                         oninput="updateAdMobConfig()"
                         class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-amber-300 font-mono focus:border-amber-500 focus:outline-none">
                 </div>
@@ -734,7 +734,7 @@
                         <label class="text-[11px] font-bold text-slate-300">Interstitial Ad Unit ID</label>
                         <span class="text-[9px] text-slate-500 font-mono">Full-screen Ad</span>
                     </div>
-                    <input id="admob-interstitial-input" type="text" placeholder="ca-app-pub-3940256099942544/1033173712" 
+                    <input id="admob-interstitial-input" type="text" placeholder="ca-app-pub-5508096286643674/2300285611" 
                         oninput="updateAdMobConfig()"
                         class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-amber-300 font-mono focus:border-amber-500 focus:outline-none">
                 </div>
@@ -898,8 +898,8 @@
             tutorial_description: "Watch how to scroll reels, air tap, home & back gestures without touching the screen.",
             tutorial_enabled: true,
             admob_enabled: true,
-            admob_banner_id: "ca-app-pub-3940256099942544/6300978111",
-            admob_interstitial_id: "ca-app-pub-3940256099942544/1033173712",
+            admob_banner_id: "ca-app-pub-5508096286643674/2788331233",
+            admob_interstitial_id: "ca-app-pub-5508096286643674/2300285611",
             updatedAt: new Date().toISOString()
         };
 
@@ -1781,8 +1781,8 @@
         // ==========================================
         function updateAdMobConfig() {
             activeConfig.admob_enabled = document.getElementById('admob-enabled-toggle')?.checked !== false;
-            activeConfig.admob_banner_id = document.getElementById('admob-banner-input')?.value?.trim() || 'ca-app-pub-3940256099942544/6300978111';
-            activeConfig.admob_interstitial_id = document.getElementById('admob-interstitial-input')?.value?.trim() || 'ca-app-pub-3940256099942544/1033173712';
+            activeConfig.admob_banner_id = document.getElementById('admob-banner-input')?.value?.trim() || 'ca-app-pub-5508096286643674/2788331233';
+            activeConfig.admob_interstitial_id = document.getElementById('admob-interstitial-input')?.value?.trim() || 'ca-app-pub-5508096286643674/2300285611';
             localStorage.setItem('aero_admin_remote_config', JSON.stringify(activeConfig));
         }
 
@@ -1842,9 +1842,9 @@
             const admobToggle = document.getElementById('admob-enabled-toggle');
             if (admobToggle) admobToggle.checked = activeConfig.admob_enabled !== false;
             const admobBanner = document.getElementById('admob-banner-input');
-            if (admobBanner) admobBanner.value = activeConfig.admob_banner_id || 'ca-app-pub-3940256099942544/6300978111';
+            if (admobBanner) admobBanner.value = activeConfig.admob_banner_id || 'ca-app-pub-5508096286643674/2788331233';
             const admobInter = document.getElementById('admob-interstitial-input');
-            if (admobInter) admobInter.value = activeConfig.admob_interstitial_id || 'ca-app-pub-3940256099942544/1033173712';
+            if (admobInter) admobInter.value = activeConfig.admob_interstitial_id || 'ca-app-pub-5508096286643674/2300285611';
         }
 
         function updateConfigValue(key, val) {

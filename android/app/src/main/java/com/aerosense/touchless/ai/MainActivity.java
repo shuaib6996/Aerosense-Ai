@@ -32,6 +32,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.annotation.SuppressLint;
 import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -39,6 +40,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressLint({"StaticFieldLeak", "WrongConstant"})
 public class MainActivity extends Activity {
 
     public static MainActivity instance;
@@ -53,6 +55,8 @@ public class MainActivity extends Activity {
     private String currentHudSize = "sm";
     private int customHudWidthDp = 52;
     private int customHudHeightDp = 64;
+    private android.widget.LinearLayout mainRootLayout;
+    private android.widget.FrameLayout adContainerView;
     private boolean isModalOpenInWeb = false;
     private volatile boolean isHoldMenuShowing = false;
     private int savedOverlayX = -1;
@@ -95,10 +99,10 @@ public class MainActivity extends Activity {
             webView = activeWebView;
             if (isFloatingOverlayAttached && systemWindowManager != null) {
                 try {
-                    systemWindowManager.removeView(webView);
+                    systemWindowManager.removeViewImmediate(webView);
                 } catch (Exception ignored) {
                     try {
-                        systemWindowManager.removeViewImmediate(webView);
+                        systemWindowManager.removeView(webView);
                     } catch (Exception ignored2) {}
                 }
                 isFloatingOverlayAttached = false;
@@ -107,25 +111,23 @@ public class MainActivity extends Activity {
                 ((ViewGroup) webView.getParent()).removeView(webView);
             }
             webView.setBackgroundColor(Color.parseColor("#050811"));
-            ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-            );
-            webView.setLayoutParams(lp);
-            setContentView(webView);
+            webView.addJavascriptInterface(new AeroNativeBridge(), "AndroidBridge");
+            initMainLayout();
+            attachWebViewToMainLayout();
             webView.onResume();
             webView.resumeTimers();
             notifyWebOverlayState(false);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                webView.evaluateJavascript("if(window.switchTab) window.switchTab('launcher');", null);
+                webView.evaluateJavascript("if(window.setNativeOverlayMode) window.setNativeOverlayMode(false); var s = document.getElementById('app-shell'); if(s) s.style.display=''; if(window.switchTab) window.switchTab('launcher');", null);
             }
             return;
         }
 
+        initMainLayout();
         webView = new WebView(this);
         activeWebView = webView;
         webView.setBackgroundColor(Color.parseColor("#050811"));
-        setContentView(webView);
+        attachWebViewToMainLayout();
 
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
@@ -417,16 +419,57 @@ public class MainActivity extends Activity {
         } catch (Exception ignored) {}
     }
 
-    private void exitSystemFloatingOverlay() {
-        if (systemWindowManager != null && webView != null) {
-            try {
-                if (isFloatingOverlayAttached) {
-                    systemWindowManager.removeView(webView);
+    private void initMainLayout() {
+        if (mainRootLayout == null) {
+            mainRootLayout = new android.widget.LinearLayout(this);
+            mainRootLayout.setOrientation(android.widget.LinearLayout.VERTICAL);
+            mainRootLayout.setBackgroundColor(Color.parseColor("#050811"));
+
+            adContainerView = new android.widget.FrameLayout(this);
+            adContainerView.setBackgroundColor(Color.parseColor("#04070f"));
+            android.widget.LinearLayout.LayoutParams adLp = new android.widget.LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+            adContainerView.setLayoutParams(adLp);
+            mainRootLayout.addView(adContainerView);
+
+            setContentView(mainRootLayout);
+        }
+    }
+
+    private void attachWebViewToMainLayout() {
+        try {
+            initMainLayout();
+            if (webView != null) {
+                if (webView.getParent() instanceof ViewGroup) {
+                    ((ViewGroup) webView.getParent()).removeView(webView);
                 }
-            } catch (Exception ignored) {
+                webView.setBackgroundColor(Color.parseColor("#050811"));
+                android.widget.LinearLayout.LayoutParams webLp = new android.widget.LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, 0, 1.0f
+                );
+                webView.setLayoutParams(webLp);
+
+                if (mainRootLayout != null && mainRootLayout.indexOfChild(webView) == -1) {
+                    mainRootLayout.addView(webView, 0, webLp);
+                }
+                if (adContainerView != null && mainRootLayout != null && mainRootLayout.indexOfChild(adContainerView) == -1) {
+                    mainRootLayout.addView(adContainerView);
+                }
+            }
+            AeroAdManager.getInstance().setupBanner(this, adContainerView);
+        } catch (Exception ignored) {}
+    }
+
+    private void exitSystemFloatingOverlay() {
+        if (systemWindowManager != null && webView != null && isFloatingOverlayAttached) {
+            try {
+                systemWindowManager.removeViewImmediate(webView);
+            } catch (Exception e1) {
                 try {
-                    systemWindowManager.removeViewImmediate(webView);
-                } catch (Exception ignored2) {}
+                    systemWindowManager.removeView(webView);
+                } catch (Exception ignored) {}
             }
         }
         isFloatingOverlayAttached = false;
@@ -438,12 +481,7 @@ public class MainActivity extends Activity {
                     ((ViewGroup) webView.getParent()).removeView(webView);
                 }
                 webView.setBackgroundColor(Color.parseColor("#050811"));
-                ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT
-                );
-                webView.setLayoutParams(lp);
-                setContentView(webView);
+                attachWebViewToMainLayout();
                 webView.onResume();
                 webView.resumeTimers();
             } catch (Exception ignored) {}
@@ -456,6 +494,7 @@ public class MainActivity extends Activity {
                             "document.documentElement.classList.remove('native-overlay-mode');" +
                             "document.body.classList.remove('native-overlay-mode');" +
                             "document.body.style.backgroundColor='#050811';" +
+                            "var s = document.getElementById('app-shell'); if(s) s.style.display='';" +
                             "if(window.refreshNativePermissionStatus) window.refreshNativePermissionStatus();",
                             null
                     );
@@ -691,6 +730,7 @@ public class MainActivity extends Activity {
                     } else if (AeroAccessibilityService.instance != null) {
                         AeroAccessibilityService.instance.performGlobalPhoneAction(action);
                     } else if ("NOTIFICATIONS".equalsIgnoreCase(action)) {
+                        @SuppressLint("WrongConstant")
                         Object service = getSystemService("statusbar");
                         Class<?> statusbarManager = Class.forName("android.app.StatusBarManager");
                         Method expand = statusbarManager.getMethod("expandNotificationsPanel");

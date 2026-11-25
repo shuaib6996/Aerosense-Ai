@@ -3237,8 +3237,8 @@
 
                     // AdMob Monetization Config Sync
                     let admobEnabled = true;
-                    let admobBannerId = 'ca-app-pub-3940256099942544/6300978111';
-                    let admobInterstitialId = 'ca-app-pub-3940256099942544/1033173712';
+                    let admobBannerId = 'ca-app-pub-5508096286643674/2788331233';
+                    let admobInterstitialId = 'ca-app-pub-5508096286643674/2300285611';
 
                     if (data.fields.admob_enabled && data.fields.admob_enabled.booleanValue !== undefined) {
                         admobEnabled = data.fields.admob_enabled.booleanValue;
@@ -5672,13 +5672,13 @@
         };
 
         function isOverlayModeActive() {
-            if (window.isNativeOverlayActive) return true;
-            if (document.body.classList.contains('native-overlay-mode')) return true;
             if (window.AndroidBridge && typeof window.AndroidBridge.isFloatingOverlay === 'function') {
                 try {
                     return window.AndroidBridge.isFloatingOverlay();
                 } catch(e) {}
             }
+            if (window.isNativeOverlayActive) return true;
+            if (document.body.classList.contains('native-overlay-mode')) return true;
             return false;
         }
 
@@ -5690,8 +5690,11 @@
                 return;
             }
             if (document.visibilityState === 'visible') {
+                document.documentElement.style.backgroundColor = '#050811';
                 document.body.classList.remove('native-overlay-mode');
                 document.body.style.backgroundColor = '#050811';
+                const s = document.getElementById('app-shell');
+                if (s) s.style.display = '';
                 if (window.refreshNativePermissionStatus) refreshNativePermissionStatus();
             }
         });
@@ -5702,8 +5705,11 @@
                 document.body.style.backgroundColor = 'transparent';
                 return;
             }
+            document.documentElement.style.backgroundColor = '#050811';
             document.body.classList.remove('native-overlay-mode');
             document.body.style.backgroundColor = '#050811';
+            const s = document.getElementById('app-shell');
+            if (s) s.style.display = '';
         });
 
         window.addEventListener('pageshow', () => {
@@ -5712,8 +5718,11 @@
                 document.body.style.backgroundColor = 'transparent';
                 return;
             }
+            document.documentElement.style.backgroundColor = '#050811';
             document.body.classList.remove('native-overlay-mode');
             document.body.style.backgroundColor = '#050811';
+            const s = document.getElementById('app-shell');
+            if (s) s.style.display = '';
         });
 
         function initDraggableHud() {
