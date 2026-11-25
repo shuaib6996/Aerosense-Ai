@@ -1,8 +1,49 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    
+    // Helper function to check if authenticated user is the authorized owner
+    function isAuthorizedAdmin() {
+      return request.auth != null && 
+        (request.auth.token.email.lower() == 'shuaibjaxon1@gmail.com' || 
+         request.auth.uid == '4miaN69XZXUYl1TksFlK2ILhOSM2');
+    }
+
+    // Remote Config & AdMob Controls: Public read for mobile app, Owner-only write
+    match /aerosense_config/{document} {
+      allow read: if true;
+      allow write: if isAuthorizedAdmin();
+    }
+
+    // Push Broadcasts & System Alerts: Public read for mobile app, Owner-only write
+    match /aerosense_notifications/{document} {
+      allow read: if true;
+      allow write: if isAuthorizedAdmin();
+    }
+
+    // Telemetry Events: App devices can log events, Owner has full access
+    match /aerosense_events/{document} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if isAuthorizedAdmin();
+    }
+
+    // Active Devices: App devices can send presence/heartbeats, Owner has full control
+    match /aerosense_devices/{document} {
+      allow read: if true;
+      allow create, update: if true;
+      allow delete: if isAuthorizedAdmin();
+    }
+
+    // User Feedback & Crash Reports: Users can submit, Owner can manage
+    match /aerosense_feedback/{document} {
+      allow create: if true;
+      allow read, update, delete: if isAuthorizedAdmin();
+    }
+
+    // Fallback security rule: Only authorized owner can read or write any other documents
     match /{document=**} {
-      allow read, write: if true;
+      allow read, write: if isAuthorizedAdmin();
     }
   }
 }

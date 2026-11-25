@@ -4,5 +4,52 @@
     "location": "nam5",
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
+  },
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      ".firebase/**",
+      "*.log",
+      "**/*.log",
+      "**/node_modules/**",
+      "android/**",
+      "scratch/**",
+      ".git/**",
+      "*.bat",
+      "*.cmd",
+      "*.ps1",
+      "*.exe",
+      "*.apk",
+      "**/*.apk",
+      "**/*.jar"
+    ],
+    "rewrites": [
+      {
+        "source": "/admin",
+        "destination": "/admin.html"
+      }
+    ],
+    "headers": [
+      {
+        "source": "**/*.@(html|js|json)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "/admin",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          }
+        ]
+      }
+    ]
   }
 }
